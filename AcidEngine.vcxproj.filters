@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\NewFilter2">
+      <UniqueIdentifier>{77172640-fad0-4a4c-af13-88745af963de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="includes\glad.c">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\AcidEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\glad.h">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\glfw3native.h">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\khrplatform.h">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\stb_image.h">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\stb_image_write.h">
+      <Filter>Source Files\NewFilter2</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\BS.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Render.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\FullscreenBlit.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Triangulate.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Include.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Tonemap.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\PrecomputeSky.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Bloom.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Scene.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Camera.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\sky.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Uniforms.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

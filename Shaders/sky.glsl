@@ -1,0 +1,255 @@
+#ifdef CXX_STAGE
+	#define Sky_glsl "sky.glsl"
+#endif
+
+#if !defined(CXX_STAGE)
+
+//#define CLOUDS_2D
+#define CLOUD_SCALE_2D    1.0
+#define CLOUD_HEIGHT_2D   768  // [384 512 640 768]
+#define CLOUD_COVERAGE_2D 0.5  // [0.3 0.4 0.5 0.6 0.7]
+#define CLOUD_SPEED_2D    1.00 // [0.25 0.50 1.00 2.00 4.00]
+
+
+float csmooth(float x) {
+	return x * x * (3.0 - 2.0 * x);
+}
+
+vec2 csmooth2(vec2 x) {
+	return x * x * (3.0 - 2.0 * x);
+}
+
+float GetNoise(vec2 coord) {
+	const vec2 madd = vec2(0.5 * noiseResInverse);
+	vec2 whole = floor(coord);
+	coord = whole + csmooth2(coord - whole);
+	
+	return textureLod(noisetex, coord * noiseResInverse + madd, 0.0).x;
+}
+
+vec2 GetNoise2D(vec2 coord) {
+	const vec2 madd = vec2(0.5 * noiseResInverse);
+	vec2 whole = floor(coord);
+	coord = whole + csmooth2(coord - whole);
+	
+	return textureLod(noisetex, coord * noiseResInverse + madd, 0.0).xy;
+}
+
+float GetCoverage(float clouds, float coverage) {
+	return csmooth(clamp((coverage + clouds - 1.0) * 1.1 - 0.0, 0.0, 1.0));
+}
+
+float CloudFBM(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
+	float time = cameraPosition.z * 0.001 + 1000.0;
+	
+	c[0]    = coord * 0.007;
+	c[0].x  = c[0].x * 0.25 + time;
+	c[0]   += GetNoise2D(c[0]) * 0.3 - 0.15;
+	//c[0].x += time;
+	
+	
+	float cloud = -GetNoise(c[0]);
+	
+	c[1]    = c[0] * 2.0 - cloud * vec2(0.5, 1.35);
+	c[1].x += time;
+	
+	cloud += GetNoise(c[1]) * weights.x;
+	
+	c[2]  = c[1] * vec2(9.0, 1.65) + time * vec2(3.0, 0.55) - 0*cloud * vec2(1.5, 0.75);
+	
+	cloud += GetNoise(c[2]) * weights.y;
+	
+	c[3]   = c[2] * 3.0 + time;
+	
+	cloud += GetNoise(c[3]) * weights.z;
+	
+	cloud  = weight - cloud;
+	
+	cloud += GetNoise(c[3] * 3.0 + time) * 0.022;
+	cloud += GetNoise(c[3] * 9.0 + time * 3.0) * 0.014;
+	
+	return cloud * 0.63;
+}
+
+const vec3 sunlightColor = vec3(1.0, 1.0, 1.0);
+const vec3 skylightColor = vec3(0.6, 0.8, 1.0);
+
+float bcos(float x) {
+	//if (x > 3.14159) return -1.0;
+	if (x > 3.14159/2.0) return -x + 3.14159/2.0;
+	return cos(x);
+}
+
+vec3 Compute2DCloudPlane(vec3 wPos, vec3 wDir, inout vec3 transmit, float sunglow) {
+	const float cloudHeight = CLOUD_HEIGHT_2D;
+	
+	wPos += cameraPosition;
+	
+	if (false)
+	{
+		wDir = Project(wDir);
+		wDir.xy /= wDir.z;
+		wDir.xy = (Fisheye(wDir.xy));
+		wDir = normalize(Unproject(wDir));
+	}
+
+	if (wDir.y <= 0.0 != wPos.y >= cloudHeight) return vec3(0.0);
+	
+	
+	vec3 oldTransmit = transmit;
+	
+	const float coverage = CLOUD_COVERAGE_2D * 1.12 * 1.05;
+	const vec3  weights  = vec3(0.5, 0.135, 0.075);
+	const float weight   = weights.x + weights.y + weights.z;
+	
+	vec2 coord = wDir.xz * ((cloudHeight - wPos.y) / wDir.y);
+	
+	//if (false)
+	{
+		coord.y += (bcos(abs(coord.x) / 2000.0) - 1.0)*1000.0;
+	}
+	coord += wPos.xz * CLOUD_SCALE_2D;
+
+	mat4x2 coords;
+	
+	float cloudAlpha = CloudFBM(coord, coords, weights, weight);
+	cloudAlpha = GetCoverage(cloudAlpha, coverage) * pow(abs(wDir.y), 1.7) * 4.0;
+	
+	vec2 lightOffset = sunDirection.xz * 0.2;
+	
+	float sunlight;
+	sunlight  = -GetNoise(coords[0] + lightOffset)            ;
+	sunlight +=  GetNoise(coords[1] + lightOffset) * weights.x;
+	sunlight +=  GetNoise(coords[2] + lightOffset) * weights.y;
+	sunlight +=  GetNoise(coords[3] + lightOffset) * weights.z;
+	sunlight  = GetCoverage(weight - sunlight, coverage);
+	sunlight  = pow(1.3 - sunlight, 5.5);
+//	sunlight *= mix(pow(cloudAlpha, 1.6) * 2.5, 2.0, sunglow);
+//	sunlight *= mix(10.0, 1.0, sqrt(sunglow));
+	
+	vec3 moonColor = mix(vec3(0.0), vec3(0.4, 0.5, 0.6), clamp01(moonDirection.y));
+
+	vec3 directColor  = sunlightColor * 2.5 + moonColor;
+//	     directColor *= 1.0 + pow(sunglow, 10.0) * 10.0 / (sunlight * 0.8 + 0.2);
+//	     directColor *= mix(vec3(1.0), vec3(0.4, 0.5, 0.6), timeNight);
+	
+	vec3 ambientColor = mix(skylightColor, directColor, 0.0) * 0.1 * 0.0;
+	
+	vec3 trans = vec3(1);
+	directColor = 2.0 * sunIrradiance + moonColor;
+	//ambientColor = 0.05*PrecomputedSky(kCamera, vec3(0,1,0), 0.0, sunDirection, trans)*0.0;
+	
+	vec3 cloud = mix(ambientColor, directColor, sunlight) * 2.0;
+	
+	//transmit *= clamp(1.0 - cloudAlpha, 0.0, 1.0)*0.5+0.5;
+	
+	return cloud * cloudAlpha * oldTransmit * 5.0;
+}
+
+#define STARS true // [true false]
+#define REFLECT_STARS false // [true false]
+#define ROTATE_STARS false // [true false]
+#define STAR_SCALE 1.0 // [0.5 1.0 2.0 4.0]
+#define STAR_BRIGHTNESS 1.00 // [0.25 0.50 1.00 2.00 4.00]
+#define STAR_COVERAGE 1.000 // [0.950 0.975 1.000 1.025 1.050]
+
+void CalculateStars(inout vec3 color, vec3 worldDir, float visibility, const bool isReflection) {
+	if (!STARS) return;
+	if (!REFLECT_STARS && isReflection) return;
+	
+//	float alpha = STAR_BRIGHTNESS * 2000.0 * pow(clamp(worldDir.y, 0.0, 1.0), 2.0) * timeNight * pow(visibility, 50.0);
+	float alpha = STAR_BRIGHTNESS * 2000.0 * pow(clamp(worldDir.y, 0.0, 1.0), 2.0) * pow(visibility, 50.0);
+	if (alpha <= 0.0) return;
+	
+	vec2 coord;
+	
+//	if (ROTATE_STARS) {
+//		vec3 shadowCoord     = mat3(shadowViewMatrix) * worldDir;
+//		     shadowCoord.xz *= sign(sunVector.y);
+//
+//		coord  = vec2(atan(shadowCoord.x, shadowCoord.z), acos(shadowCoord.y));
+//		coord *= 3.0 * STAR_SCALE * noiseScale;
+//	} else
+//		coord = worldDir.xz * (2.5 * STAR_SCALE * (2.0 - worldDir.y) * noiseScale);
+		coord = worldDir.xz * (2.5 * STAR_SCALE * (2.0 - worldDir.y));
+	
+	float noise  = texture(noisetex, coord * 0.5).r;
+	      noise += texture(noisetex, coord).r * 0.5;
+	
+	float star = clamp(noise - 1.3 / STAR_COVERAGE, 0.0, 1.0);
+	
+	color += star * alpha;
+}
+
+#define SUN_RADIUS 0.54 // [0.54 1.0 2.0 3.0 4.0 5.0 20.0]
+
+vec3 ComputeSunspot(vec3 wDir, inout vec3 transmit) {
+	float sunspot = float(acos(dot(wDir, sunDirection)) < radians(SUN_RADIUS) + 0*0.9999567766);
+	vec3 color = vec3(float(sunspot) * 1.0 / SUN_RADIUS / SUN_RADIUS) * transmit;
+	
+	transmit *= 1.0 - sunspot;
+	
+	return color;
+}
+
+vec3 ComputeClouds(vec3 wPos, vec3 wDir, inout vec3 transmit) {
+	vec3 color = vec3(0.0);
+	
+	if (!DO_CLOUDS) return color;
+
+	color += Compute2DCloudPlane(wPos, wDir, transmit, 0.0);
+	
+	return color;
+}
+
+vec3 CalculateNightSky(vec3 wDir) {
+	const vec3 nightSkyColor = vec3(0.04, 0.04, 0.1);
+	
+	float value = pow(max(0.0, dot(wDir, moonDirection) * 0.5 + 0.5), 7.0)*5.0 + 0.5;
+	float horizon = (pow(1.0 - abs(wDir.y), 4.0));
+	horizon = horizon*horizon * (3.0 - 2.0 * horizon);
+	
+	return nightSkyColor * value * 2.0 * interp(-sunDirection.y, -0.2, 1.0);
+}
+
+vec3 ComputeTotalSky(vec3 wPos, vec3 wDir, out vec3 sunSpot, out vec3 clouds) {
+	vec3 color = vec3(0.0);
+	//return vec3(1.0, 1.0, 1.0);
+	
+	vec3 transmit = vec3(1.0);
+	clouds = ComputeClouds(wPos, wDir, transmit) / 3.0;
+	color += CalculateNightSky(wDir) * transmit * SKY_MULT / 3.0;
+	
+	color += PrecomputedSky(kCamera, wDir, 0.0, sunDirection, transmit);
+	
+	{
+		float size = 0.5;
+		vec3 transmit2 = transmit;
+		sunSpot = float(acos(dot(wDir, sunDirection)) < 0.1 * size) * 4.0 / pow(size,2.2) * transmit2;
+	}
+
+	return color;
+}
+
+vec3 ComputeTotalSky2(vec3 wDir) {
+	vec3 color = vec3(0.0);
+	//return vec3(1.0, 1.0, 1.0);
+	
+	vec3 transmit = vec3(1.0);
+	color += CalculateNightSky(wDir) * transmit * SKY_MULT / 3.0;
+	
+	color += PrecomputedSky(kCamera, wDir, 0.0, sunDirection, transmit);
+
+	return color;
+}
+
+float FogFactor(vec3 viewPos) {
+	//return 0.5;
+	if (!DO_FOG) return 0.0;
+	float fogfactor = pow(min(1.0, length(viewPos.xz) / (WORLD_SIZE.z / 2.0 /*/ 0.9*/ - 16.0)), 2.0);
+	fogfactor = max(0.0, fogfactor - FOG_START) / (1.0 - FOG_START);
+
+	return clamp(fogfactor, 0.0, 1.0);
+}
+
+#endif
