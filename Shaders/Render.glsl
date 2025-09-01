@@ -234,44 +234,6 @@ vec3 fMin(vec3 a) {
     // return vec3(lessThan(a.xyz, a.yzx) && lessThan(a.xyz, a.zxy));
 }
 
-float Backward(float y, float x0) {
-    //return y;
-    //return atan(y) * (2.0 / 3.14159 * length(1.0 / aspect));
-    float x = x0;
-
-    int maxIter = 250;
-    float tolerance = 0.00001;
-
-    for (int i = 0; i < maxIter; i++) {
-        float fx = Forward(x) - y;  // Compute f(x) - y
-        float dfx = D_Forward(x);     // Compute derivative at x
-
-        // Check for near-zero derivative to avoid division issues
-        if (abs(dfx) < 1e-6) {
-            return x;  // Return current estimate if derivative is too small
-        }
-
-        float dx = fx / dfx;   // Newton's method step: x_n+1 = x_n - f(x_n)/f'(x_n)
-        x = x - dx;
-
-        // Check for convergence
-        if (abs(dx) < tolerance) {
-            return x;
-        }
-    }
-
-    return x;
-}
-vec2 FisheyeB(vec2 pos) {
-    if (!DO_FISHEYE) return pos;
-    vec2 originalPos = pos;
-    pos /= aspect.yx;
-    pos = normalize(pos) * Backward(length(pos), length((gl_FragCoord.xy / viewSize.xy * 2.0 - 1.0) / aspect.yx));
-    pos *= aspect.yx;
-    //pos = mix(originalPos, pos, FisheyeAmount(timeFromPos));
-    return pos;
-}
-
 
 float fMin(vec3 a, out vec3 val) {
     float ret = min(a.x, min(a.y, a.z));
@@ -887,7 +849,7 @@ VoxelIntersectOut VoxelMarchLOD(vec3 rayOrig, inout vec3 rayDir, float renderDis
     const int lod = 0;
 
     //*
-    if (SAMPLE_COUNT > 1) {
+    if (DistortionReuse()) {
     saveData = true;
     if ((sampledFrameID % SAMPLE_COUNT)!= 0) {
     {
@@ -930,13 +892,10 @@ VoxelIntersectOut VoxelMarchLOD(vec3 rayOrig, inout vec3 rayDir, float renderDis
             
             pos.xy /= pos.z;
             
-            //pos.xy = FisheyeB(pos.xy);
-            
             pos.xy = gl_FragCoord.xy / viewSize.xy * 2.0 - 1.0;
             pos.xy -= delta / viewSize.xy * 2.0;
             
             pos.xy += hash * 1.0;
-            //pos.xy = Fisheye(pos.xy);
             pos.xy *= pos.z;
             pos = Unproject(pos);
 
@@ -1005,8 +964,6 @@ VoxelIntersectOut VoxelMarchLOD(vec3 rayOrig, inout vec3 rayDir, float renderDis
                 uint data = VoxelRead(ivec3(pos), lod);
 
                 if (IsPortal(data)) {
-                    //if (SubVoxelTrace)
-                    //SetPhysicalWorldID((g_physicalWorldID + 1) % 2);
                     UpdateLogicalWorldID(data);
                     continue;
                 }
@@ -1204,8 +1161,8 @@ bool Screenshot() {
 
 void NewFunction(vec2 uv2) {
     vec2 hash = TAAHash(sampledFrameID % 16384)
-        * float((sampledFrameID % sampleCount) != 0)
-        * float(distortionIntensity <= 0.0 || !writeFrames)
+        * float((sampledFrameID % sampleCount) != 0)            // Always disable hash for sample 0
+        * float(!DistortionReuse())                             // Disable hash for distortion re-use. It will be applied later.
         ;
 
     vec3 sunColor = vec3(1.5, 1.0, 1.0) * 2.0;

@@ -265,7 +265,7 @@ layout(std140, binding = 0) uniform LAYOUTT_0 {
 };
 struct PerSampleUniforms {
 	PER_SAMPLE_UBO(UBO_DECLARE)
-	vec4[10] padding;
+	vec4[7] padding;
 };
 layout(std140, binding = 14) buffer LAYOUTT_000 {
 	PerSampleUniforms perSampleUbo[MAX_SAMPLE_COUNT];
@@ -856,24 +856,21 @@ bool BinarySearchIsExact(int target, int i) {
 	return target == x1;
 }
 
-float Forward(float x) {
+bool DistortionReuse() {
+	return distortionIntensity > 0.0 && SAMPLE_COUNT > 1;
+}
+
+float FisheyeForward(float x) {
 	float oldX = x;
 	x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
 	return mix(oldX, x, FisheyeAmount(timeFromPos));
-}
-
-float D_Forward(float x) {
-	float epsilon = 0.0001;
-	return -(Forward(x) - Forward(x + epsilon)) / epsilon;
 }
 vec2 Fisheye(vec2 pos) {
 	if (!DO_FISHEYE) return pos;
 	vec2 originalPos = pos;
 	pos /= aspect.yx;
-	//show(length(pos))
-	pos = normalize(pos) * Forward(length(pos));
+	pos = normalize(pos) * FisheyeForward(length(pos));
 	pos *= aspect.yx;
-	//pos = mix(originalPos, pos, FisheyeAmount(timeFromPos));
 	return pos;
 }
 

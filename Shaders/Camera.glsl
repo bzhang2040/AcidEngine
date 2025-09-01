@@ -90,6 +90,13 @@ vec3 GetCameraPos(float time) {
     return vec3(trackPos.x, trackPos.y + 2.0, curr);
 }
 
+float GetBeatPos(float beat) {
+    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
+
+    return GetCameraPos(secondsPerBeat * beat).z;
+}
+
+#if !defined(CXX_STAGE)
 float ANIMATE_FOV(float time) {
     float var = 90.0;
     float old = var;
@@ -100,6 +107,10 @@ float ANIMATE_FOV(float time) {
     var += NewValue(old, 110.0) * tan(interp(time, GetTimeFromBeat(1073), GetTimeFromBeat(1079))*3.14159/2.0 / 2.0);
 
     return var;
+}
+
+mat2 rotate2(float rad) {
+    return mat2(cos(-rad), -sin(-rad), sin(-rad), cos(-rad));
 }
 
 float SHUTTER_ANGLE(float time) {
@@ -113,16 +124,6 @@ float SHUTTER_ANGLE(float time) {
     Key(0.5, 1076-6, 1079, temp);
 
     return curr;
-}
-
-float GetBeatPos(float beat) {
-    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
-
-    return GetCameraPos(secondsPerBeat * beat).z;
-}
-
-mat2 rotate2(float rad) {
-    return mat2(cos(-rad), -sin(-rad), sin(-rad), cos(-rad));
 }
 
 vec3 SunDirection(float zPos) {
@@ -161,7 +162,6 @@ vec3 MoonDirection(float zPos) {
     return moonDirection;
 }
 
-#if !defined(CXX_STAGE)
 float FisheyeAmount(float time) {
     float prev = 0.0;
     float curr = 0.0;
