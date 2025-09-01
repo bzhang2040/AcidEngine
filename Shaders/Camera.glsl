@@ -9,8 +9,6 @@ const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
 
 #define VIDEO_LENGTH_SECONDS (9*60)
 
-#define Z_TO_TIME_LUT_SIZE (VIDEO_LENGTH_SECONDS*1024)
-
 #define BLOCKS_PER_SECOND 80.0f
 #define BEATS_PER_MINUTE 160.0f
 #define BEATS_PER_SECOND (BEATS_PER_MINUTE / 60.0f)
@@ -177,31 +175,21 @@ float FisheyeAmount(float time) {
     return curr;
 }
 
-layout(std430, binding = 6) buffer LAYOUTT_9 {
-    float[] zToTime;
-} zToTimeSSBO;
+float GetTimeFromPos(float pos) { // Inverts the function using newtons method.
+    float t = 0.0;
+    
+    for (int i = 0; i < 100; ++i) {
+        float f = GetCameraPos(t).z - pos;
+        float df = GetCameraPos(t + 1.0).z - GetCameraPos(t).z;
+        
+        if (abs(f) < 0.0001 || df == 0.0) {
+            return t;
+        }
 
-float GetTimeFromPos(int zPos) {
-    if (zPos < 0 || zPos >= Z_TO_TIME_LUT_SIZE) {
-        return 0.0;
+        t -= f / df;
     }
 
-    return zToTimeSSBO.zToTime[zPos];
+    return t;
 }
 
-float GetTimeFromPos(float zPos) {
-    if (zPos < 0 || zPos >= Z_TO_TIME_LUT_SIZE) {
-        return 0.0;
-    }
-
-    float fl = floor(zPos);
-    float fr = zPos - fl;
-
-    return mix(zToTimeSSBO.zToTime[int(fl)], zToTimeSSBO.zToTime[int(fl)+1], fr);
-}
-
-float GetBlocksPerSecond(int zPos) {
-    float secondsPerBlock = (GetTimeFromPos(zPos + 1000) - GetTimeFromPos(zPos)) / 1000.0;
-    return 1.0 / secondsPerBlock;
-}
 #endif

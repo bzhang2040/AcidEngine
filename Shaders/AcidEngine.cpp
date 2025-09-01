@@ -250,25 +250,6 @@ public:
         beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
         glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
 
-        // Create a LUT which converts Z position (blocks) to video time (seconds)
-        // Inverse of GetCameraPos().z
-        vector<float> zToTime(Z_TO_TIME_LUT_SIZE, 0.0);
-        vector<int> zToTimeHits(zToTime.size(), 0);
-        const int samplesPerSecond = 2048;
-        for (int i = 0; i < VIDEO_LENGTH_SECONDS * samplesPerSecond; ++i) {
-            float time = float(i) / samplesPerSecond;
-            int z = int(GetCameraPos(time).z);
-            if (z < 0 || z >= zToTime.size()) continue;
-            zToTime[z] += time;
-            zToTimeHits[z] += 1;
-        }
-        for (int i = 0; i < zToTime.size(); ++i) {
-            zToTime[i] /= zToTimeHits[i];
-        }
-
-        zToTimeSSBO.Init(zToTime.size() * sizeof(float));
-        glNamedBufferSubData(zToTimeSSBO.id, 0, 4 * zToTime.size(), zToTime.data());
-
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
         glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
 
@@ -285,7 +266,6 @@ public:
         }
 
         beatsSSBO.Bind(4);
-        zToTimeSSBO.Bind(6);
         portalRangesSSBO.Bind(7);
         physicalFromLogicalSSBO.Bind(8);
 
@@ -386,7 +366,6 @@ public:
     Texture frameSunTexture;
     Texture distortionReuse;
     SSBO beatsSSBO;
-    SSBO zToTimeSSBO;
     SSBO portalRangesSSBO;
     SSBO physicalFromLogicalSSBO;
     unsigned int fbo;
