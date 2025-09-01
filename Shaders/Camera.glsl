@@ -89,9 +89,7 @@ vec3 GetCameraPos(float time) {
 }
 
 float GetBeatPos(float beat) {
-    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
-
-    return GetCameraPos(secondsPerBeat * beat).z;
+    return GetCameraPos(GetTimeFromBeat(beat)).z;
 }
 
 #if !defined(CXX_STAGE)
@@ -124,7 +122,7 @@ float SHUTTER_ANGLE(float time) {
     return curr;
 }
 
-vec3 SunDirection(float zPos) {
+vec3 SunDirection(float time) {
     //return normalize(vec3(0.2, 0.6, 0.3));
 
     float sunAngle = 45.0;
@@ -132,10 +130,10 @@ vec3 SunDirection(float zPos) {
 
     float curr = 45.0;
 
-    sunAngle += NewValue(curr, 175) * interp(zPos, GetCameraPos(GetTimeFromBeat(308)).z, GetCameraPos(GetTimeFromBeat(505)).z);
-    sunAngle += NewValue(curr, 187) * interp(zPos, GetCameraPos(GetTimeFromBeat(505)).z, GetCameraPos(GetTimeFromBeat(529)).z);
-    sunAngle += NewValue(curr, 354) * interp(zPos, GetCameraPos(GetTimeFromBeat(529)).z, GetCameraPos(GetTimeFromBeat(673)).z);
-    sunAngle += NewValue(curr, 380) * interp(zPos, GetCameraPos(GetTimeFromBeat(673)).z, GetCameraPos(GetTimeFromBeat(721)).z);
+    sunAngle += NewValue(curr, 175) * interp(time, GetTimeFromBeat(308), GetTimeFromBeat(505));
+    sunAngle += NewValue(curr, 187) * interp(time, GetTimeFromBeat(505), GetTimeFromBeat(529));
+    sunAngle += NewValue(curr, 354) * interp(time, GetTimeFromBeat(529), GetTimeFromBeat(673));
+    sunAngle += NewValue(curr, 380) * interp(time, GetTimeFromBeat(673), GetTimeFromBeat(721));
 
     vec3 sunDir = vec3(0.0, 0.0, 1.0);
 
@@ -149,13 +147,13 @@ vec3 SunDirection(float zPos) {
     return normalize(sunDir);
 }
 
-vec3 MoonDirection(float zPos) {
-    vec3 moonDirection = SunDirection(zPos);
+vec3 MoonDirection(float time) {
+    vec3 moonDirection = SunDirection(time);
     vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate2(radians(-30.0));
     moonDirection.x = v.x;
     moonDirection.z = v.y;
     moonDirection.y *= -1.0;
-    moonDirection = -SunDirection(zPos);
+    moonDirection = -SunDirection(time);
 
     return moonDirection;
 }

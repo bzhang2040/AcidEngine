@@ -692,12 +692,6 @@ vec3 TheFunction(vec3 pos) {
 
     if (false)
     {
-        pos.z += length((pos.xy) * vec2(1.0, 9.0 / 9.0) / 1.37 / 1.4);
-        return mix(pos2, pos, cubesmooth01(interp(cameraPosition.z, 0.0, GetBeatPos(3.0+309))));
-    }
-
-    if (false)
-    {
         float range = 10.0;
         pos.xyz = pos.xyz / WORLD_SIZE.xxx * range;
 

@@ -1,5 +1,29 @@
 #ifdef CXX_STAGE
-#define Uniforms_glsl "Uniforms.glsl", "GENERATE_UNIFORMS_STAGE", "compute"
+    #define InitBeats_glsl "Uniforms.glsl", "INIT_BEATS_STAGE", "compute"
+#endif
+
+#ifdef INIT_BEATS_STAGE
+#ifdef COMPUTE_STAGE
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+    int tid = int(gl_GlobalInvocationID.x);
+    if (tid >= BEATS_COUNT) { return; }
+
+    beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+};
+
+#endif
+#endif
+
+
+
+
+
+
+#ifdef CXX_STAGE
+    #define Uniforms_glsl "Uniforms.glsl", "GENERATE_UNIFORMS_STAGE", "compute"
 #endif
 
 #ifdef GENERATE_UNIFORMS_STAGE
@@ -95,8 +119,8 @@ void main() {
 
     u.currentSpeed = GetCameraPos(u.timeFromPos + 1.0).z - GetCameraPos(u.timeFromPos).z;
 
-    u.sunDirection = SunDirection(u.cameraPosition.z);
-    u.moonDirection = MoonDirection(u.cameraPosition.z);
+    u.sunDirection = SunDirection(u.timeFromPos);
+    u.moonDirection = MoonDirection(u.timeFromPos);
     u.sunIrradiance = GetSunIrradiance(kPoint(vec3(0.0) + u.cameraPosition), u.sunDirection);
 
     perSampleUbo[tid] = u;

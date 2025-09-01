@@ -86,6 +86,7 @@ Shader topsoil(Topsoil_glsl);
 Shader generateLOD(GenerateLOD_glsl);
 
 // Rendering
+Shader initBeatStruct(InitBeats_glsl);
 Shader uniformShader(Uniforms_glsl);
 Shader composite0(Composite0_glsl);
 Shader bloom(Bloom_glsl);
@@ -249,6 +250,8 @@ public:
 
         beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
         glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
+        beatsSSBO.Bind(4);
+        Dispatch(initBeatStruct, RoundUpDiv(beatsArray2.size(), 256), 1, 1);
 
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
         glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
@@ -341,8 +344,6 @@ public:
             perSampleUbo.BindRange(0, 256 * i, 256, GL_UNIFORM_BUFFER);
             Dispatch(composite0, windowWidth / 16, windowHeight / 16, 1, false);
         }
-
-        //perSampleUbo.BindRange(0, 256 * 0, 256, GL_UNIFORM_BUFFER);
 
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
         glDisable(GL_BLEND);
@@ -556,8 +557,6 @@ int main() {
             physicalFromLogical[physicalFromLogical[i].prevLogical].nextLogical = i;
         }
     }
-
-    cout << portalPositions[0].logicalWorldID << physicalFromLogical[0].id;
 
 
     stbi_flip_vertically_on_write(1);

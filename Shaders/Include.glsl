@@ -24,6 +24,7 @@ struct BeatStructGPU {
 	float beat;
 	int type;
 	int portalTarget;
+	float zPos;
 };
 
 struct WorldRange {
@@ -50,6 +51,7 @@ struct BeatStruct {
 	float d = 0.0f; // delay
 };
 
+// The main reason for this big vector is so I don't have to write a parser.
 std::vector<BeatStruct> beatsArray = {
 	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
 	{.b=beat_marker_start,.bt=beat_type_programmatic},
@@ -286,12 +288,12 @@ layout(std430, binding = 3) buffer LAYOUTT_5 {
 };
 
 layout(std430, binding = 4) buffer LAYOUTT_6 {
-	BeatStructGPU[BEATS_COUNT] beats;
-} beatsSSBO;
+	BeatStructGPU[BEATS_COUNT] beatsSSBO;
+};
 
-#define BEAT_(i) beatsSSBO.beats[i].beat
-#define BEAT_TYPE(i) beatsSSBO.beats[i].type
-#define PORTAL_TARGET(i) beatsSSBO.beats[i].portalTarget
+#define BEAT_(i) beatsSSBO[i].beat
+#define BEAT_TYPE(i) beatsSSBO[i].type
+#define PORTAL_TARGET(i) beatsSSBO[i].portalTarget
 
 layout(std430, binding = 5) buffer LAYOUTT_8 {
 	ivec4[] data;
@@ -829,14 +831,14 @@ int BinarySearchGT(int target) {
 	while (low <= high) {
 		int mid = (high + low) / 2;
 
-		int value = int(GetCameraPos(GetTimeFromBeat(BEAT_(mid))).z);
+		int value = int(beatsSSBO[mid].zPos);
 
 		if (value == target) return mid;
 		if (value > target) high = mid - 1; // if (value < target) low = mid + 1;
 		else low = mid + 1;                 // else high = mid - 1;
 	}
 
-	if (target >= int(GetCameraPos(GetTimeFromBeat(BEAT_(high))).z)) { // <=
+	if (target >= int(beatsSSBO[high].zPos)) { // <=
 		return high; // return low;
 	}
 
@@ -845,14 +847,14 @@ int BinarySearchGT(int target) {
 
 int BinarySearchNearest(int target) {
 	int i = BinarySearchGT(target);
-	int x1 = int(GetBeatPos(BEAT_(i)));
+	int x1 = int(beatsSSBO[i].zPos);
 
-	int x2 = int(GetBeatPos(BEAT_(i+1)));
-	return abs(x1 - target) < abs(x2 - target) ? i : i+1;
+	int x2 = int(beatsSSBO[i+1].zPos);
+	return abs(x1 - target) < abs(x2 - target) ? i : i + 1;
 }
 
 bool BinarySearchIsExact(int target, int i) {
-	int x1 = int(GetBeatPos(BEAT_(i)));
+	int x1 = int(beatsSSBO[i].zPos);
 	return target == x1;
 }
 
