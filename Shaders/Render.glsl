@@ -1301,7 +1301,7 @@ void NewFunction(vec2 uv2) {
         vec3 pos = VoxelToWorld(VIO.voxelPos - VIO.plane * 0.001);
 
 
-        float torchPos = int(GetBeatPos(BEAT_(BinarySearchNearest(int(pos.z)))));
+        float torchPos = int(beatsSSBO[BinarySearchNearest(int(pos.z))].zPos);
         float dist = distance(vec3(trackPos.xy+vec2(0,2),torchPos), pos);
         float torchDist = pow((asin(sin(pos.z / 10.0)) / 3.14159 * 2.0 * 0.5 + 0.5), 8.0);
         torchDist = pow(clamp01(1.0 - dist /16.0), 4.0);

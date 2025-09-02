@@ -62,9 +62,7 @@ float GetTime(int tid) {
 }
 
 vec3 GetCameraPosition(int tid) {
-    vec3 camPos = GetCameraPos(GetTime(tid)) - currMovement;
-
-    return camPos;
+    return GetCameraPos(GetTime(tid)) - currMovement;
 }
 
 void main() {
@@ -83,7 +81,17 @@ void main() {
     ivec2 ebin = ivec2(floor16(prevFrameCameraPosition.xz)) + ivec2(WORLD_SIZE.x, WORLD_SIZE.z) * 1024;
 
     
-    u.uWorldID = prevWorldID;
+    if (resetCamera == 1) {
+        for (int i = 0; i < PORTAL_COUNT; ++i) {
+            if (GetCameraPos(nonBlurTime+TIME_OFFSET).z < worldRanges[i].zEnd) {
+                u.uWorldID = worldRanges[i].logicalWorldID;
+                break;
+            }
+        }
+    } else {
+        u.uWorldID = prevWorldID;
+    }
+
     SetLogicalWorldID(u.uWorldID);
 
     ivec3 voxelEnd = ivec3(WorldToVoxel(u.cameraPosition, prevFrameCameraPosition));

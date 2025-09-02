@@ -96,6 +96,10 @@ vec3 Compute2DCloudPlane(vec3 wPos, vec3 wDir, inout vec3 transmit, float sunglo
 	
 	vec2 coord = wDir.xz * ((cloudHeight - wPos.y) / wDir.y);
 	
+	//if (false)
+	{
+		coord.y += (bcos(abs(coord.x) / 2000.0) - 1.0)*1000.0;
+	}
 	coord += wPos.xz * CLOUD_SCALE_2D;
 
 	mat4x2 coords;

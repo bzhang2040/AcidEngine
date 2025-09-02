@@ -280,6 +280,7 @@ std::string AddPreamble(const std::string& type_, std::string sourceText, const 
     else if (type_ == "compute")  modifiedText = "#define COMPUTE_STAGE\n" + modifiedText;
 
     modifiedText = std::string("#define BEATS_COUNT ") + std::to_string(beatsArray2.size()) + std::string("\n") + modifiedText;
+    modifiedText = std::string("#define PORTAL_COUNT ") + std::to_string(portalPositions.size()) + std::string("\n") + modifiedText;
 
     modifiedText = "#define " + preprocessorName + "\n" + modifiedText;
 

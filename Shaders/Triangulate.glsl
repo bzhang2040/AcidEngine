@@ -25,29 +25,6 @@ bool torchSection(int idx) {
 #define id_both 0
 #define id_left 1
 #define id_right 2
-bool CheckBlock(vec3 position, int x, int y, int leftright) {
-    ivec2 ebin = ivec2(position.xy) - ivec2(trackPos.xy);
-    
-    if (leftright == id_left) ebin.x = -ebin.x;
-    
-    if (leftright == id_both) ebin.x = abs(ebin.x);
-    
-    return ebin.x == x && ebin.y == y;
-}
-
-bool CheckBlock(vec3 position, int x, int y) {
-    return CheckBlock(position, x, y, id_both);
-}
-
-bool CheckBlock(vec3 position, int x, int y, float beat, int leftright) {
-    return int(position.z) == int(GetBeatPos(beat)) && (CheckBlock(position, x, y, leftright));
-}
-
-bool CheckBlock(vec3 position, int x, int y, float beat) {
-    return CheckBlock(position, x, y, beat, id_both);
-}
-
-
 bool CheckExtent(vec3 position, int x0, int x1, int y0, int y1, int leftright) {
     ivec2 ebin = ivec2(position.xy) - ivec2(trackPos.xy);
 

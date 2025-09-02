@@ -45,7 +45,7 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 #define MAX_SAMPLE_COUNT 512
 #define TRILINEAR_TERRAIN (false || writeFrames)
 
-#define START_FRAME (1 + 3282*0 + 3741*0 + 5820*0 + 6955*0 + 9125*0 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
+#define START_FRAME (1 + 3282*0 + 3741 + 5820*0 + 6955*0 + 9125*0 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
 
 //#define SHUTTER_ANGLE 0.5
 

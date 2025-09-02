@@ -265,7 +265,6 @@ public:
     void RenderFrame(float time, int frameID) {
         if (!initialized) {
             Init();
-            initialized = true;
         }
 
         beatsSSBO.Bind(4);
@@ -282,22 +281,6 @@ public:
 
         ProcessInput(movement, samples);
 
-        bool key5 = false;
-
-        if (KeyPressEvent(GLFW_KEY_5)) {
-            campitch = 0.0f;
-            camyaw = 0.0f;
-            movement = vec3(0.0);
-            zoom = 0.0;
-            for (int i = 0; i < portalPositions.size(); ++i) {
-                if (GetCameraPos(time+TIME_OFFSET).z < portalPositions[i].zEnd) {
-                    perFrameCpuUbo.prevWorldID.get() = portalPositions[i].logicalWorldID;
-                    break;
-                }
-            }
-            key5 = true;
-        }
-
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -307,6 +290,16 @@ public:
         frameSunTexture.BindImage(5);
 
         terrain.Bind();
+
+        perFrameCpuUbo.resetCamera.get() = 0;
+
+        if (KeyPressEvent(GLFW_KEY_5) || !initialized) {
+            campitch = 0.0f;
+            camyaw = 0.0f;
+            movement = vec3(0.0);
+            zoom = 0.0;
+            perFrameCpuUbo.resetCamera.get() = 1;
+        }
 
         { // CPU Uniform data
             perFrameCpuUbo.yaw = camyaw + customyaw;
@@ -328,7 +321,7 @@ public:
         Dispatch(uniformShader, RoundUpDiv(samples, 1024), 1, 1);
         glGetNamedBufferSubData(perSampleUbo.id, 0, 256, perSampleUbo.dataCPU);
         perSampleUbo.BindRange(0, 0, 256, GL_UNIFORM_BUFFER);
-        if (!key5) perFrameCpuUbo.prevWorldID.get() = perSampleUbo.uWorldID.get();
+        perFrameCpuUbo.prevWorldID.get() = perSampleUbo.uWorldID.get();
         perFrameCpuUbo.prevFrameCameraPosition.get() = perSampleUbo.cameraPosition.get();
         
         if (terrain.shaderIncrement != ShaderIncrement
@@ -358,6 +351,8 @@ public:
         bloomTexture.Bind(10, GL_TEXTURE_2D);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         Draw(tonemap, VAO, GL_TRIANGLES, 0, 6);
+
+        initialized = true;
     }
 
     unsigned int VAO;

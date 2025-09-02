@@ -230,6 +230,7 @@ bool IsTorch(uint blockID) {
 
 #define PER_FRAME_CPU_UBO(UBO_FUNC) \
 UBO_FUNC(int, shaderReload); \
+UBO_FUNC(int, resetCamera); \
 UBO_FUNC(int, sampleCount); \
 UBO_FUNC(int, frameID); \
 UBO_FUNC(float, yaw); \
