@@ -340,7 +340,7 @@ int CreateGraphicsProgram(const std::string& text, const std::string& filename, 
     glLinkProgram(program);
 
     if (!CheckCompileErrors(program, "program")) {
-        std::cout << "FAILED TO LINK PROGRAM\n";
+        std::cout << "FAILED TO LINK PROGRAM " << filename << " " << preprocessorName << "\n";
         if (!ReloadingShaders) throw std::runtime_error("");
         return -1;
     }
@@ -361,7 +361,7 @@ int CreateProgram(const std::string& text, const std::string& type, const std::s
     glLinkProgram(program);
 
     if (!CheckCompileErrors(program, "program")) {
-        std::cout << "FAILED TO LINK PROGRAM\n";
+        std::cout << "FAILED TO LINK PROGRAM " << filename << " " << preprocessorName << "\n";
         if (!ReloadingShaders) throw std::runtime_error("");
         return -1;
     }
