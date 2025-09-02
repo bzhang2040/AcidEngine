@@ -58,19 +58,11 @@ uint VoxelRead2(ivec3 pos, ivec2 cameraChunk2) {
 }
 
 float GetTime(int tid) {
-    return nonBlurTime + (tid * SHUTTER_ANGLE(nonBlurTime)) / framerate / sampleCount * float(!interactive);
+    return TIME_OFFSET + nonBlurTime + (tid * SHUTTER_ANGLE(nonBlurTime)) / framerate / sampleCount * float(!interactive);
 }
 
 vec3 GetCameraPosition(int tid) {
-    vec3 camPos;
-
-    if (realtime) {
-        camPos = GetCameraPos(TIME_OFFSET);
-    } else {
-        camPos = GetCameraPos(GetTime(tid) + TIME_OFFSET);
-    }
-
-    camPos -= currMovement;
+    vec3 camPos = GetCameraPos(GetTime(tid)) - currMovement;
 
     return camPos;
 }

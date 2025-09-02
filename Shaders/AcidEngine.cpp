@@ -683,7 +683,7 @@ int main() {
         }
         
         float frameStartTime = start.seconds();
-        float time = realtime ? start.seconds() : (interactive?START_FRAME:frameID) / framerate;
+        float time = (interactive?START_FRAME:frameID) / framerate;
 
         if (frameID == START_FRAME
          || !interactive

@@ -38,7 +38,6 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 
 #define CURVATURE_SAMPLES 1
 
-#define realtime (false)
 #define writeFrames false
 #define interactive (true && (!writeFrames))
 #define encodeVideo (true && writeFrames)
