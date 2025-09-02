@@ -28,7 +28,7 @@ static bool doubleBuffer = true;
 static bool vSync = false;
 static bool cleanFramesFolder = true;
 
-float maxSeconds = 30.0; // 485.0;
+float maxSeconds = 150.0; // 485.0;
 float framerate = 60.0;
 
 #define FOV 90.0f
@@ -246,15 +246,16 @@ public:
         glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), (void*)0);
 
         perFrameCpuUbo.prevRegenCameraPosition.get() = vec3(-10000.0f);
-        perSampleUbo.cameraPosition.get() = vec3(GetCameraPos(0.0 + TIME_OFFSET));
 
         beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
         glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
-        beatsSSBO.Bind(4);
-        Dispatch(initBeatStruct, RoundUpDiv(beatsArray2.size(), 256), 1, 1);
 
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
         glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
+
+        beatsSSBO.Bind(4);
+        portalRangesSSBO.Bind(7);
+        Dispatch(initBeatStruct, RoundUpDiv(max(beatsArray2.size(), portalPositions.size()), 256), 1, 1);
 
         physicalFromLogicalSSBO.Init(1024 * sizeof(LogicalID));
         glNamedBufferSubData(physicalFromLogicalSSBO.id, 0, 1024 * sizeof(LogicalID), physicalFromLogical.data());
@@ -506,7 +507,7 @@ int main() {
     
     beatsArray2.reserve(beatsArray.size());
     BeatStruct curr;
-    portalPositions.push_back({.zStart = -10000000,.logicalWorldID=WORLD_NAME(0)});
+    portalPositions.push_back({.logicalWorldID=WORLD_NAME(0)});
     physicalFromLogical[WORLD_NAME(0)].id = 0;
 
     int currPhysicalID = 1;
@@ -528,7 +529,7 @@ int main() {
 
         if (elem.bt == beat_type_portal) {
             int physicalID = currPhysicalID % MAX_WORLD_COUNT;
-            portalPositions.push_back({.zStart=int(GetBeatPos(elem.b)),.physicalWorldID=physicalID,.logicalWorldID=elem.targetWorldName});
+            portalPositions.push_back({.beat=elem.b,.physicalWorldID=physicalID,.logicalWorldID=elem.targetWorldName});
             physicalFromLogical[elem.targetWorldName].id = physicalID;
             physicalFromLogical[elem.targetWorldName].prevLogical = currLogicalID;
             currLogicalID = elem.targetWorldName;
@@ -538,15 +539,7 @@ int main() {
         elem.b += elem.d; // Merge beat delay into beat time
         beatsArray2.push_back({.beat=elem.b, .type=elem.bt, .portalTarget=elem.targetWorldName});
     }
-
-    for (int i = 1; i < portalPositions.size(); ++i) {
-        portalPositions[i-1].zEnd = portalPositions[i].zStart;
-    }
-    for (int i = 0; i < portalPositions.size(); ++i) {
-        portalPositions[i].zStart -= WORLD_SIZE.z/2 + 32;
-        portalPositions[i].zEnd += WORLD_SIZE.z/2 + 32;
-    } portalPositions.back().zEnd = 100000000;
-
+    
     for (int i = 0; i < physicalFromLogical.size(); ++i) {
         if (physicalFromLogical[i].prevLogical != -1) {
             physicalFromLogical[physicalFromLogical[i].prevLogical].nextLogical = i;

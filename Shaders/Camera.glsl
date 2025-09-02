@@ -69,6 +69,7 @@ float NewValue(inout float value, float newValue) {
 }
 #endif
 
+#if !defined(CXX_STAGE)
 vec3 GetCameraPos(float time) {
     float temp;
     float beat = GetBeatFromTime(time);
@@ -92,7 +93,6 @@ float GetBeatPos(float beat) {
     return GetCameraPos(GetTimeFromBeat(beat)).z;
 }
 
-#if !defined(CXX_STAGE)
 float ANIMATE_FOV(float time) {
     float var = 90.0;
     float old = var;

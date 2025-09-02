@@ -294,7 +294,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     int beatType = BEAT_TYPE(idx);
 
     if (beatType == beat_type_portal) {
-        int portalPos = int(GetCameraPos(GetTimeFromBeat(BEAT_(idx))).z);
+        int portalPos = int(beatsSSBO[idx].zPos);
         int portalDist = int(position.z) - portalPos;
         if (g_logicalWorldID != PORTAL_TARGET(idx)) {
             if (portalDist == 1+2 && MediumAirTunnel2()) return id_portal_forward;

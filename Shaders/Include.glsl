@@ -28,6 +28,7 @@ struct BeatStructGPU {
 };
 
 struct WorldRange {
+	float beat;
 	int zStart;
 	int zEnd;
 	int physicalWorldID;

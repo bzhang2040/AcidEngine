@@ -9,9 +9,28 @@ layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
-    if (tid >= BEATS_COUNT) { return; }
+    if (tid < BEATS_COUNT) {
+        beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+    }
 
-    beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+    if (tid < PORTAL_COUNT) {
+        //beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+        //worldRanges[i].zEnd
+
+        if (tid == 0) {
+            worldRanges[tid].zStart = -10000000;
+            worldRanges[tid].zEnd = int(GetBeatPos(worldRanges[tid+1].beat));
+        } else if (tid == PORTAL_COUNT-1) {
+            worldRanges[tid].zStart = int(GetBeatPos(worldRanges[tid].beat));
+            worldRanges[tid].zEnd = 100000000;
+        } else {
+            worldRanges[tid].zStart = int(GetBeatPos(worldRanges[tid].beat));
+            worldRanges[tid].zEnd = int(GetBeatPos(worldRanges[tid+1].beat));
+        }
+
+        worldRanges[tid].zStart -= WORLD_SIZE.z / 2 + 32;
+        worldRanges[tid].zEnd += WORLD_SIZE.z / 2 + 32;
+    }
 };
 
 #endif
