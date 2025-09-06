@@ -142,10 +142,7 @@ void DrawDebugText() {
 	float text = 0.0;
 		
 	//vec3 val = texelFetch(colortex7, ivec2(viewSize/2.0), 0).rgb;
-    vec3 val = vec3(GetBeatFromTime(nonBlurTime), 0.0, 0.0);
-    float bps = GetCameraPos(time + 0.01).z - GetCameraPos(time).z;
-    val.r = bps / 0.01;
-    val.r = GetCameraPos(time).z;
+    vec3 val = vec3(nonBlurBeat, 0.0, 0.0);
 		
 	string_to_draw = int[STRING_LENGTH](0,0, 0,0,0,0,0,0);
 	text += DrawString(texPos, charSize, 2, texcoord);

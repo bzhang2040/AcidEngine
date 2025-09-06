@@ -10,11 +10,11 @@ layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
     if (tid < BEATS_COUNT) {
-        beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+        beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
     }
 
     if (tid < PORTAL_COUNT) {
-        //beatsSSBO[tid].zPos = GetCameraPos(GetTimeFromBeat(beatsSSBO[tid].beat)).z;
+        //beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
         //worldRanges[i].zEnd
 
         if (tid == 0) {
@@ -58,7 +58,7 @@ float DistortionIntensity() {
     float prev = 0.0;
     float curr = 0.0;
     float temp = 0.0;
-    float beat = GetBeatFromTime(timeFromPos);
+    float beat = beatFromPos;
 
     Key(0.2, 265, 271, powf(0.75, temp));
     Key(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
@@ -76,12 +76,10 @@ uint VoxelRead2(ivec3 pos, ivec2 cameraChunk2) {
     return imageLoad(voxelImage, LodCoord(pos, 0)).r;
 }
 
-float GetTime(int tid) {
-    return TIME_OFFSET + nonBlurTime + (tid * SHUTTER_ANGLE(nonBlurTime)) / framerate / sampleCount * float(!interactive);
-}
-
 vec3 GetCameraPosition(int tid) {
-    return GetCameraPos(GetTime(tid)) - currMovement;
+    float time = nonBlurTime + (tid * SHUTTER_ANGLE(nonBlurBeat)) / framerate / sampleCount * float(!interactive);
+
+    return GetCameraPos(GetBeatFromTime(time)) - currMovement;
 }
 
 void main() {
@@ -89,8 +87,6 @@ void main() {
     if (tid >= sampleCount) { return; }
 
     PerSampleUniforms u;
-
-    u.time = GetTime(tid);
 
     u.cameraPosition = GetCameraPosition(tid);
 
@@ -102,7 +98,7 @@ void main() {
     
     if (resetCamera == 1) {
         for (int i = 0; i < PORTAL_COUNT; ++i) {
-            if (GetCameraPos(nonBlurTime+TIME_OFFSET).z < worldRanges[i].zEnd) {
+            if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd) {
                 u.uWorldID = worldRanges[i].logicalWorldID;
                 break;
             }
@@ -134,12 +130,12 @@ void main() {
 
     u.distortionIntensity = DistortionIntensity();
 
-    u.timeFromPos = GetTimeFromPos(u.baseFrameCameraPosition.z);
+    u.beatFromPos = GetBeatFromPos(u.baseFrameCameraPosition.z);
 
-    u.currentSpeed = GetCameraPos(u.timeFromPos + 1.0).z - GetCameraPos(u.timeFromPos).z;
+    u.currentSpeed = GetCameraPos(u.beatFromPos + GetBeatFromTime(1.0)).z - GetCameraPos(u.beatFromPos).z;
 
-    u.sunDirection = SunDirection(u.timeFromPos);
-    u.moonDirection = MoonDirection(u.timeFromPos);
+    u.sunDirection = SunDirection(u.beatFromPos);
+    u.moonDirection = MoonDirection(u.beatFromPos);
     u.sunIrradiance = GetSunIrradiance(kPoint(vec3(0.0) + u.cameraPosition), u.sunDirection);
 
     perSampleUbo[tid] = u;

@@ -732,7 +732,7 @@ vec3 TheFunction(vec3 pos) {
     pos.y += 2.0;
 
 
-    float K = 3000.0 * (interp(GetBeatFromTime(timeFromPos), 265, 271));
+    float K = 3000.0 * (interp(beatFromPos, 265, 271));
 
     //pos.y += sin(length(pos.xz) / 10.0 - cameraPosition.z / 100.0) * 10.0 * pow(cubesmooth(interp(length(pos.xz), 0.0, 200.0)), 2.0)
     //    * interp(length(pos.xz), K, 0.0);
@@ -741,16 +741,16 @@ vec3 TheFunction(vec3 pos) {
     //float t3 = sin(pos.z * 3.0 / 160.0);
     t3 *= distortionIntensity;
     t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
-    t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(GetBeatFromTime(timeFromPos), 277, 300));
+    t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
     pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
     
     /*
     pos.y += sin(length(pos.z) / 10.0) * 20.0 * cubesmooth(interp(length(pos.x), 0.0, 100.0))
-        * pow(interp(GetBeatFromTime(timeFromPos), 277-1, 277), 2.0)
-        * (pow(interp(GetBeatFromTime(timeFromPos), 278.5-1, 278.5), 2.0)*-2.0+1.0)
-        * (pow(interp(GetBeatFromTime(timeFromPos), 280-1, 280), 2.0)*-2.0+1.0)
-        * (pow(interp(GetBeatFromTime(timeFromPos), 281.5-1, 281.5), 2.0)*-2.0+1.0)
-        * (pow(interp(GetBeatFromTime(timeFromPos), 283-1, 283), 2.0)*-2.0+1.0);*/
+        * pow(interp(beatFromPos, 277-1, 277), 2.0)
+        * (pow(interp(beatFromPos, 278.5-1, 278.5), 2.0)*-2.0+1.0)
+        * (pow(interp(beatFromPos, 280-1, 280), 2.0)*-2.0+1.0)
+        * (pow(interp(beatFromPos, 281.5-1, 281.5), 2.0)*-2.0+1.0)
+        * (pow(interp(beatFromPos, 283-1, 283), 2.0)*-2.0+1.0);*/
 
     return pos;
 }

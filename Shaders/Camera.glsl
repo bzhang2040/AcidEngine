@@ -70,37 +70,37 @@ float NewValue(inout float value, float newValue) {
 #endif
 
 #if !defined(CXX_STAGE)
-vec3 GetCameraPos(float time) {
+vec3 GetCameraPos(float beat) {
     float temp;
-    float beat = GetBeatFromTime(time);
-    
+    float time = GetTimeFromBeat(beat);
+
     float prev = 80.0;
     float curr = time * prev;
 
 
-    KeySpeed(500.0, 160, 160+0.1);
-    KeySpeed(80.0, 169, 169+0.1);
+    KeySpeed(500.0, 160, 160 + 0.1);
+    KeySpeed(80.0, 169, 169 + 0.1);
 
     KeySpeed(160.0, 265, 275);
     KeySpeed(120.0, 361, 366);
 
     KeySpeed(160.0, 1073, 1079);
-    
+
     return vec3(trackPos.x, trackPos.y + 2.0, curr);
 }
 
 float GetBeatPos(float beat) {
-    return GetCameraPos(GetTimeFromBeat(beat)).z;
+    return GetCameraPos(beat).z;
 }
 
-float ANIMATE_FOV(float time) {
+float ANIMATE_FOV(float beat) {
     float var = 90.0;
     float old = var;
 
-    var += NewValue(old, 120.0) * tan(interp(time, GetTimeFromBeat(313-6), GetTimeFromBeat(313))*3.14159/2.0 / 2.0);
-    var += NewValue(old, 90.0) * tan(interp(time, GetTimeFromBeat(360), GetTimeFromBeat(360+3))*3.14159/2.0 / 2.0);
+    var += NewValue(old, 120.0) * tan(interp(beat, 313-6, 313)*3.14159/2.0 / 2.0);
+    var += NewValue(old, 90.0) * tan(interp(beat, 360, 360+3)*3.14159/2.0 / 2.0);
 
-    var += NewValue(old, 110.0) * tan(interp(time, GetTimeFromBeat(1073), GetTimeFromBeat(1079))*3.14159/2.0 / 2.0);
+    var += NewValue(old, 110.0) * tan(interp(beat, 1073, 1079)*3.14159/2.0 / 2.0);
 
     return var;
 }
@@ -109,11 +109,10 @@ mat2 rotate2(float rad) {
     return mat2(cos(-rad), -sin(-rad), sin(-rad), cos(-rad));
 }
 
-float SHUTTER_ANGLE(float time) {
+float SHUTTER_ANGLE(float beat) {
     float prev = 1.0;
     float curr = prev;
     float temp = 0.0;
-    float beat = GetBeatFromTime(time);
 
     Key(0.5, 313-6, 313, temp);
     Key(1.0, 360, 360+6, temp);
@@ -122,7 +121,7 @@ float SHUTTER_ANGLE(float time) {
     return curr;
 }
 
-vec3 SunDirection(float time) {
+vec3 SunDirection(float beat) {
     //return normalize(vec3(0.2, 0.6, 0.3));
 
     float sunAngle = 45.0;
@@ -130,10 +129,10 @@ vec3 SunDirection(float time) {
 
     float curr = 45.0;
 
-    sunAngle += NewValue(curr, 175) * interp(time, GetTimeFromBeat(308), GetTimeFromBeat(505));
-    sunAngle += NewValue(curr, 187) * interp(time, GetTimeFromBeat(505), GetTimeFromBeat(529));
-    sunAngle += NewValue(curr, 354) * interp(time, GetTimeFromBeat(529), GetTimeFromBeat(673));
-    sunAngle += NewValue(curr, 380) * interp(time, GetTimeFromBeat(673), GetTimeFromBeat(721));
+    sunAngle += NewValue(curr, 175) * interp(beat, 308, 505);
+    sunAngle += NewValue(curr, 187) * interp(beat, 505, 529);
+    sunAngle += NewValue(curr, 354) * interp(beat, 529, 673);
+    sunAngle += NewValue(curr, 380) * interp(beat, 673, 721);
 
     vec3 sunDir = vec3(0.0, 0.0, 1.0);
 
@@ -147,38 +146,38 @@ vec3 SunDirection(float time) {
     return normalize(sunDir);
 }
 
-vec3 MoonDirection(float time) {
-    vec3 moonDirection = SunDirection(time);
+vec3 MoonDirection(float beat) {
+    vec3 moonDirection = SunDirection(beat);
     vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate2(radians(-30.0));
     moonDirection.x = v.x;
     moonDirection.z = v.y;
     moonDirection.y *= -1.0;
-    moonDirection = -SunDirection(time);
+    moonDirection = -SunDirection(beat);
 
     return moonDirection;
 }
 
-float FisheyeAmount(float time) {
+float FisheyeAmount(float beat) {
     float prev = 0.0;
     float curr = 0.0;
     float temp = 0.0;
-    float beat = GetBeatFromTime(time);
+
     return 1.0;
     //Key(1.0, 650, 670, cubesmooth2(tan(temp * 3.14159 / 4.0)));
     //Key(1.0, 665, 670, atan(temp)/3.14159*4.0);
     //Key(1.0, 650, 670, cubesmooth2(temp));
 
-    //curr += NewValue(prev, 1.0) * tan(interp(time, GetTimeFromBeat(312), GetTimeFromBeat(313)) * 3.14159 / 2.0 / 2.0);
+    //curr += NewValue(prev, 1.0) * tan(interp(beat, 312, 313) * 3.14159 / 2.0 / 2.0);
 
     return curr;
 }
 
-float GetTimeFromPos(float pos) { // Inverts the function using newtons method.
+float GetBeatFromPos(float pos) { // Inverts the function using newtons method.
     float t = 0.0;
     
     for (int i = 0; i < 100; ++i) {
         float f = GetCameraPos(t).z - pos;
-        float df = GetCameraPos(t + 1.0).z - GetCameraPos(t).z;
+        float df = GetCameraPos(t + GetBeatFromTime(1.0)).z - GetCameraPos(t).z;
         
         if (abs(f) < 0.0001 || df == 0.0) {
             return t;

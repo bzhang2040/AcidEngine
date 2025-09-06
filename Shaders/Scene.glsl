@@ -80,7 +80,6 @@ const int PROBE_ATTEMPTS = 16;
 const vec3 offsetInStructure = ivec3(WORLD_SIZE.xyz * vec3(0.5, 0.5, 0.5) + vec3(0.0, 0.2, 0.0)) * vec3(1, 1, 1) + vec3(0, 0, 256) * 0;
 
 #define framerate 60.0f
-#define TIME_OFFSET (-0.375)
 
 //#define interp(x, a, b) (((b) > (a)) ? glm::clamp(((x) - (a)) / ((b) - (a)), 0.0, 1.0) : glm::clamp(((x) - (a)) / ((b) - (a)), 0.0, 1.0))
 

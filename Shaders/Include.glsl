@@ -238,20 +238,20 @@ UBO_FUNC(float, yaw); \
 UBO_FUNC(float, pitch); \
 UBO_FUNC(float, zoom); \
 UBO_FUNC(float, nonBlurTime); \
+UBO_FUNC(float, nonBlurBeat); \
 UBO_FUNC(vec3, currMovement); \
 UBO_FUNC(vec3, prevRegenCameraPosition); \
 UBO_FUNC(vec3, prevFrameCameraPosition); \
 UBO_FUNC(int, prevWorldID);
 
 #define PER_SAMPLE_UBO(UBO_FUNC) \
-UBO_FUNC(float, time); \
 UBO_FUNC(vec3, cameraPosition); \
 UBO_FUNC(vec3, baseFrameCameraPosition); \
 UBO_FUNC(ivec2, cameraChunk); \
 UBO_FUNC(ivec2, previousCameraChunk); \
 UBO_FUNC(int, sampledFrameID); \
 UBO_FUNC(float, distortionIntensity); \
-UBO_FUNC(float, timeFromPos); \
+UBO_FUNC(float, beatFromPos); \
 UBO_FUNC(float, currentSpeed); \
 UBO_FUNC(int, uWorldID); \
 UBO_FUNC(vec3, sunDirection); \
@@ -269,7 +269,7 @@ layout(std140, binding = 0) uniform LAYOUTT_0 {
 };
 struct PerSampleUniforms {
 	PER_SAMPLE_UBO(UBO_DECLARE)
-	vec4[7] padding;
+	vec4[8] padding;
 };
 layout(std140, binding = 14) buffer LAYOUTT_000 {
 	PerSampleUniforms perSampleUbo[MAX_SAMPLE_COUNT];
@@ -867,8 +867,9 @@ bool DistortionReuse() {
 float FisheyeForward(float x) {
 	float oldX = x;
 	x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
-	return mix(oldX, x, FisheyeAmount(timeFromPos));
+	return mix(oldX, x, beatFromPos);
 }
+
 vec2 Fisheye(vec2 pos) {
 	if (!DO_FISHEYE) return pos;
 	vec2 originalPos = pos;
@@ -881,7 +882,7 @@ vec2 Fisheye(vec2 pos) {
 vec3 Unproject(vec3 tc) {
 	vec3 worldDir = tc;
 	worldDir.xy *= aspect;
-	worldDir.z /= tan(radians(ANIMATE_FOV(timeFromPos) / 2.0) / exp2(-zoom));
+	worldDir.z /= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
 	worldDir.yz *= rotate(-pitch);
 	worldDir.xz *= rotate(yaw);
 	return worldDir.xyz;
@@ -891,7 +892,7 @@ vec3 Unproject(vec2 tc) { return Unproject(vec3(tc, 1.0)); }
 vec3 Project(vec3 worldDir) {
 	worldDir.xz *= rotate(-yaw);
 	worldDir.yz *= rotate(pitch);
-	worldDir.z *= tan(radians(ANIMATE_FOV(timeFromPos) / 2.0) / exp2(-zoom));
+	worldDir.z *= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
 	worldDir.xy /= aspect;
 	return worldDir;
 }

@@ -33,8 +33,6 @@ float framerate = 60.0;
 
 #define FOV 90.0f
 
-#define TIME_OFFSET (-0.375)
-
 GLFWwindow* window;
 float camyaw = 0.0f;
 float campitch = 0.0f;
@@ -264,6 +262,9 @@ public:
     }
 
     void RenderFrame(float time, int frameID) {
+        #define TIME_OFFSET (-0.375)
+        time += TIME_OFFSET;
+
         if (!initialized) {
             Init();
         }
@@ -307,6 +308,7 @@ public:
             perFrameCpuUbo.pitch = campitch + custompitch;
             perFrameCpuUbo.zoom = zoom + customzoom;
             perFrameCpuUbo.nonBlurTime.get() = time;
+            perFrameCpuUbo.nonBlurBeat.get() = GetBeatFromTime(time);
             perFrameCpuUbo.frameID = frameID;
             perFrameCpuUbo.shaderReload = int(terrain.shaderIncrement != ShaderIncrement);
             perFrameCpuUbo.sampleCount = samples;

@@ -311,7 +311,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     }
 
     // Filter everything outside the big circle
-    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetCameraPos(GetTimeFromBeat(265)).z, GetCameraPos(GetTimeFromBeat(313)).z))) {
+    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetCameraPos(265).z, GetCameraPos(313).z))) {
     if (SmallestAirTunnel()) {
         return 0;
     }
