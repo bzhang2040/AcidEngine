@@ -1,4 +1,10 @@
 
+const vec2 trackPos = vec2(0.5, 92.5);
+const float customyaw = 0.0000001;
+const float custompitch = -0.001;
+const float customzoom = 0.0;
+const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
+
 #define UPDATE_INDIRECT true
 
 #define SPARSE true
@@ -40,14 +46,13 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 
 #define writeFrames true
 #define interactive (true && (!writeFrames))
-#define encodeVideo (true && writeFrames)
+float maxSeconds = 90.0;    // Full video = 485.0
 #define SAMPLE_COUNT (writeFrames ? 16 : 1)
+#define encodeVideo (true && writeFrames)
 #define MAX_SAMPLE_COUNT 512
 #define TRILINEAR_TERRAIN (false || writeFrames)
 
-#define START_FRAME (1 + 3282*0 + 3741*0 + 5820*0 + 6955*0 + 9125*0 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
-
-//#define SHUTTER_ANGLE 0.5
+#define START_FRAME (1 + 3282 + 3741*0 + 5820*0 + 6955*0 + 9125*0 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
 
 #define EXPOSURE  1.0
 #define EXPOSURE2 2.0
@@ -63,32 +68,31 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 #define WATER_HEIGHT 80
 #define SAND_HEIGHT (WATER_HEIGHT + 3)
 
-const uint HASH_COL_BITS = 5;
-const uint HASH_COL_HEIGHT = 1<< HASH_COL_BITS;
-const uint VOXEL_ARRAY_BITS = WORLD_BITS.x + WORLD_BITS.z + HASH_COL_BITS;
-const uint VOXEL_ARRAY_SIZE = 1 << VOXEL_ARRAY_BITS;
-const uint REMAINING_HASH_BITS = WORLD_BITS.y - HASH_COL_BITS;
-
-const int PROBE_ATTEMPTS = 16;
-
 #define LOCAL_LOD 0
 #define LOD_STEP 2
 #define MAX_LOD 4
 
-#ifndef CXX_STAGE
+const float framerate = 60.0;
+#define FOV 90.0f
 
-const vec3 offsetInStructure = ivec3(WORLD_SIZE.xyz * vec3(0.5, 0.5, 0.5) + vec3(0.0, 0.2, 0.0)) * vec3(1, 1, 1) + vec3(0, 0, 256) * 0;
+const vec3 offsetInStructure = vec3(ivec3(vec3(WORLD_SIZE) * vec3(0.5, 0.5, 0.5) + vec3(0.0, 0.0, 0.0)));
 
-#define framerate 60.0f
+#define VIDEO_LENGTH_SECONDS (9*60)
 
-//#define interp(x, a, b) (((b) > (a)) ? glm::clamp(((x) - (a)) / ((b) - (a)), 0.0, 1.0) : glm::clamp(((x) - (a)) / ((b) - (a)), 0.0, 1.0))
+#define BLOCKS_PER_SECOND 80.0f
+#define BEATS_PER_MINUTE 160.0f
+#define BEATS_PER_SECOND (BEATS_PER_MINUTE / 60.0f)
 
-#endif
+float GetBeatFromTime(float time) {
+    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
+
+    return time / secondsPerBeat;
+}
+
+float GetTimeFromBeat(float beat) {
+    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
+
+    return beat * secondsPerBeat;
+}
 
 //#include INCLUDE
-
-const vec2 cPos = vec2(trackPos.x, trackPos.y) + vec2(-0.5, 2.0);
-const vec3 phaseSync = vec3(0, 0, -11.8);
-#define freq ((BLOCKS_PER_SECOND * (60.0 / BEATS_PER_MINUTE)) / 2.0)
-#define crunch(x, y) (floor((x) / vec3(y)) * vec3(y))
-#define krunch(x, y) (x - (floor((x) / vec3(y)) * vec3(y)))

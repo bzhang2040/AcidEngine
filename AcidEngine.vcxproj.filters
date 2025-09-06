@@ -70,13 +70,13 @@
     <None Include="Shaders\Scene.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Shaders\Camera.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Shaders\sky.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Shaders\Uniforms.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\Animations.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

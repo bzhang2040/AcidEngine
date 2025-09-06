@@ -5,7 +5,6 @@
 #include <map>
 
 #define CXX_STAGE
-#include "Camera.glsl"
 #include "Scene.glsl"
 #include "Include.glsl"
 #include "PrecomputeSky.glsl"
@@ -263,10 +262,10 @@ std::string Replace(const std::string& str, const std::string& from, const std::
 std::string AddPreamble(const std::string& type_, std::string sourceText, const std::string& filename, const std::string& preprocessorName) {
     std::string modifiedText;
 
-    modifiedText += ReadFile("Camera.glsl");
     modifiedText += ReadFile("Scene.glsl");
 
     modifiedText = Replace(modifiedText, "//#include INCLUDE\n", ReadFile("Include.glsl"));
+    modifiedText = Replace(modifiedText, "//#include ANIMATIONS\n", ReadFile("Animations.glsl"));
 
     std::string target = "//#include SKY\n";
     size_t targetPos = sourceText.find(target);

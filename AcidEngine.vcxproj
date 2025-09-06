@@ -149,8 +149,8 @@
     <ClInclude Include="Shaders\BS.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Animations.glsl" />
     <None Include="Shaders\Bloom.glsl" />
-    <None Include="Shaders\Camera.glsl" />
     <None Include="Shaders\FullscreenBlit.glsl" />
     <None Include="Shaders\Include.glsl" />
     <None Include="Shaders\PrecomputeSky.glsl" />

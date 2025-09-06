@@ -149,6 +149,43 @@ vec3 ComputeWaveNormals(vec3 worldSpacePosition, vec3 flatWorldNormal) {
     return vec3(diff, sqrt(1.0 - dot(diff, diff)));
 }
 
+vec3 Unproject(vec3 tc) {
+    vec3 worldDir = tc;
+    worldDir.xy *= aspect;
+    worldDir.z /= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
+    worldDir.yz *= rotate(-pitch);
+    worldDir.xz *= rotate(yaw);
+    return worldDir.xyz;
+}
+vec3 Unproject(vec2 tc) { return Unproject(vec3(tc, 1.0)); }
+
+vec3 Project(vec3 worldDir) {
+    worldDir.xz *= rotate(-yaw);
+    worldDir.yz *= rotate(pitch);
+    worldDir.z *= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
+    worldDir.xy /= aspect;
+    return worldDir;
+}
+
+bool DistortionReuse() {
+    return distortionIntensity > 0.0 && SAMPLE_COUNT > 1;
+}
+
+float FisheyeForward(float x) {
+    float oldX = x;
+    x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
+    return mix(oldX, x, beatFromPos);
+}
+
+vec2 Fisheye(vec2 pos) {
+    if (!DO_FISHEYE) return pos;
+    vec2 originalPos = pos;
+    pos /= aspect.yx;
+    pos = normalize(pos) * FisheyeForward(length(pos));
+    pos *= aspect.yx;
+    return pos;
+}
+
 //#include SKY
 
 #endif

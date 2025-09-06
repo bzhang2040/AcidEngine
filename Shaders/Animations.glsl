@@ -1,18 +1,4 @@
 
-
-const vec2 trackPos = vec2(0.5, 92.5);
-
-const float customyaw = 0.0000001;
-const float custompitch = -0.001;
-const float customzoom = 0.0;
-const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
-
-#define VIDEO_LENGTH_SECONDS (9*60)
-
-#define BLOCKS_PER_SECOND 80.0f
-#define BEATS_PER_MINUTE 160.0f
-#define BEATS_PER_SECOND (BEATS_PER_MINUTE / 60.0f)
-
 #define Key(a, b, c, d) temp = interp(beat, b, c); curr += d * NewValue(prev, a);
 #define KeySpeed(a, b, c) temp = interpIntegral(GetTimeFromBeat(beat), GetTimeFromBeat(b), GetTimeFromBeat(c)); curr += temp * NewValue(prev, a);
 
@@ -36,40 +22,19 @@ float interpIntegral(float x, float a, float b) {
         return 0.5 * x * x * b;
     }
 
-	return (x - 0.5)*b;
+    return (x - 0.5) * b;
 }
 
 float cubesmooth2(float x) {
     return x * x * (3.0 - 2.0 * x);
 }
 
-float GetBeatFromTime(float time) {
-    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
-
-    return time / secondsPerBeat;
-}
-
-float GetTimeFromBeat(float beat) {
-    float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
-
-    return beat * secondsPerBeat;
-}
-
-#ifdef CXX_STAGE
-float NewValue(float& value, float newValue) {
-    float ret = (newValue - value);
-    value = newValue;
-    return ret;
-}
-#else
 float NewValue(inout float value, float newValue) {
     float ret = (newValue - value);
     value = newValue;
     return ret;
 }
-#endif
 
-#if !defined(CXX_STAGE)
 vec3 GetCameraPos(float beat) {
     float temp;
     float time = GetTimeFromBeat(beat);
@@ -189,4 +154,18 @@ float GetBeatFromPos(float pos) { // Inverts the function using newtons method.
     return t;
 }
 
-#endif
+float DistortionIntensity() {
+    //return 1.0;
+    if (!DO_DISTORTION) return 0.0;
+    float prev = 0.0;
+    float curr = 0.0;
+    float temp = 0.0;
+    float beat = beatFromPos;
+
+    Key(0.2, 265, 271, powf(0.75, temp));
+    Key(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
+    Key(0.8, 277, 313, temp);
+    Key(0.0, 500, 505, powf(4.0, temp));
+
+    return curr;
+}

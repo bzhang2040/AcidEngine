@@ -52,22 +52,6 @@ layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
 //#include SKY
 
-float DistortionIntensity() {
-    //return 1.0;
-    if (!DO_DISTORTION) return 0.0;
-    float prev = 0.0;
-    float curr = 0.0;
-    float temp = 0.0;
-    float beat = beatFromPos;
-
-    Key(0.2, 265, 271, powf(0.75, temp));
-    Key(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
-    Key(0.8, 277, 313, temp);
-    Key(0.0, 500, 505, powf(4.0, temp));
-
-    return curr;
-}
-
 uint VoxelRead2(ivec3 pos, ivec2 cameraChunk2) {
     pos = rirCoord(pos, cameraChunk2);
 

@@ -28,11 +28,6 @@ static bool doubleBuffer = true;
 static bool vSync = false;
 static bool cleanFramesFolder = true;
 
-float maxSeconds = 150.0; // 485.0;
-float framerate = 60.0;
-
-#define FOV 90.0f
-
 GLFWwindow* window;
 float camyaw = 0.0f;
 float campitch = 0.0f;
