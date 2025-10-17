@@ -176,7 +176,7 @@ public:
 void ProcessInput(vec3& movement, float samples) {
     float multiplier = 1.0f;
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) multiplier *= 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) multiplier *= 0.01f;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) multiplier *= 3.0f;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) multiplier *= 10.0f;
 
@@ -299,9 +299,9 @@ public:
         }
 
         { // CPU Uniform data
-            perFrameCpuUbo.yaw = camyaw + customyaw;
-            perFrameCpuUbo.pitch = campitch + custompitch;
-            perFrameCpuUbo.zoom = zoom + customzoom;
+            perFrameCpuUbo.cpu_yaw = camyaw + customyaw;
+            perFrameCpuUbo.cpu_pitch = campitch + custompitch;
+            perFrameCpuUbo.cpu_zoom = zoom + customzoom;
             perFrameCpuUbo.nonBlurTime.get() = time;
             perFrameCpuUbo.nonBlurBeat.get() = GetBeatFromTime(time);
             perFrameCpuUbo.frameID = frameID;
@@ -312,7 +312,7 @@ public:
         }
 
         if (KeyPressEvent(GLFW_KEY_4)) {
-            cout << "yaw: " << perFrameCpuUbo.yaw.get() << ", pitch: " << perFrameCpuUbo.pitch.get() << ", zoom: " << perFrameCpuUbo.zoom.get() << ", movement: (" << perFrameCpuUbo.currMovement.get().x << ", " << perFrameCpuUbo.currMovement.get().y << ", " << perFrameCpuUbo.currMovement.get().z << ")\n";
+            cout << "yaw: " << perFrameCpuUbo.cpu_yaw.get() << ", pitch: " << perFrameCpuUbo.cpu_pitch.get() << ", zoom: " << perFrameCpuUbo.cpu_zoom.get() << ", movement: (" << perFrameCpuUbo.currMovement.get().x << ", " << perFrameCpuUbo.currMovement.get().y << ", " << perFrameCpuUbo.currMovement.get().z << ")\n";
         }
 
         perSampleUbo.Bind(14, GL_SHADER_STORAGE_BUFFER);

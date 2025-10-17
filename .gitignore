@@ -3,7 +3,9 @@ Music/
 x64/
 
 AcidEngine.vcxproj.user
-base.mp4
-Untitled.mp3
-Untitled.veg
-Untitled.veg.bak
+*.png
+*.mp4
+*.mp3
+*.veg
+*.veg.bak
+*.sfk

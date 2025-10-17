@@ -1,8 +1,3 @@
-#ifdef CXX_STAGE
-    #define PrecomputeSky_glsl "PrecomputeSky.glsl"
-#endif
-
-#if !defined(CXX_STAGE)
 
 const int TRANSMITTANCE_TEXTURE_WIDTH = 256;
 const int TRANSMITTANCE_TEXTURE_HEIGHT = 64;
@@ -471,5 +466,3 @@ vec3 SkyAtmosphere(vec3 wDir) {
 	vec3 nothing = vec3(1.0);
 	return SkyAtmosphere(wDir, nothing);
 }
-
-#endif

@@ -25,37 +25,68 @@ float interpIntegral(float x, float a, float b) {
     return (x - 0.5) * b;
 }
 
-float cubesmooth2(float x) {
-    return x * x * (3.0 - 2.0 * x);
-}
-
 float NewValue(inout float value, float newValue) {
     float ret = (newValue - value);
     value = newValue;
     return ret;
 }
 
-vec3 GetCameraPos(float beat) {
+float GetBeatPos(float beat) {
     float temp;
     float time = GetTimeFromBeat(beat);
 
     float prev = 80.0;
     float curr = time * prev;
 
-
-    KeySpeed(500.0, 160, 160 + 0.1);
-    KeySpeed(80.0, 169, 169 + 0.1);
+    KeySpeed(500.0, 160, 160.1);
+    KeySpeed(80.0, 169, 169.1);
 
     KeySpeed(160.0, 265, 275);
     KeySpeed(120.0, 361, 366);
 
+    KeySpeed(500.0, 721-10, 721);
+    KeySpeed(120.0, 913, 937);
+
     KeySpeed(160.0, 1073, 1079);
 
-    return vec3(trackPos.x, trackPos.y + 2.0, curr);
+    return curr;
 }
 
-float GetBeatPos(float beat) {
-    return GetCameraPos(beat).z;
+float GetLatent1() { float prev = 0.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
+    Key(1.0, 49, 60, temp);
+    return curr;
+}
+
+float GetLatent2() { float prev = 0.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
+    Key(1.0, 60, 84, EaseInOutSin(temp));
+    return curr;
+}
+
+float GetPitch() { float prev = -45.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
+    
+    Key(0, 60.9, 61, EaseInOutSin(temp));
+    return radians(curr*0+0.001);
+
+    return radians(mix(-45.0, 0.0, GetLatent2()));
+}
+
+
+vec3 GetCameraPos(float beat) { float prev = WATER_HEIGHT+1.1; float curr = prev; float temp = 0.0;
+    float oldBeat = beat;
+    beat = beatFromPos;
+
+    Key(WATER_HEIGHT+5.0, 37, 50, EaseInOutSin(temp));
+    Key(trackPos.y+2, 74, 96, EaseInOutSin(temp));
+
+    return vec3(trackPos.x, (trackPos.y + curr)*0+curr, GetBeatPos(oldBeat));
+}
+
+float GetYaw() { float prev = 89.999; float curr = prev; float temp = 0.0; float beat = beatFromPos;
+    //if (!writeFrames) return 0;
+
+    Key(0.0, 36.9, 61, EaseOutSin(EaseInOutSin(temp)));
+
+    return radians(curr);
 }
 
 float ANIMATE_FOV(float beat) {
@@ -63,15 +94,11 @@ float ANIMATE_FOV(float beat) {
     float old = var;
 
     var += NewValue(old, 120.0) * tan(interp(beat, 313-6, 313)*3.14159/2.0 / 2.0);
-    var += NewValue(old, 90.0) * tan(interp(beat, 360, 360+3)*3.14159/2.0 / 2.0);
+    var += NewValue(old, 110.0) * tan(interp(beat, 360, 360+3)*3.14159/2.0 / 2.0);
 
     var += NewValue(old, 110.0) * tan(interp(beat, 1073, 1079)*3.14159/2.0 / 2.0);
 
     return var;
-}
-
-mat2 rotate2(float rad) {
-    return mat2(cos(-rad), -sin(-rad), sin(-rad), cos(-rad));
 }
 
 float SHUTTER_ANGLE(float beat) {
@@ -101,10 +128,10 @@ vec3 SunDirection(float beat) {
 
     vec3 sunDir = vec3(0.0, 0.0, 1.0);
 
-    vec2 v = vec2(sunDir.x, sunDir.z) * rotate2(radians(sunRotation));
+    vec2 v = vec2(sunDir.x, sunDir.z) * rotate(radians(sunRotation));
     sunDir.x = v.x;
     sunDir.z = v.y;
-    v = vec2(sunDir.y, sunDir.z) * rotate2(radians(sunAngle));
+    v = vec2(sunDir.y, sunDir.z) * rotate(radians(sunAngle));
     sunDir.y = v.x;
     sunDir.z = v.y;
 
@@ -113,7 +140,7 @@ vec3 SunDirection(float beat) {
 
 vec3 MoonDirection(float beat) {
     vec3 moonDirection = SunDirection(beat);
-    vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate2(radians(-30.0));
+    vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate(radians(-30.0));
     moonDirection.x = v.x;
     moonDirection.z = v.y;
     moonDirection.y *= -1.0;
@@ -123,35 +150,16 @@ vec3 MoonDirection(float beat) {
 }
 
 float FisheyeAmount(float beat) {
-    float prev = 0.0;
-    float curr = 0.0;
+    float prev = 1.0;
+    float curr = prev;
     float temp = 0.0;
 
-    return 1.0;
-    //Key(1.0, 650, 670, cubesmooth2(tan(temp * 3.14159 / 4.0)));
-    //Key(1.0, 665, 670, atan(temp)/3.14159*4.0);
-    //Key(1.0, 650, 670, cubesmooth2(temp));
+    Key(0.0, 97, 145, temp);
 
-    //curr += NewValue(prev, 1.0) * tan(interp(beat, 312, 313) * 3.14159 / 2.0 / 2.0);
+    Key(1.0, 600, 630, temp + 0.0*cubesmooth(tan(temp * 3.14159 / 4.0)));
+    Key(0.0, 700, 750, temp);
 
     return curr;
-}
-
-float GetBeatFromPos(float pos) { // Inverts the function using newtons method.
-    float t = 0.0;
-    
-    for (int i = 0; i < 100; ++i) {
-        float f = GetCameraPos(t).z - pos;
-        float df = GetCameraPos(t + GetBeatFromTime(1.0)).z - GetCameraPos(t).z;
-        
-        if (abs(f) < 0.0001 || df == 0.0) {
-            return t;
-        }
-
-        t -= f / df;
-    }
-
-    return t;
 }
 
 float DistortionIntensity() {
@@ -168,4 +176,66 @@ float DistortionIntensity() {
     Key(0.0, 500, 505, powf(4.0, temp));
 
     return curr;
+}
+
+vec3 TheFunction(vec3 pos) {
+    vec3 oldPos = pos;
+    vec3 offset = VoxelToWorld(vec3(0)) - cameraPosition * vec3(1,1,1) - trackPos.y * 0;
+    pos += offset;
+    oldPos = pos;
+
+    {
+        //pos.xy = rotate(-(pos.z / 100.0)) * pos.xy;
+
+        return pos;
+    }
+
+    if (distortionIntensity <= 0.0) return pos;
+
+    //pos.y -= pos.z * pos.z / 1600.0;
+    
+    {
+        pos.y += 2.0;
+        
+        float K = 3000.0 * (interp(beatFromPos, 265, 271));
+
+        float t3 = sin(pos.z * 3.0 / currentSpeed);
+        t3 *= distortionIntensity;
+        t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
+        t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
+        pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
+
+        return pos;
+    }
+
+    {
+        pos.y -= 10.0;
+        pos.xz *= rotate(-yaw);
+        pos.xy *= rotate(-mix(pos.x,pos.z,1.0) / 50.0);
+        pos.xz *= rotate(yaw);
+
+        return pos;
+    }
+
+    {
+        pos.xz *= rotate(radians(20.0));
+        pos.xy *= rotate(pos.z/50.0);
+        pos.xz *= rotate(-radians(20.0));
+        return mix(oldPos, pos, 0.6);
+        return pos;
+    }
+
+    {
+        float amt = cubesmooth(interp(beatFromPos, 16, 19));
+
+        pos.xy += vec2(sin(pos.z / 10.0), cos(pos.z / 10.0)) * 10.0;
+        pos.xy *= rotate(pos.z / 50.0);
+        pos.xy -= vec2(sin(pos.z / 10.0), cos(pos.z / 10.0)) * 10.0;
+
+        //return mix(oldPos, pos, amt);
+
+        return pos;
+    }
+
+    return pos;
 }

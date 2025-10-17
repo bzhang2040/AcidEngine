@@ -7,8 +7,6 @@
 #define CXX_STAGE
 #include "Scene.glsl"
 #include "Include.glsl"
-#include "PrecomputeSky.glsl"
-#include "sky.glsl"
 #include "Uniforms.glsl"
 #include "FullscreenBlit.glsl"
 #include "Triangulate.glsl"
@@ -249,31 +247,31 @@ std::string ReadFile(std::string filename, std::string includeName = "") {
 static bool ReloadingShaders = false;
 static int ShaderIncrement = 0;
 
-std::string Replace(const std::string& str, const std::string& from, const std::string& to) {
-    std::string newString = str;
-    size_t start_pos = newString.find(from);
-    if (start_pos == std::string::npos) {
-        return str;
+void Replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t pos = 0;
+    while ((pos = str.find(from, pos)) != std::string::npos) {
+        str.replace(pos, from.length(), to);
+        pos += to.length();
     }
-    newString.replace(start_pos, from.length(), to);
-    return newString;
 }
 
 std::string AddPreamble(const std::string& type_, std::string sourceText, const std::string& filename, const std::string& preprocessorName) {
-    std::string modifiedText;
+    std::string modifiedText = ReadFile("Scene.glsl");
 
-    modifiedText += ReadFile("Scene.glsl");
-
-    modifiedText = Replace(modifiedText, "//#include INCLUDE\n", ReadFile("Include.glsl"));
-    modifiedText = Replace(modifiedText, "//#include ANIMATIONS\n", ReadFile("Animations.glsl"));
-
+    Replace(modifiedText, "//#include \"Include.glsl\"\n", ReadFile("Include.glsl"));
+    Replace(modifiedText, "//#include \"Animations.glsl\"\n", ReadFile("Animations.glsl"));
+    
     std::string target = "//#include SKY\n";
     size_t targetPos = sourceText.find(target);
     if (targetPos != string::npos) {
-        sourceText.replace(targetPos, target.length(), ReadFile(PrecomputeSky_glsl) + ReadFile(Sky_glsl));
+        sourceText.replace(targetPos, target.length(), ReadFile("PrecomputeSky.glsl") + ReadFile("sky.glsl"));
     }
 
     modifiedText += sourceText;
+
+    Replace(modifiedText, "//#include \"Terrain.glsl\"\n", ReadFile("Terrain.glsl"));
+    Replace(modifiedText, "//#include \"Worlds.glsl\"\n", ReadFile("Worlds.glsl"));
+
     if (type_ == "vertex")   modifiedText = "#define VERTEX_STAGE\n" + modifiedText;
     else if (type_ == "fragment") modifiedText = "#define FRAGMENT_STAGE\n" + modifiedText;
     else if (type_ == "compute")  modifiedText = "#define COMPUTE_STAGE\n" + modifiedText;
@@ -372,6 +370,9 @@ int CreateProgram(const std::string& text, const std::string& type, const std::s
 // <Filename, PreprocessorName, ShaderType, ShaderSource>
 std::map<std::tuple<std::string, std::string, std::string>, int*> ReloadableShaders;
 
+// Permutation system:
+// {"c_logicalWorldID", "0"}
+
 class Shader {
 public:
     int id = 0;
@@ -401,6 +402,13 @@ public:
     Shader(const std::string& text, const std::string& type_) {
         type = type_;
         id = CreateProgram(text, type, "", "");
+    }
+
+    Shader(const std::string& filename, const std::string prename, const std::string& type_) {
+        type = type_;
+        std::string source = ReadFile(filename, prename);
+        //id = CreateProgram(source, type);
+        ReloadableShaders[std::make_tuple(filename, prename, type)] = &id;
     }
 
     Shader(const std::string& filename, const std::string prename, const std::string& type_) {

@@ -373,7 +373,7 @@ void main() {
     bloom = clamp(bloom, 0.0, 1.0);
     OutColor.rgb = clamp(OutColor.rgb, 0.0, 1.0);
     bloom = rgb(clamp(hsv(bloom) * vec3(1,4,1), 0.0, 1.0));
-    OutColor.rgb = Screen(OutColor.rgb, bloom, 0.15);
+    OutColor.rgb = Screen(OutColor.rgb, bloom, 0.25);
 
     sunBloom = ACESFitted(sunBloom, true);
     OutColor.rgb = Screen(OutColor.rgb, sunBloom, 1.0);
@@ -407,6 +407,11 @@ void main() {
     
 
     //DrawDebugText();
+
+    if (writeFrames && beatFromPos < INTRO_BEAT) {
+        OutColor.rgb = vec3(0.0);
+    }
+
     return;
 };
 #endif

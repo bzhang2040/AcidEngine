@@ -1,8 +1,3 @@
-#ifdef CXX_STAGE
-	#define Sky_glsl "sky.glsl"
-#endif
-
-#if !defined(CXX_STAGE)
 
 //#define CLOUDS_2D
 #define CLOUD_SCALE_2D    1.0
@@ -40,7 +35,8 @@ float GetCoverage(float clouds, float coverage) {
 }
 
 float CloudFBM(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
-	float time = cameraPosition.z * 0.001 + 1000.0;
+	//float time = cameraPosition.z * 0.001 + 1000.0;
+	float time = GetTimeFromBeat(beatFromPos) * 0.001 * 80.0;
 	
 	c[0]    = coord * 0.007;
 	c[0].x  = c[0].x * 0.25 + time;
@@ -96,11 +92,12 @@ vec3 Compute2DCloudPlane(vec3 wPos, vec3 wDir, inout vec3 transmit, float sunglo
 	
 	vec2 coord = wDir.xz * ((cloudHeight - wPos.y) / wDir.y);
 	
-	//if (false)
+	if (false)
 	{
 		coord.y += (bcos(abs(coord.x) / 2000.0) - 1.0)*1000.0;
 	}
 	coord += wPos.xz * CLOUD_SCALE_2D;
+	coord.x += 50000.0;
 
 	mat4x2 coords;
 	
@@ -115,7 +112,7 @@ vec3 Compute2DCloudPlane(vec3 wPos, vec3 wDir, inout vec3 transmit, float sunglo
 	sunlight +=  GetNoise(coords[2] + lightOffset) * weights.y;
 	sunlight +=  GetNoise(coords[3] + lightOffset) * weights.z;
 	sunlight  = GetCoverage(weight - sunlight, coverage);
-	sunlight  = pow(1.3 - sunlight, 5.5);
+	sunlight  = pow(1.3 - sunlight, 5.5)*2.0;
 //	sunlight *= mix(pow(cloudAlpha, 1.6) * 2.5, 2.0, sunglow);
 //	sunlight *= mix(10.0, 1.0, sqrt(sunglow));
 	
@@ -243,5 +240,3 @@ float FogFactor(vec3 viewPos) {
 
 	return clamp(fogfactor, 0.0, 1.0);
 }
-
-#endif

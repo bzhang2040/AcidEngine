@@ -152,6 +152,7 @@
     <None Include="Shaders\Animations.glsl" />
     <None Include="Shaders\Bloom.glsl" />
     <None Include="Shaders\FullscreenBlit.glsl" />
+    <None Include="Shaders\Worlds.glsl" />
     <None Include="Shaders\Include.glsl" />
     <None Include="Shaders\PrecomputeSky.glsl" />
     <None Include="Shaders\Render.glsl" />

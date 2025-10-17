@@ -38,7 +38,7 @@ float SharpenWave(float wave) {
 }
 
 const vec4 heights = vec4(29.0, 15.0, 17.0, 4.0);
-const vec4 height = heights * WAVE_MULT / (heights.x + heights.y + heights.z + heights.w);
+const vec4 height = heights * WAVE_MULT / (heights.x + heights.y + heights.z + heights.w) * GetLatent1();
 
 const vec2[4] scale = vec2[4](
     vec2(0.0065, 0.0052)* noiseRes* noiseScale,
@@ -155,11 +155,24 @@ vec3 Unproject(vec3 tc) {
     worldDir.z /= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
     worldDir.yz *= rotate(-pitch);
     worldDir.xz *= rotate(yaw);
+    //worldDir.xy *= rotate(roll);
+    if (flipY == 1) {
+        //
+        //worldDir.x *= -1.0;
+        worldDir.y *= -1.0;
+    }
+    worldDir.xy *= rotate(roll);
     return worldDir.xyz;
 }
 vec3 Unproject(vec2 tc) { return Unproject(vec3(tc, 1.0)); }
 
 vec3 Project(vec3 worldDir) {
+    worldDir.xy *= rotate(-roll);
+    if (flipY == 1) {
+        worldDir.y *= -1.0;
+        //worldDir.x *= -1.0;
+        //worldDir.xy *= rotate(-roll);
+    }
     worldDir.xz *= rotate(-yaw);
     worldDir.yz *= rotate(pitch);
     worldDir.z *= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
@@ -168,13 +181,14 @@ vec3 Project(vec3 worldDir) {
 }
 
 bool DistortionReuse() {
+    return false;
     return distortionIntensity > 0.0 && SAMPLE_COUNT > 1;
 }
 
 float FisheyeForward(float x) {
     float oldX = x;
     x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
-    return mix(oldX, x, beatFromPos);
+    return mix(oldX, x, FisheyeAmount(beatFromPos));
 }
 
 vec2 Fisheye(vec2 pos) {
@@ -710,88 +724,6 @@ vec3 Orb(vec3 pos) {
     return pow(r, n) * vec3(sin(roh) * cos(theta), sin(roh) * sin(theta), cos(roh));
 }
 
-vec3 TheFunction(vec3 pos) {
-    //return pos;
-    vec3 oldPos = pos;
-    vec3 offset = VoxelToWorld(vec3(0)) - cameraPosition * vec3(1,1,1) - trackPos.y * 0;
-    pos += offset;
-
-    if (false) {
-    pos.xz *= rotate(radians(-30.0));
-    pos.xy *= rotate(pos.z / 20.0);
-    pos.y -= sin(pos.z / 50.0) * 10.0;
-    pos.xy *= rotate(-pos.z / 20.0);
-    pos.xz *= rotate(radians(30.0));
-    return pos;
-    }
-
-    vec3 pos2 = pos;
-
-    if (false)
-    {
-        float range = 10.0;
-        pos.xyz = pos.xyz / WORLD_SIZE.xxx * range;
-
-        vec3 x0 = vec3(0.0, 0.0, 0.0);
-        float r = 2.0;
-
-        pos -= x0;
-        float theta = atan(pos.z, pos.y);
-        pos.yz *= rotate(-theta);
-        pos.y -= r;
-        float omegle = atan(pos.y, pos.x);
-        pos.xy *= rotate(omegle);
-        pos.y += r;
-        pos.yz *= rotate(theta);
-        pos += x0;
-
-        pos.xyz *= WORLD_SIZE.xxx / range;
-        pos = mix(pos2, pos, 1.0);
-        return pos;
-    }
-
-    if (false)
-    {
-        vec3 oldPos = pos + cameraPosition;
-        pos.y -= sin(oldPos.x / 200.0) * sin(oldPos.z / 200.0) * 100.0;
-        return pos;
-    }
-    
-    if (false)
-    {
-        float t4 = pos.y / 2000.0;
-        float t5 = -pos.x / 2000.0;
-        pos.zy *= mat2(cos(-t4), -sin(-t4), sin(-t4), cos(-t4));
-        pos.xz *= mat2(cos(-t5), -sin(-t5), sin(-t5), cos(-t5));
-        return pos;
-    }
-
-    pos.y += 2.0;
-
-
-    float K = 3000.0 * (interp(beatFromPos, 265, 271));
-
-    //pos.y += sin(length(pos.xz) / 10.0 - cameraPosition.z / 100.0) * 10.0 * pow(cubesmooth(interp(length(pos.xz), 0.0, 200.0)), 2.0)
-    //    * interp(length(pos.xz), K, 0.0);
-
-    float t3 = sin(pos.z * 3.0 / currentSpeed);
-    //float t3 = sin(pos.z * 3.0 / 160.0);
-    t3 *= distortionIntensity;
-    t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
-    t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
-    pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
-    
-    /*
-    pos.y += sin(length(pos.z) / 10.0) * 20.0 * cubesmooth(interp(length(pos.x), 0.0, 100.0))
-        * pow(interp(beatFromPos, 277-1, 277), 2.0)
-        * (pow(interp(beatFromPos, 278.5-1, 278.5), 2.0)*-2.0+1.0)
-        * (pow(interp(beatFromPos, 280-1, 280), 2.0)*-2.0+1.0)
-        * (pow(interp(beatFromPos, 281.5-1, 281.5), 2.0)*-2.0+1.0)
-        * (pow(interp(beatFromPos, 283-1, 283), 2.0)*-2.0+1.0);*/
-
-    return pos;
-}
-
 mat3 TheJacobian(vec3 pos) {
     mat3 ret;
 
@@ -1250,6 +1182,7 @@ void NewFunction(vec2 uv2) {
     vec2 tCoord;
 
     uint data = VoxelRead(ivec3(VIO.voxelPos - VIO.plane * 0.01), 0);
+    bool is_water = data == id_water;
     //if (data == id_leaves) VIO.voxelPos += sunDirection * 0.01;
     curr.voxelPos = VIO.voxelPos + VIO.plane * 0.001;
     if (data == id_water) {
@@ -1287,13 +1220,16 @@ void NewFunction(vec2 uv2) {
             data = VoxelRead(ivec3(VIO.voxelPos - VIO.plane * 0.01), 0);
             if (!VIO.hit || data == id_water) {} else specular.fogfactor = FogFactor(VoxelToWorld(VIO.voxelPos) - cameraPosition);
 
-            float ior = 1.0 - pow(max(0.0, dot(normalize(-wPosVector), normal)), 1.0);
+            float ior = mix(1.0,pow(1.0-max(0.0, dot(normalize(-wPosVector), normalize(normal))) * GetLatent1(), 3.0), 0.9);
 
             vec3 specSunspot;
             vec3 specClouds;
             vec3 specSky = ior * ComputeTotalSky(wPosVector, oldWorldDir, specSunspot, specClouds) / SKY_MULT;
             specSunspot *= ior;
             specClouds *= ior;
+
+            // underwater fog
+            primary.color += (1.0-ior)*curr.absorb * rgb(vec3(0.5, 1.0, 0.02));
 
             if (DO_ATMOSPHERE) OutColor.rgb += vec3(0.2, 0.2, 1.0)*0.3 * (1.0 - exp(-length(VoxelToWorld(VIO.voxelPos) - cameraPosition)/WORLD_SIZE.x)) * (1.0 - primary.fogfactor) ;
             OutColor.rgb += specSky * (1.0 - primary.fogfactor) * specular.fogfactor;
@@ -1337,13 +1273,18 @@ void NewFunction(vec2 uv2) {
     {
         vec3 pos = VoxelToWorld(VIO.voxelPos - VIO.plane * 0.001);
 
-
-        float torchPos = int(beatsSSBO[BinarySearchNearest(int(pos.z))].zPos);
+        int beatId = BinarySearchNearest(int(pos.z));
+        float torchPos = int(beatsSSBO[beatId].zPos);
         float dist = distance(vec3(trackPos.xy+vec2(0,2),torchPos), pos);
         float torchDist = pow((asin(sin(pos.z / 10.0)) / 3.14159 * 2.0 * 0.5 + 0.5), 8.0);
         torchDist = pow(clamp01(1.0 - dist /16.0), 4.0);
         float torchBrightness = 4.0 * torchDist;
-        if (torchBrightness > 0.01) {
+
+        if (BEAT_TYPE(beatId) == beat_type_nothing) {
+            torchBrightness = 0.0;
+        }
+
+        if (torchBrightness > 0.01 && !is_water) {
             float r = float(BlockOccupied(ivec3(curr.voxelPos) +ivec3(tanMat[0]))) * (tCoord.x);
             float l = float(BlockOccupied(ivec3(curr.voxelPos) -ivec3(tanMat[0]))) * (1 - tCoord.x);
             float t = float(BlockOccupied(ivec3(curr.voxelPos) +ivec3(tanMat[1]))) * (tCoord.y);
@@ -1488,6 +1429,10 @@ void NewFunction(vec2 uv2) {
 }
 
 void main() {
+    if (writeFrames && beatFromPos < INTRO_BEAT) {
+        return;
+    }
+
     //SetPhysicalWorldID(uWorldID);
     SetLogicalWorldID(uWorldID);
     randState = triple32(uint(gl_FragCoord.x) * 12345 + uint(gl_FragCoord.y) + floatBitsToUint(sampledFrameID % 16384) * 123456789);

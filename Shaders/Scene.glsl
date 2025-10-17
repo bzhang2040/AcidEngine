@@ -14,7 +14,7 @@ const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
 
 #define BOUNDS_CHECKING false
 
-const ivec3 WORLD_BITS = ivec3(10, 9, 10);
+const ivec3 WORLD_BITS = ivec3(11, 9, 11);
 const ivec3 WORLD_SIZE = ivec3(1) << WORLD_BITS;
 
 #define SUB_VOXEL_TRACE true
@@ -34,7 +34,7 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 
 #define viewSize vec2(windowWidth, windowHeight)
 
-#define DO_FISHEYE false
+#define DO_FISHEYE true
 #define DO_CLOUDS true
 #define DO_FOG true
 #define DO_ATMOSPHERE false
@@ -44,18 +44,18 @@ const int sparseTotalSize = sparseChunkDims.x * sparseChunkDims.y * sparseChunkD
 
 #define CURVATURE_SAMPLES 1
 
-#define writeFrames true
+#define writeFrames false
 #define interactive (true && (!writeFrames))
-float maxSeconds = 90.0;    // Full video = 485.0
+float maxSeconds = 30.0;    // Full video = 485.0
 #define SAMPLE_COUNT (writeFrames ? 16 : 1)
 #define encodeVideo (true && writeFrames)
 #define MAX_SAMPLE_COUNT 512
-#define TRILINEAR_TERRAIN (false || writeFrames)
+#define TRILINEAR_TERRAIN (true || writeFrames)
 
-#define START_FRAME (1 + 3282 + 3741*0 + 5820*0 + 6955*0 + 9125*0 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
+#define START_FRAME (1 + 539*0 + 3282*0 + 3741*0 + 5820*0 + 6955*0 + 9125 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
 
 #define EXPOSURE  1.0
-#define EXPOSURE2 2.0
+#define EXPOSURE2 1.0
 #define GAMMA 2.2
 
 #define TEXTURE_GAMMA 2.2
@@ -66,7 +66,7 @@ float maxSeconds = 90.0;    // Full video = 485.0
 #define SKY_MULT 6.0
 
 #define WATER_HEIGHT 80
-#define SAND_HEIGHT (WATER_HEIGHT + 3)
+#define SAND_HEIGHT (0)
 
 #define LOCAL_LOD 0
 #define LOD_STEP 2
@@ -83,6 +83,8 @@ const vec3 offsetInStructure = vec3(ivec3(vec3(WORLD_SIZE) * vec3(0.5, 0.5, 0.5)
 #define BEATS_PER_MINUTE 160.0f
 #define BEATS_PER_SECOND (BEATS_PER_MINUTE / 60.0f)
 
+#define INTRO_BEAT 25.0
+
 float GetBeatFromTime(float time) {
     float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
 
@@ -95,4 +97,4 @@ float GetTimeFromBeat(float beat) {
     return beat * secondsPerBeat;
 }
 
-//#include INCLUDE
+//#include "Include.glsl"

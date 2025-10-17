@@ -19,6 +19,7 @@
 #define b_wide 23
 #define beat_type_portal 30
 #define beat_type_programmatic 40
+#define beat_type_nothing 50
 
 struct BeatStructGPU {
 	float beat;
@@ -54,19 +55,42 @@ struct BeatStruct {
 
 // The main reason for this big vector is so I don't have to write a parser.
 std::vector<BeatStruct> beatsArray = {
+	{.b=beat_marker_start,.bt=beat_type_nothing},
+	{1}, {4}, {7},
+	{13}, {16}, {19}, {23.5},
+	{25}, {28},
+	{37}, {40}, {43}, {47.5},
+	
+	{49}, {52},
+	{61}, {64},
+	{73}, {74.5}, {76},
+	{85}, {88},
+
+	{.b=97,.bt=b_default}, {100}, {104.5}, {106}, {107}, {107.5},
+	{.b=109,.bt=b_default}, {112}, {113}, {113.5}, {115}, {116}, {116.5}, {118}, {119}, {119.5},
+
+	{.b=120,.bt=b_default},
+	{.b=133,.bt=b_default},
+	
+
+	{.b=beat_marker_end},
+	{145}, {146}, {146.5}, {148}, {149.5}, {152.5}, {155.5}, 
+
+	{157}, {158}, {158.5},
+	
 	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
 	{.b=beat_marker_start,.bt=beat_type_programmatic},
 	{160.5}, {161}, {161.5}, {162}, {162.5}, {163}, {163.5}, {164}, {164.5},
 	{165}, {165.5}, {166}, {166.5}, {167}, {167.5}, {168}, {168.5},
 	{.b=beat_marker_end},
-	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(6)},
+	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	
 	//{169},
 	{.b=170,.bt=b_low}, {170.5}, {172}, {.b=173,.bt=b_low}, {173.5}, {175}, {.b=176,.bt=b_low}, {176.5},
 	{178}, {179}, {180}, {181}, {184}, // I'll tell it to you one day
 	{190}, {190.5}, {191}, {192}, {193}, {.b=194,.bt=b_low}, {194.5}, {196}, {.b=197,.bt=b_low}, {197.5}, {199}, {.b=200,.bt=b_low}, {200.5}, {202}, {203}, {204},
 	{205}, {.b=206,.bt=b_low}, {206.5}, {208}, {.b=209,.bt=b_low}, {209.5}, {211}, {.b=212,.bt=b_low}, {212.5}, {214}, {215}, {216},
-	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(5)}, {.b=218,.bt=b_low}, {218.5}, {220}, {.b=221,.bt=b_low}, {221.5}, {223}, {.b=224,.bt=b_low}, {224.5},
+	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)}, {.b=218,.bt=b_low}, {218.5}, {220}, {.b=221,.bt=b_low}, {221.5}, {223}, {.b=224,.bt=b_low}, {224.5},
 	{226}, {227}, {228}, {229}, {232}, // A mile on my one leg
 	{238}, {239}, {240}, {250}, {251}, {252}, {253}, // Fixing my, fixing my eyes
 	{.b=265, .bt=b_low}, {.b=271, .bt=b_wide}, {277}, {278.5}, {280}, {281.5}, {283}, // No way, you control my world
@@ -136,6 +160,12 @@ std::vector<BeatStruct> beatsArray = {
 	{643}, {644.5}, {646}, {647.5}, {649},
 	{658}, {658.5}, {659}, {660}, {661}, {664},
 
+	{.b=beat_marker_end},
+	{.b=670,.bt=b_low}, {.b=671,.bt=beat_type_nothing}, {.b=672,.bt=b_low}, {.b=673,.bt=beat_type_nothing},
+	{.b=674.5,.bt=beat_type_nothing}, {.b=677.5,.bt=beat_type_nothing},
+
+	{.b=beat_marker_start, .bt=b_low},
+
 	{694}, {694.5}, {695}, {696}, {697}, {700}, // Can it tell me always
 	{706}, {706.5}, {707}, {708}, {709}, {712},
 
@@ -161,7 +191,7 @@ std::vector<BeatStruct> beatsArray = {
 
 	{.b = beat_marker_end},
 
-	{.b=1078, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(2)},
+	{.b=1078, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(4)},
 
 };
 
@@ -234,9 +264,9 @@ UBO_FUNC(int, shaderReload); \
 UBO_FUNC(int, resetCamera); \
 UBO_FUNC(int, sampleCount); \
 UBO_FUNC(int, frameID); \
-UBO_FUNC(float, yaw); \
-UBO_FUNC(float, pitch); \
-UBO_FUNC(float, zoom); \
+UBO_FUNC(float, cpu_yaw); \
+UBO_FUNC(float, cpu_pitch); \
+UBO_FUNC(float, cpu_zoom); \
 UBO_FUNC(float, nonBlurTime); \
 UBO_FUNC(float, nonBlurBeat); \
 UBO_FUNC(vec3, currMovement); \
@@ -251,6 +281,11 @@ UBO_FUNC(ivec2, cameraChunk); \
 UBO_FUNC(ivec2, previousCameraChunk); \
 UBO_FUNC(int, sampledFrameID); \
 UBO_FUNC(float, distortionIntensity); \
+UBO_FUNC(float, yaw); \
+UBO_FUNC(float, roll); \
+UBO_FUNC(float, pitch); \
+UBO_FUNC(float, zoom); \
+UBO_FUNC(int, flipY); \
 UBO_FUNC(float, beatFromPos); \
 UBO_FUNC(float, currentSpeed); \
 UBO_FUNC(int, uWorldID); \
@@ -269,7 +304,7 @@ layout(std140, binding = 0) uniform LAYOUTT_0 {
 };
 struct PerSampleUniforms {
 	PER_SAMPLE_UBO(UBO_DECLARE)
-	vec4[8] padding;
+	vec4[7] padding;
 };
 layout(std140, binding = 14) buffer LAYOUTT_000 {
 	PerSampleUniforms perSampleUbo[MAX_SAMPLE_COUNT];
@@ -824,6 +859,18 @@ vec2 cubesmooth(vec2 x) {
 	return x * x * (3.0 - 2.0 * x);
 }
 
+float EaseInSin(float x) {
+	return 1.0 - cos((x * 3.14159) / 2.0);
+}
+
+float EaseOutSin(float x) {
+	return sin((x * 3.14159) / 2.0);
+}
+
+float EaseInOutSin(float x) {
+	return -(cos(x * 3.14159) - 1.0) / 2.0;
+}
+
 // Return the index of the nearest beat less than or equal to the target
 int BinarySearchGT(int target) {
 	int high = BEATS_COUNT - 1;
@@ -860,6 +907,6 @@ bool BinarySearchIsExact(int target, int i) {
 	return target == x1;
 }
 
-//#include ANIMATIONS
+//#include "Animations.glsl"
 
 #endif

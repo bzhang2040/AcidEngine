@@ -66,6 +66,23 @@ vec3 GetCameraPosition(int tid) {
     return GetCameraPos(GetBeatFromTime(time)) - currMovement;
 }
 
+float GetBeatFromPos(float pos) { // Inverts the function using newtons method.
+    float t = 0.0;
+
+    for (int i = 0; i < 100; ++i) {
+        float f = GetCameraPos(t).z - pos;
+        float df = GetCameraPos(t + GetBeatFromTime(1.0)).z - GetCameraPos(t).z;
+
+        if (abs(f) < 0.0001 || df == 0.0) {
+            return t;
+        }
+
+        t -= f / df;
+    }
+
+    return t;
+}
+
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
     if (tid >= sampleCount) { return; }
@@ -73,6 +90,17 @@ void main() {
     PerSampleUniforms u;
 
     u.cameraPosition = GetCameraPosition(tid);
+
+    u.cameraPosition.y -= WATER_HEIGHT+1;
+    u.roll = (1-GetLatent2()) * radians(-180);
+
+    u.flipY = 0;
+    if (u.cameraPosition.y < 0.0) {
+        u.cameraPosition.y = -u.cameraPosition.y;
+        u.flipY = 1;
+    }
+
+    u.cameraPosition.y += WATER_HEIGHT+1;
 
     u.cameraChunk = ivec2(floor16(u.cameraPosition.xz)) + ivec2(WORLD_SIZE.x, WORLD_SIZE.z) * 1024;
     u.previousCameraChunk = ivec2(-floor16(prevRegenCameraPosition.xz)) + ivec2(WORLD_SIZE.x, WORLD_SIZE.z) * 1024;
@@ -117,6 +145,10 @@ void main() {
     u.beatFromPos = GetBeatFromPos(u.baseFrameCameraPosition.z);
 
     u.currentSpeed = GetCameraPos(u.beatFromPos + GetBeatFromTime(1.0)).z - GetCameraPos(u.beatFromPos).z;
+
+    u.yaw = cpu_yaw + GetYaw();
+    u.pitch = cpu_pitch + GetPitch();
+    u.zoom = cpu_zoom;
 
     u.sunDirection = SunDirection(u.beatFromPos);
     u.moonDirection = MoonDirection(u.beatFromPos);
