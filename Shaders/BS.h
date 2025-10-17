@@ -410,13 +410,6 @@ public:
         //id = CreateProgram(source, type);
         ReloadableShaders[std::make_tuple(filename, prename, type)] = &id;
     }
-
-    Shader(const std::string& filename, const std::string prename, const std::string& type_) {
-        type = type_;
-        std::string source = ReadFile(filename, prename);
-        //id = CreateProgram(source, type);
-        ReloadableShaders[std::make_tuple(filename, prename, type)] = &id;
-    }
 };
 
 void Dispatch(const Shader& shader, int x, int y, int z, bool barrier = true) {
