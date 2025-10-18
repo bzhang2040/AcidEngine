@@ -153,7 +153,7 @@ public:
         
         Dispatch(computeProg, 1, 1, 1);
 
-        if (UPDATE_INDIRECT) Dispatch(computeChunkUpdates, WORLD_SIZE.x / 16 / 16, WORLD_SIZE.y / 16, WORLD_SIZE.z / 16 / 16);
+        Dispatch(computeChunkUpdates, WORLD_SIZE.x / 16 / 16, WORLD_SIZE.y / 16, WORLD_SIZE.z / 16 / 16);
         DispatchIndirect(clearLOD, chunkUpdates * 16);
         if (reload) Dispatch(initChunks0, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16);
         if (reload) Dispatch(initChunks, sparseChunkDims.x/16, sparseChunkDims.y, sparseChunkDims.z/16);

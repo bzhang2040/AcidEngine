@@ -5,8 +5,6 @@ const float custompitch = -0.001;
 const float customzoom = 0.0;
 const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
 
-#define UPDATE_INDIRECT true
-
 #define SPARSE true
 #define SPARSITY 4
 

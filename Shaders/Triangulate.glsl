@@ -93,15 +93,9 @@ void main() {
     int idx = int(gl_GlobalInvocationID.x);
 
     if (gl_GlobalInvocationID.x == 0 && gl_GlobalInvocationID.y == 0 && gl_GlobalInvocationID.x == 0) {
-        if (UPDATE_INDIRECT) {
-            computeIndirect.num_groups[chunkUpdates].x = 0;
-            computeIndirect.num_groups[chunkUpdates].y = 1;
-            computeIndirect.num_groups[chunkUpdates].z = 1;
-        } else {
-            computeIndirect.num_groups[chunkUpdates].x = int(WORLD_SIZE.x / 16);
-            computeIndirect.num_groups[chunkUpdates].y = int(WORLD_SIZE.y / 16);
-            computeIndirect.num_groups[chunkUpdates].z = int(WORLD_SIZE.z / 16);
-        }
+        computeIndirect.num_groups[chunkUpdates].x = 0;
+        computeIndirect.num_groups[chunkUpdates].y = 1;
+        computeIndirect.num_groups[chunkUpdates].z = 1;
     }
 };
 
@@ -224,8 +218,6 @@ bool ChunkChanged(ivec3 tid) {
 layout(local_size_x = 16, local_size_y = 1, local_size_z = 16) in;
 
 void main() {
-    if (!UPDATE_INDIRECT) return;
-
     ivec3 tid = ivec3(gl_GlobalInvocationID);
 
     if (!ChunkChanged(tid * 16)) {
@@ -381,13 +373,7 @@ void main1(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = ivec3(gl_GlobalInvocationID) * ivec3(1, 16, 1);
-
-    if (UPDATE_INDIRECT) {
-        tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_GlobalInvocationID.xyz % 16);
-    } else {
-        if (!ChunkChanged(tid)) return;
-    }
+    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {
@@ -467,13 +453,7 @@ void main1(ivec3 tid) {
 
 // Zero-out the LOD structure
 void main2() {
-    ivec3 tid = ivec3(gl_GlobalInvocationID) * ivec3(1, 16, 1);
-
-    if (UPDATE_INDIRECT) {
-        tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_GlobalInvocationID.xyz % 16);
-    } else {
-        if (!ChunkChanged(tid)) return;
-    }
+    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int y = 0; y < 16; y += 1) {
         ivec3 tid2 = tid + ivec3(0, y, 0);
@@ -605,13 +585,7 @@ void main2(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = ivec3(gl_GlobalInvocationID) * ivec3(1, 16, 1);
-
-    if (UPDATE_INDIRECT) {
-        tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_GlobalInvocationID.xyz % 16);
-    } else {
-        if (!ChunkChanged(tid)) return;
-    }
+    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {
@@ -653,11 +627,7 @@ void main2(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = ivec3(gl_GlobalInvocationID) * ivec3(1, 16, 1);
-
-    if (UPDATE_INDIRECT) {
-        tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_GlobalInvocationID.xyz % ivec3(16));
-    }
+    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {
