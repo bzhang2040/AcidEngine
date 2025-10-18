@@ -354,6 +354,8 @@ layout(std430, binding = 8) buffer LAYOUTT_8888 {
 	LogicalID[] physicalFromLogical;
 };
 
+#define worldIdFailedToMap -1
+
 int LogicalFromPhysical(int physicalID, int z) {
 	for (int i = physicalID; i < LOGICAL_WORLD_COUNT; i += MAX_WORLD_COUNT) {
 		WorldRange range = worldRanges[i];
@@ -363,7 +365,7 @@ int LogicalFromPhysical(int physicalID, int z) {
 		}
 	}
 
-	return -1;
+	return worldIdFailedToMap;
 }
 
 int g_logicalWorldID = 0;
@@ -377,7 +379,7 @@ void SetPhysicalWorldID(int id) {
 
 bool SetLogicalWorldID(int physicalID, int z) {
 	int logicalID = LogicalFromPhysical(physicalID, z);
-	if (logicalID == -1) return false;
+	if (logicalID == worldIdFailedToMap) return false;
 	
 	SetPhysicalWorldID(physicalID);
 	
@@ -388,20 +390,20 @@ bool SetLogicalWorldID(int physicalID, int z) {
 
 void SetLogicalWorldID(int logicalID) {
 	int physicalID = physicalFromLogical[logicalID].id;
-	if (physicalID == -1) return;
+	if (physicalID == worldIdFailedToMap) return;
 	SetPhysicalWorldID(physicalID);
 	g_logicalWorldID = logicalID;
 }
 
 void UpdateLogicalWorldID(uint blockID) {
-	int logicalID = -1;
+	int logicalID = worldIdFailedToMap;
 	if (blockID == id_portal_forward) {
 		logicalID = physicalFromLogical[g_logicalWorldID].nextLogical;
 	} else if (blockID == id_portal_backward) {
 		logicalID = physicalFromLogical[g_logicalWorldID].prevLogical;
 	}
 
-	if (logicalID != -1) {
+	if (logicalID != worldIdFailedToMap) {
 		SetLogicalWorldID(logicalID);
 	}
 }

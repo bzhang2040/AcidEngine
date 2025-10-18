@@ -158,10 +158,11 @@ void main() {
         int minZCoord = int(u.baseFrameCameraPosition.z) - WORLD_SIZE.z / 2 + 32;
         int maxZCoord = int(u.baseFrameCameraPosition.z) + WORLD_SIZE.z / 2 + 32;
 
-        // If either don't map, they will be -1 and the other will be selected
-        int logicalWorldID = max(
-            LogicalFromPhysical(physicalID, minZCoord),
-            LogicalFromPhysical(physicalID, maxZCoord));
+        int logicalWorldID = LogicalFromPhysical(physicalID, minZCoord);
+
+        if (logicalWorldID == worldIdFailedToMap) {
+            logicalWorldID = LogicalFromPhysical(physicalID, maxZCoord);
+        }
 
         u.logicalFromPhysical[physicalID] = logicalWorldID;
     }
