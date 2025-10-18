@@ -254,7 +254,6 @@ bool IsTorch(uint blockID) {
 }
 
 #define chunkUpdates 0
-#define denseChunkUpdates 1
 
 #define UBO_DECLARE(type, name) type name
 #define UBO_DEF(type, name) UBOEntry<type> name

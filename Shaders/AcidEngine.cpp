@@ -154,11 +154,11 @@ public:
         Dispatch(computeProg, 1, 1, 1);
 
         Dispatch(computeChunkUpdates, WORLD_SIZE.x / 16 / 16, WORLD_SIZE.y / 16, WORLD_SIZE.z / 16 / 16);
-        DispatchIndirect(clearLOD, chunkUpdates * 16);
+        DispatchIndirect(clearLOD, chunkUpdates*16);
         if (reload) Dispatch(initChunks0, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16);
         if (reload) Dispatch(initChunks, sparseChunkDims.x/16, sparseChunkDims.y, sparseChunkDims.z/16);
         if (!reload) Dispatch(deallocChunks, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16); // One thread per-chunk
-        DispatchIndirect(computeDense, denseChunkUpdates*16); // One threadblock per-chunk
+        DispatchIndirect(computeDense, chunkUpdates*16); // One threadblock per-chunk
         DispatchIndirect(topsoil, chunkUpdates*16);
         DispatchIndirect(generateLOD, chunkUpdates*16);
     }
