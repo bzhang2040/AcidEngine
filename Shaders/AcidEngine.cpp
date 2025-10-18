@@ -148,7 +148,7 @@ public:
         glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, computeIndirectCount.id);
     }
 
-    void Regenerate(bool reload) {
+    void Regenerate(bool reload, ivec4 logicalFromPhysical) {
         ivec3 dispatchSize = WORLD_SIZE / ivec3(16, 16, 16);
         
         Dispatch(computeProg, 1, 1, 1);
@@ -158,7 +158,18 @@ public:
         if (reload) Dispatch(initChunks0, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16);
         if (reload) Dispatch(initChunks, sparseChunkDims.x/16, sparseChunkDims.y, sparseChunkDims.z/16);
         if (!reload) Dispatch(deallocChunks, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16); // One thread per-chunk
-        DispatchIndirect(computeDense, denseChunkUpdates*16); // One threadblock per-chunk
+
+
+        if (SPECIALIZE_ON_WORLD_NAME) {
+            for (int physicalID = 0; physicalID < MAX_WORLD_COUNT; ++physicalID) {
+                int logicalID = logicalFromPhysical[physicalID];
+                //computeDense.Specialize({ "s_logicalWorldID", logicalID});
+                //DispatchIndirect(computeDense, denseChunkUpdates*16, {"s_logicalWorldID", "5"});
+            }
+        } else {
+            DispatchIndirect(computeDense, chunkUpdates * 16);
+        }
+        
         DispatchIndirect(topsoil, chunkUpdates*16);
         DispatchIndirect(generateLOD, chunkUpdates*16);
     }
@@ -326,7 +337,7 @@ public:
             || diff16(perSampleUbo.cameraPosition.get().x, perFrameCpuUbo.prevRegenCameraPosition.get().x)
             || diff16(perSampleUbo.cameraPosition.get().z, perFrameCpuUbo.prevRegenCameraPosition.get().z)
             ) {
-            terrain.Regenerate(terrain.shaderIncrement != ShaderIncrement);
+            terrain.Regenerate(terrain.shaderIncrement != ShaderIncrement, perSampleUbo.logicalFromPhysical.get());
             terrain.shaderIncrement = ShaderIncrement;
             perFrameCpuUbo.prevRegenCameraPosition.get() = perSampleUbo.cameraPosition.get();
         }

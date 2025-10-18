@@ -368,9 +368,25 @@ int LogicalFromPhysical(int physicalID, int z) {
 	return worldIdFailedToMap;
 }
 
-int g_logicalWorldID = 0;
+bool CanMapPhysicalId(int physicalID, int z) {
+	return LogicalFromPhysical(physicalID, z) != worldIdFailedToMap;
+}
+
 int g_physicalWorldID = 0;
 int g_chunkImageJump = 0;
+
+#ifdef COMPUTE_DENSE_STAGE
+//#define s_logicalWorldID 3
+//#define s_logicalWorldID_IS_CONST
+#endif
+
+#ifdef s_logicalWorldID_IS_CONST
+	#define SET_s_logicalWorldID(n)
+#else
+	int g_logicalWorldID = 0;
+	#define s_logicalWorldID g_logicalWorldID
+	#define SET_s_logicalWorldID(n) g_logicalWorldID = n
+#endif
 
 void SetPhysicalWorldID(int id) {
 	g_physicalWorldID = id;
@@ -382,8 +398,7 @@ bool SetLogicalWorldID(int physicalID, int z) {
 	if (logicalID == worldIdFailedToMap) return false;
 	
 	SetPhysicalWorldID(physicalID);
-	
-	g_logicalWorldID = logicalID;
+	SET_s_logicalWorldID(logicalFromPhysical[physicalID]);
 
 	return true;
 }
@@ -392,15 +407,15 @@ void SetLogicalWorldID(int logicalID) {
 	int physicalID = physicalFromLogical[logicalID].id;
 	if (physicalID == worldIdFailedToMap) return;
 	SetPhysicalWorldID(physicalID);
-	g_logicalWorldID = logicalID;
+	SET_s_logicalWorldID(logicalID);
 }
 
 void UpdateLogicalWorldID(uint blockID) {
 	int logicalID = worldIdFailedToMap;
 	if (blockID == id_portal_forward) {
-		logicalID = physicalFromLogical[g_logicalWorldID].nextLogical;
+		logicalID = physicalFromLogical[s_logicalWorldID].nextLogical;
 	} else if (blockID == id_portal_backward) {
-		logicalID = physicalFromLogical[g_logicalWorldID].prevLogical;
+		logicalID = physicalFromLogical[s_logicalWorldID].prevLogical;
 	}
 
 	if (logicalID != worldIdFailedToMap) {

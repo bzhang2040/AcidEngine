@@ -1149,7 +1149,7 @@ void NewFunction(vec2 uv2) {
 
     RayStruct curr;
 
-    curr.world_ID = g_logicalWorldID;
+    curr.world_ID = s_logicalWorldID;
     curr.absorb = vec3(1.0);
     curr.worldDir = worldDir;
     curr.voxelPos = cameraPosition;
@@ -1158,7 +1158,7 @@ void NewFunction(vec2 uv2) {
     }
     curr.voxelPos = WorldToVoxel(curr.voxelPos);
     VoxelIntersectOut VIO = VoxelMarchLOD(curr.voxelPos, curr.worldDir, 1.0);
-    curr.world_ID = g_logicalWorldID;
+    curr.world_ID = s_logicalWorldID;
     curr.worldDir = normalize(curr.worldDir);
 
     vec3 primaryWorldPos = VoxelToWorld(VIO.voxelPos) - cameraPosition;
@@ -1214,7 +1214,7 @@ void NewFunction(vec2 uv2) {
             SetLogicalWorldID(curr.world_ID);
             //VoxelIntersectOut VIO = VoxelMarchLOD(curr.voxelPos, curr.worldDir, 1.0);
             VoxelIntersectOut VIO = VoxelIntersect(curr.voxelPos, curr.worldDir);
-            curr.world_ID = g_logicalWorldID;
+            curr.world_ID = s_logicalWorldID;
             curr.worldDir = normalize(curr.worldDir);
             
             data = VoxelRead(ivec3(VIO.voxelPos - VIO.plane * 0.01), 0);
@@ -1345,7 +1345,7 @@ void NewFunction(vec2 uv2) {
         //SetPhysicalWorldID(sunRay.world_ID);
         SetLogicalWorldID(sunRay.world_ID);
         VoxelIntersectOut VIO = VoxelIntersect(sunRay.voxelPos, sunRay.worldDir);
-        sunRay.world_ID = g_logicalWorldID;
+        sunRay.world_ID = s_logicalWorldID;
 
         if (!VIO.hit) {
             vec3 c = sunRay.absorb * 4.0 / SAMPLES;
@@ -1380,7 +1380,7 @@ void NewFunction(vec2 uv2) {
             //SetPhysicalWorldID(thisRay.world_ID);
             SetLogicalWorldID(sunRay.world_ID);
             VoxelIntersectOut VIO = VoxelIntersect(thisRay.voxelPos, thisRay.worldDir);
-            thisRay.world_ID = g_logicalWorldID;
+            thisRay.world_ID = s_logicalWorldID;
             bool isPrimary = GetRayDepth(thisRay.info) > 1;
 
             if (IsSunlightRay(thisRay)) {

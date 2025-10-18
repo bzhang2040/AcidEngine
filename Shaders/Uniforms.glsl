@@ -131,7 +131,7 @@ void main() {
             && !IsPortal(VoxelRead2(voxelStart + ivec3(0,0,1)*(i-1)*int(sign(voxelEnd.z-voxelStart.z)), ebin))
         ) {
             UpdateLogicalWorldID(VoxelRead2(voxelStart + ivec3(0,0,1)*i*int(sign(voxelEnd.z-voxelStart.z)), ebin));
-            u.uWorldID = g_logicalWorldID;
+            u.uWorldID = s_logicalWorldID;
             break;
         }
     }

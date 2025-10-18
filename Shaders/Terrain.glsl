@@ -196,7 +196,7 @@ float TheCave(vec3 p) {
     return 0.0;
 }
 
-#define IS_WORLD_NAME(n) (g_logicalWorldID == WORLD_NAME(n))
+#define IS_WORLD_NAME(n) (s_logicalWorldID == WORLD_NAME(n))
 
 float TerrainBoolean2(vec3 p) {
     vec3 position=p;
@@ -333,7 +333,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     if (beatType == beat_type_portal) {
         int portalPos = int(beatsSSBO[idx].zPos);
         int portalDist = int(position.z) - portalPos;
-        if (g_logicalWorldID != PORTAL_TARGET(idx)) {
+        if (s_logicalWorldID != PORTAL_TARGET(idx)) {
             if (portalDist == 1+2 && MediumAirTunnel2()) return id_portal_forward;
             if (portalDist == 0+2 && MediumAirTunnelBorder2()) return id_permastone;
             if (portalDist == 1+2 && MediumAirTunnelBorder2()) return id_permastone;

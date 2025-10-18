@@ -28,17 +28,46 @@ switch(g_logicalWorldID) {
         return ret;
     }
     case WORLD_NAME(3): {
-        p.z = floor(p.z / 100.0) * 100.0;
-        p.xy -= trackPos.xy;
-        p.xy = rotate(p.z / 100.0) * p.xy;
-        p.xy += trackPos.xy;
-        
-        float v = Simplex(p, vec3(171) * vec3(1, 1, 1), vec3(0));
-
-        v *= interp(length(trackDist.xy), 1000.0, 0.0);
-        v *= mix(interp(-(p.x - trackPos.x), 0.0, 100.0), 1.0, 0.5);
-
-        return v;
+        float sel = interp(Simplex(p, vec3(512, 1e8, 1024), vec3(0)), 0.45, 0.55);
+        vec2 sel2 = vec2(1.0 - sel, sel);
+        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
+        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        float ret = 0.0;
+        if (sel2.x > 0.0) ret += sel2.x * Simplex(p, vec3(256), vec3(0));
+        if (sel2.y > 0.0) ret += sel2.y * Simplex(p, vec3(171), vec3(1e3));
+        return ret;
+    }
+    case WORLD_NAME(4): {
+        float sel = interp(Simplex(p, vec3(1024, 1e8, 2048), vec3(0)), 0.45, 0.55);
+        vec2 sel2 = vec2(1.0 - sel, sel);
+        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
+        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        float ret = 0.0;
+        return ret;
+    }
+    case WORLD_NAME(5): {
+        float sel = interp(Simplex(p, vec3(1024, 1e8, 512), vec3(0)), 0.45, 0.55);
+        vec2 sel2 = vec2(1.0 - sel, sel);
+        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
+        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        float ret = 0.0;
+        return ret;
+    }
+    case WORLD_NAME(6): {
+        float sel = interp(Simplex(p, vec3(1024, 1e8, 785), vec3(0)), 0.45, 0.55);
+        vec2 sel2 = vec2(1.0 - sel, sel);
+        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
+        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        float ret = 0.0;
+        return ret;
+    }
+    case WORLD_NAME(7): {
+        float sel = interp(Simplex(p, vec3(1024, 1e8, 456), vec3(0)), 0.45, 0.55);
+        vec2 sel2 = vec2(1.0 - sel, sel);
+        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
+        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        float ret = 0.0;
+        return ret;
     }
 }
 return 0.0;

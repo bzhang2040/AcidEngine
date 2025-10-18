@@ -379,9 +379,27 @@ void main() {
 
     ivec3 tid = chunkIndirectCoordinates.data[gl_WorkGroupID.x].xyz*16 + ivec3(gl_LocalInvocationID.xyz);
 
-    if (SetLogicalWorldID(physicalWorldID, (int(VoxelToWorld(tid).z)/16)*16)) {
-        main1(tid);
+    //if (SetLogicalWorldID(physicalWorldID, (int(VoxelToWorld(tid).z)/16)*16)) {
+    //    main1(tid);
+    //}
+
+    for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
+        if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z) / 16) * 16)) {
+            main2(tid);
+        }
     }
+
+
+    //s_logicalWorldID_IS_CONST
+
+    #if SPECIALIZE_ON_WORLD_NAME
+        
+    #else
+
+    #endif
+
+    // SPECIALIZE_ON_WORLD_NAME
+    // s_logicalWorldID
 }
 
 #endif
