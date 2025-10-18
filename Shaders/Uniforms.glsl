@@ -13,14 +13,14 @@ void main() {
         beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
     }
 
-    if (tid < PORTAL_COUNT) {
+    if (tid < LOGICAL_WORLD_COUNT) {
         //beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
         //worldRanges[i].zEnd
 
         if (tid == 0) {
             worldRanges[tid].zStart = -10000000;
             worldRanges[tid].zEnd = int(GetBeatPos(worldRanges[tid+1].beat));
-        } else if (tid == PORTAL_COUNT-1) {
+        } else if (tid == LOGICAL_WORLD_COUNT -1) {
             worldRanges[tid].zStart = int(GetBeatPos(worldRanges[tid].beat));
             worldRanges[tid].zEnd = 100000000;
         } else {
@@ -109,7 +109,7 @@ void main() {
 
     
     if (resetCamera == 1) {
-        for (int i = 0; i < PORTAL_COUNT; ++i) {
+        for (int i = 0; i < LOGICAL_WORLD_COUNT; ++i) {
             if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd) {
                 u.uWorldID = worldRanges[i].logicalWorldID;
                 break;
@@ -153,6 +153,18 @@ void main() {
     u.sunDirection = SunDirection(u.beatFromPos);
     u.moonDirection = MoonDirection(u.beatFromPos);
     u.sunIrradiance = GetSunIrradiance(kPoint(vec3(0.0) + u.cameraPosition), u.sunDirection);
+
+    for (int physicalID = 0; physicalID < MAX_WORLD_COUNT; ++physicalID) {
+        int minZCoord = int(u.baseFrameCameraPosition.z) - WORLD_SIZE.z / 2 + 32;
+        int maxZCoord = int(u.baseFrameCameraPosition.z) + WORLD_SIZE.z / 2 + 32;
+
+        // If either don't map, they will be -1 and the other will be selected
+        int logicalWorldID = max(
+            LogicalFromPhysical(physicalID, minZCoord),
+            LogicalFromPhysical(physicalID, maxZCoord));
+
+        u.logicalFromPhysical[physicalID] = logicalWorldID;
+    }
 
     perSampleUbo[tid] = u;
 };

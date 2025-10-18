@@ -289,9 +289,14 @@ UBO_FUNC(int, flipY); \
 UBO_FUNC(float, beatFromPos); \
 UBO_FUNC(float, currentSpeed); \
 UBO_FUNC(int, uWorldID); \
+UBO_FUNC(ivec4, logicalFromPhysical); \
 UBO_FUNC(vec3, sunDirection); \
 UBO_FUNC(vec3, moonDirection); \
 UBO_FUNC(vec3, sunIrradiance);
+
+#if MAX_WORLD_COUNT > 4
+#error "logicalFromPhysical is using ivec4 for mapping, this does not support more than 4 physical worlds"
+#endif
 
 #if !defined(CXX_STAGE)
 layout(std140, binding = 1) uniform LAYOUTT_00 {
@@ -304,7 +309,7 @@ layout(std140, binding = 0) uniform LAYOUTT_0 {
 };
 struct PerSampleUniforms {
 	PER_SAMPLE_UBO(UBO_DECLARE)
-	vec4[7] padding;
+	vec4[6] padding;
 };
 layout(std140, binding = 14) buffer LAYOUTT_000 {
 	PerSampleUniforms perSampleUbo[MAX_SAMPLE_COUNT];
@@ -349,8 +354,7 @@ layout(std430, binding = 8) buffer LAYOUTT_8888 {
 };
 
 int LogicalFromPhysical(int physicalID, int z) {
-
-	for (int i = physicalID; i < MAX_LOGICAL_WORLD_COUNT; i += MAX_WORLD_COUNT) {
+	for (int i = physicalID; i < LOGICAL_WORLD_COUNT; i += MAX_WORLD_COUNT) {
 		WorldRange range = worldRanges[i];
 		if (range.zStart == range.zEnd) break;
 		if (range.zStart < z && z < range.zEnd) {

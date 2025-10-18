@@ -504,7 +504,7 @@ int main() {
     
     beatsArray2.reserve(beatsArray.size());
     BeatStruct curr;
-    portalPositions.push_back({.logicalWorldID=WORLD_NAME(0)});
+    portalPositions.push_back({.physicalWorldID=0,.logicalWorldID=WORLD_NAME(0)});
     physicalFromLogical[WORLD_NAME(0)].id = 0;
 
     int currPhysicalID = 1;
@@ -542,7 +542,6 @@ int main() {
             physicalFromLogical[physicalFromLogical[i].prevLogical].nextLogical = i;
         }
     }
-
 
     stbi_flip_vertically_on_write(1);
     stbi_set_flip_vertically_on_load(1);
