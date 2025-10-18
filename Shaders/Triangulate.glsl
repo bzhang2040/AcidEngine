@@ -373,12 +373,15 @@ void main1(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
+    // MAX_WORLD_COUNT is unrolled along the dispatch dimension.
+    // This is unlike all the other shaders, which have a world count loop inside the kernel.
+    int physicalWorldID = int(gl_WorkGroupID.x / computeIndirect.num_groups[chunkUpdates].x);
+    uint workGroupId = gl_WorkGroupID.x % computeIndirect.num_groups[chunkUpdates].x;
 
-    for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
-        if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {
-            main1(tid);
-        }
+    ivec3 tid = chunkIndirectCoordinates.data[workGroupId].xyz*16 + ivec3(gl_LocalInvocationID.xyz);
+
+    if (SetLogicalWorldID(physicalWorldID, (int(VoxelToWorld(tid).z)/16)*16)) {
+        main1(tid);
     }
 }
 
@@ -453,7 +456,7 @@ void main1(ivec3 tid) {
 
 // Zero-out the LOD structure
 void main2() {
-    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
+    ivec3 tid = chunkIndirectCoordinates.data[gl_WorkGroupID.x].xyz*16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int y = 0; y < 16; y += 1) {
         ivec3 tid2 = tid + ivec3(0, y, 0);
@@ -464,6 +467,13 @@ void main2() {
 void main() {
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         SetPhysicalWorldID(i); main2();
+    }
+
+    // For the dense chunk update stage. No reason for this to be in the ClearLod kernel. It's just that ClearLod always runs before dense chunks.
+    if (gl_GlobalInvocationID == uvec3(0)) {
+        uvec4 denseUpdates = computeIndirect.num_groups[chunkUpdates];
+        denseUpdates.x *= MAX_WORLD_COUNT;
+        computeIndirect.num_groups[denseChunkUpdates] = denseUpdates;
     }
 }
 #endif
@@ -585,7 +595,7 @@ void main2(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
+    ivec3 tid = chunkIndirectCoordinates.data[gl_WorkGroupID.x].xyz*16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {
@@ -627,7 +637,7 @@ void main2(ivec3 tid) {
 };
 
 void main() {
-    ivec3 tid = chunkIndirectCoordinates.data[gl_GlobalInvocationID.x / 16].xyz * 16 + ivec3(gl_LocalInvocationID.xyz);
+    ivec3 tid = chunkIndirectCoordinates.data[gl_WorkGroupID.x].xyz*16 + ivec3(gl_LocalInvocationID.xyz);
 
     for (int i = 0; i < MAX_WORLD_COUNT; ++i) {
         if (SetLogicalWorldID(i, (int(VoxelToWorld(tid).z)/16)*16)) {

@@ -158,7 +158,7 @@ public:
         if (reload) Dispatch(initChunks0, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16);
         if (reload) Dispatch(initChunks, sparseChunkDims.x/16, sparseChunkDims.y, sparseChunkDims.z/16);
         if (!reload) Dispatch(deallocChunks, denseChunkDims.x/16, denseChunkDims.y, denseChunkDims.z/16); // One thread per-chunk
-        DispatchIndirect(computeDense, chunkUpdates*16); // One threadblock per-chunk
+        DispatchIndirect(computeDense, denseChunkUpdates*16); // One threadblock per-chunk
         DispatchIndirect(topsoil, chunkUpdates*16);
         DispatchIndirect(generateLOD, chunkUpdates*16);
     }
