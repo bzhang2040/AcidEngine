@@ -191,7 +191,7 @@ float FisheyeForward(float x) {
     return mix(oldX, x, FisheyeAmount(beatFromPos));
 }
 
-vec2 Fisheye(vec2 pos) {
+vec2 ApplyFisheye(vec2 pos) {
     if (!DO_FISHEYE) return pos;
     vec2 originalPos = pos;
     pos /= aspect.yx;
@@ -1136,11 +1136,11 @@ void NewFunction(vec2 uv2) {
         worldDir = vec3(uv2 * 2.0 - 1.0, 1.0);
         
         if (Screenshot()) {
-            worldDir.xy *= 0.95 + Chroma() * max(1.0, (distance(worldDir.xy, Fisheye(worldDir.xy)))) / 100.0;
-            hash *= max(1.0, 4 * (distance(worldDir.xy, Fisheye(worldDir.xy))));
+            worldDir.xy *= 0.95 + Chroma() * max(1.0, (distance(worldDir.xy, ApplyFisheye(worldDir.xy)))) / 100.0;
+            hash *= max(1.0, 4 * (distance(worldDir.xy, ApplyFisheye(worldDir.xy))));
         }
         worldDir.xy += hash;
-        worldDir.xy = (Fisheye(worldDir.xy));
+        worldDir.xy = (ApplyFisheye(worldDir.xy));
 
         worldDir = normalize(Unproject(worldDir));
     }

@@ -52,6 +52,35 @@ layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
 //#include SKY
 
+vec3 SunDirection(float beat) {
+    float sunAngle = GetSunAngle(beat);
+    float sunRotation = 30.0;
+
+    float curr = 45.0;
+
+    vec3 sunDir = vec3(0.0, 0.0, 1.0);
+
+    vec2 v = vec2(sunDir.x, sunDir.z) * rotate(radians(sunRotation));
+    sunDir.x = v.x;
+    sunDir.z = v.y;
+    v = vec2(sunDir.y, sunDir.z) * rotate(radians(sunAngle));
+    sunDir.y = v.x;
+    sunDir.z = v.y;
+
+    return normalize(sunDir);
+}
+
+vec3 MoonDirection(float beat) {
+    vec3 moonDirection = SunDirection(beat);
+    vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate(radians(-30.0));
+    moonDirection.x = v.x;
+    moonDirection.z = v.y;
+    moonDirection.y *= -1.0;
+    moonDirection = -SunDirection(beat);
+
+    return moonDirection;
+}
+
 uint VoxelRead2(ivec3 pos, ivec2 cameraChunk2) {
     pos = rirCoord(pos, cameraChunk2);
 
@@ -140,10 +169,10 @@ void main() {
 
     u.sampledFrameID = frameID * sampleCount + tid;
 
-    u.distortionIntensity = DistortionIntensity();
-
     u.beatFromPos = GetBeatFromPos(u.baseFrameCameraPosition.z);
 
+    u.distortionIntensity = DistortionIntensity(u.beatFromPos);
+    
     u.currentSpeed = GetCameraPos(u.beatFromPos + GetBeatFromTime(1.0)).z - GetCameraPos(u.beatFromPos).z;
 
     u.yaw = cpu_yaw + GetYaw();

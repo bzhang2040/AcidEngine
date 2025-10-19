@@ -4,6 +4,14 @@
 
 #define powf(a, b) pow(b, a)
 
+#define Fisheye(a, b, c, d)
+#define Shutter(a, b, c, d)
+#define Acid(a, b, c, d)
+#define SunAngle(a, b, c, d)
+#define Fov(a, b, c, d)
+#define StartSpeed(a)
+#define Speed(a, b, c)
+
 float interp(float x, float a, float b) {
     if (b == a) return 0.0;
     if (b > a) return clamp((x - a) / (b - a), 0.0f, 1.0f);
@@ -31,24 +39,16 @@ float NewValue(inout float value, float newValue) {
     return ret;
 }
 
-float GetBeatPos(float beat) {
-    float temp;
-    float time = GetTimeFromBeat(beat);
-
-    float prev = 80.0;
-    float curr = time * prev;
-
-    KeySpeed(500.0, 160, 160.1);
-    KeySpeed(80.0, 169, 169.1);
-
-    KeySpeed(160.0, 265, 275);
-    KeySpeed(120.0, 361, 366);
-
-    KeySpeed(500.0, 721-10, 721);
-    KeySpeed(120.0, 913, 937);
-
-    KeySpeed(160.0, 1073, 1079);
-
+float GetBeatPos(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef StartSpeed
+    #define StartSpeed(a) prev = a; curr = GetTimeFromBeat(beat) * prev;
+    #undef Speed
+    #define Speed(a, b, c) KeySpeed(a, b, c)
+    //#include "Animations2.glsl"
+    #undef Speed
+    #define Speed(a, b, c)
+    #undef StartSpeed
+    #define StartSpeed(a)
     return curr;
 }
 
@@ -89,92 +89,49 @@ float GetYaw() { float prev = 89.999; float curr = prev; float temp = 0.0; float
     return radians(curr);
 }
 
-float ANIMATE_FOV(float beat) {
-    float var = 90.0;
-    float old = var;
-
-    var += NewValue(old, 120.0) * tan(interp(beat, 313-6, 313)*3.14159/2.0 / 2.0);
-    var += NewValue(old, 110.0) * tan(interp(beat, 360, 360+3)*3.14159/2.0 / 2.0);
-
-    var += NewValue(old, 110.0) * tan(interp(beat, 1073, 1079)*3.14159/2.0 / 2.0);
-
-    return var;
-}
-
-float SHUTTER_ANGLE(float beat) {
-    float prev = 1.0;
-    float curr = prev;
-    float temp = 0.0;
-
-    Key(0.5, 313-6, 313, temp);
-    Key(1.0, 360, 360+6, temp);
-    Key(0.5, 1076-6, 1079, temp);
-
+float ANIMATE_FOV(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Fov
+    #define Fov(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Fov
+    #define Fov(a, b, c, d)
     return curr;
 }
 
-vec3 SunDirection(float beat) {
-    //return normalize(vec3(0.2, 0.6, 0.3));
-
-    float sunAngle = 45.0;
-    float sunRotation = 30.0;
-
-    float curr = 45.0;
-
-    sunAngle += NewValue(curr, 175) * interp(beat, 308, 505);
-    sunAngle += NewValue(curr, 187) * interp(beat, 505, 529);
-    sunAngle += NewValue(curr, 354) * interp(beat, 529, 673);
-    sunAngle += NewValue(curr, 380) * interp(beat, 673, 721);
-
-    vec3 sunDir = vec3(0.0, 0.0, 1.0);
-
-    vec2 v = vec2(sunDir.x, sunDir.z) * rotate(radians(sunRotation));
-    sunDir.x = v.x;
-    sunDir.z = v.y;
-    v = vec2(sunDir.y, sunDir.z) * rotate(radians(sunAngle));
-    sunDir.y = v.x;
-    sunDir.z = v.y;
-
-    return normalize(sunDir);
-}
-
-vec3 MoonDirection(float beat) {
-    vec3 moonDirection = SunDirection(beat);
-    vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate(radians(-30.0));
-    moonDirection.x = v.x;
-    moonDirection.z = v.y;
-    moonDirection.y *= -1.0;
-    moonDirection = -SunDirection(beat);
-
-    return moonDirection;
-}
-
-float FisheyeAmount(float beat) {
-    float prev = 1.0;
-    float curr = prev;
-    float temp = 0.0;
-
-    Key(0.0, 97, 145, temp);
-
-    Key(1.0, 600, 630, temp + 0.0*cubesmooth(tan(temp * 3.14159 / 4.0)));
-    Key(0.0, 700, 750, temp);
-
+float SHUTTER_ANGLE(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Shutter
+    #define Shutter(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Shutter
+    #define Shutter(a, b, c, d)
     return curr;
 }
 
-float DistortionIntensity() {
-    //return 1.0;
+float GetSunAngle(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef SunAngle
+    #define SunAngle(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef SunAngle
+    #define SunAngle(a, b, c, d)
+    return curr;
+}
+
+float FisheyeAmount(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Fisheye
+    #define Fisheye(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Fisheye
+    #define Fisheye(a, b, c, d)
+    return curr;
+}
+
+float DistortionIntensity(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
     if (!DO_DISTORTION) return 0.0;
-    float prev = 0.0;
-    float curr = 0.0;
-    float temp = 0.0;
-    float beat = beatFromPos;
-
-    Key(0.2, 265, 271, powf(0.75, temp));
-    Key(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
-    Key(0.8, 277, 313, temp);
-    Key(0.0, 500, 505, powf(4.0, temp));
-
+    #undef Acid
+    #define Acid(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Acid
+    #define Acid(a, b, c, d)
     return curr;
 }
 
@@ -187,7 +144,7 @@ vec3 TheFunction(vec3 pos) {
     {
         //pos.xy = rotate(-(pos.z / 100.0)) * pos.xy;
 
-        return pos;
+        //return pos;
     }
 
     if (distortionIntensity <= 0.0) return pos;
