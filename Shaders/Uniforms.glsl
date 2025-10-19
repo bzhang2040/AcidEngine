@@ -91,17 +91,6 @@ void main() {
 
     u.cameraPosition = GetCameraPosition(tid);
 
-    u.cameraPosition.y -= WATER_HEIGHT+1;
-    u.roll = (1-GetLatent2()) * radians(-180);
-
-    u.flipY = 0;
-    if (u.cameraPosition.y < 0.0) {
-        u.cameraPosition.y = -u.cameraPosition.y;
-        u.flipY = 1;
-    }
-
-    u.cameraPosition.y += WATER_HEIGHT+1;
-
     u.cameraChunk = ivec2(floor16(u.cameraPosition.xz)) + ivec2(WORLD_SIZE.x, WORLD_SIZE.z) * 1024;
     u.previousCameraChunk = ivec2(-floor16(prevRegenCameraPosition.xz)) + ivec2(WORLD_SIZE.x, WORLD_SIZE.z) * 1024;
 
@@ -135,6 +124,17 @@ void main() {
             break;
         }
     }
+
+    u.cameraPosition.y -= GetWaterHeight() + 1;
+    u.roll = (1 - GetLatent2()) * radians(-180);
+
+    u.flipY = 0;
+    if (u.cameraPosition.y < 0.0) {
+        u.cameraPosition.y = -u.cameraPosition.y;
+        u.flipY = 1;
+    }
+
+    u.cameraPosition.y += GetWaterHeight() + 1;
 
     u.baseFrameCameraPosition = GetCameraPosition(0);
 

@@ -269,13 +269,6 @@ float SculptAdd2(vec3 p) { vec3 position = p;
     return 0.0;
 }
 
-uint GetWaterHeight(vec3 p) {
-    //if (IS_WORLD_NAME(3)) return uint(trackPos.y-1);
-    //return uint(trackPos.y);
-    return 0;
-    return WATER_HEIGHT;
-}
-
 bool TerrainBoolean3(vec3 p) { vec3 position=p;
     float noise = TerrainBoolean2(p);
 
@@ -310,19 +303,19 @@ float FUNCTION_1(vec3 p) {
 }
 
 uint TerrainAndWater(vec3 p) {
-    if (FUNCTION_1(p) < 0.5) return 0;
+    bool terrain = FUNCTION_1(p) > 0.5;
+    if (terrain) {
+        terrain = FUNCTION_0(p) > 0.5;
+    }
 
-    bool terrain = FUNCTION_0(p) > 0.5;
-    //bool terrain = TerrainBoolean(p);
-    
-    //if (int(VoxelToWorld(p).y) == GetWaterHeight(p) && !terrain) return id_water;
+    if (int(VoxelToWorld(p).y) == GetWaterHeight() && !terrain) return id_water;
 
     return terrain ? id_stone : 0;
 }
 
 uint VoxelIsFilled(vec3 position) { vec3 p = position;
     if (position.y >= WORLD_SIZE.y - 10) return 0;
-    //if (int(VoxelToWorld(position).y) < GetWaterHeight(p)) return 0;
+    if (int(VoxelToWorld(position).y) < GetWaterHeight()) return 0;
 
     if (beatFromPos < 97) return TerrainAndWater(position);
 

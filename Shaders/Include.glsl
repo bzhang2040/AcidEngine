@@ -407,6 +407,17 @@ void UpdateLogicalWorldID(uint blockID) {
 	}
 }
 
+int GetWaterHeight() {
+	switch (g_logicalWorldID) {
+	case WORLD_NAME(0): return WATER_HEIGHT;
+	case WORLD_NAME(1): return WATER_HEIGHT;
+	case WORLD_NAME(2): return WATER_HEIGHT;
+	case WORLD_NAME(3): return -1;
+	case WORLD_NAME(4): return WATER_HEIGHT;
+	}
+	return WATER_HEIGHT;
+}
+
 layout(binding = 1, rgba16i) uniform iimage3D chunkImage;
 layout(binding = 0) uniform sampler2D noisetex;
 layout(binding = 1) uniform sampler3D skyLUT;
