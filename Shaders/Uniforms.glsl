@@ -117,6 +117,9 @@ void main() {
     if (tid >= sampleCount) { return; }
 
     PerSampleUniforms u;
+    
+    u.baseFrameCameraPosition = GetCameraPosition(0);
+    u.beatFromPos = GetBeatFromPos(u.baseFrameCameraPosition.z);
 
     u.cameraPosition = GetCameraPosition(tid);
 
@@ -155,7 +158,7 @@ void main() {
     }
 
     u.cameraPosition.y -= GetWaterHeight() + 1;
-    u.roll = (1 - GetLatent2()) * radians(-180);
+    u.roll = (1 - GetRoll(u.beatFromPos)) * radians(-180);
 
     u.flipY = 0;
     if (u.cameraPosition.y < 0.0) {
@@ -165,18 +168,14 @@ void main() {
 
     u.cameraPosition.y += GetWaterHeight() + 1;
 
-    u.baseFrameCameraPosition = GetCameraPosition(0);
-
     u.sampledFrameID = frameID * sampleCount + tid;
-
-    u.beatFromPos = GetBeatFromPos(u.baseFrameCameraPosition.z);
 
     u.distortionIntensity = DistortionIntensity(u.beatFromPos);
     
     u.currentSpeed = GetCameraPos(u.beatFromPos + GetBeatFromTime(1.0)).z - GetCameraPos(u.beatFromPos).z;
 
-    u.yaw = cpu_yaw + GetYaw();
-    u.pitch = cpu_pitch + GetPitch();
+    u.yaw = cpu_yaw + GetYaw(u.beatFromPos);
+    u.pitch = cpu_pitch + GetPitch(u.beatFromPos);
     u.zoom = cpu_zoom;
 
     u.sunDirection = SunDirection(u.beatFromPos);

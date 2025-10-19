@@ -38,7 +38,7 @@ float SharpenWave(float wave) {
 }
 
 const vec4 heights = vec4(29.0, 15.0, 17.0, 4.0);
-const vec4 height = heights * WAVE_MULT / (heights.x + heights.y + heights.z + heights.w) * GetLatent1();
+const vec4 height = heights * WAVE_MULT / (heights.x + heights.y + heights.z + heights.w) * GetWaterVisibility(beatFromPos);
 
 const vec2[4] scale = vec2[4](
     vec2(0.0065, 0.0052)* noiseRes* noiseScale,
@@ -1220,7 +1220,7 @@ void NewFunction(vec2 uv2) {
             data = VoxelRead(ivec3(VIO.voxelPos - VIO.plane * 0.01), 0);
             if (!VIO.hit || data == id_water) {} else specular.fogfactor = FogFactor(VoxelToWorld(VIO.voxelPos) - cameraPosition);
 
-            float ior = mix(1.0,pow(1.0-max(0.0, dot(normalize(-wPosVector), normalize(normal))) * GetLatent1(), 3.0), 0.9);
+            float ior = mix(1.0,pow(1.0-max(0.0, dot(normalize(-wPosVector), normalize(normal))) * GetWaterVisibility(beatFromPos), 3.0), 0.9);
 
             vec3 specSunspot;
             vec3 specClouds;

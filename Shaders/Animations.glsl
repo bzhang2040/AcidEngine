@@ -9,6 +9,11 @@
 #define Acid(a, b, c, d)
 #define SunAngle(a, b, c, d)
 #define Fov(a, b, c, d)
+#define Water(a, b, c, d)
+#define Roll(a, b, c, d)
+#define Pitch(a, b, c, d)
+#define Yaw(a, b, c, d)
+#define CameraHeight(a, b, c, d)
 #define StartSpeed(a)
 #define Speed(a, b, c)
 
@@ -52,41 +57,57 @@ float GetBeatPos(float beat) { float prev = 0.0; float curr = 0.0; float temp = 
     return curr;
 }
 
-float GetLatent1() { float prev = 0.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
-    Key(1.0, 49, 60, temp);
+float GetWaterVisibility(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Water
+    #define Water(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Water
+    #define Water(a, b, c, d)
     return curr;
 }
 
-float GetLatent2() { float prev = 0.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
-    Key(1.0, 60, 84, EaseInOutSin(temp));
+float GetRoll(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Roll
+    #define Roll(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Roll
+    #define Roll(a, b, c, d)
     return curr;
 }
 
-float GetPitch() { float prev = -45.0; float curr = prev; float temp = 0.0; float beat = beatFromPos;
-    
-    Key(0, 60.9, 61, EaseInOutSin(temp));
-    return radians(curr*0+0.001);
-
-    return radians(mix(-45.0, 0.0, GetLatent2()));
-}
-
-
-vec3 GetCameraPos(float beat) { float prev = WATER_HEIGHT+1.1; float curr = prev; float temp = 0.0;
-    float oldBeat = beat;
-    beat = beatFromPos;
-
-    Key(WATER_HEIGHT+5.0, 37, 50, EaseInOutSin(temp));
-    Key(trackPos.y+2, 74, 96, EaseInOutSin(temp));
-
-    return vec3(trackPos.x, (trackPos.y + curr)*0+curr, GetBeatPos(oldBeat));
-}
-
-float GetYaw() { float prev = 89.999; float curr = prev; float temp = 0.0; float beat = beatFromPos;
-    //if (!writeFrames) return 0;
-
-    Key(0.0, 36.9, 61, EaseOutSin(EaseInOutSin(temp)));
-
+float GetPitch(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Pitch
+    #define Pitch(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Pitch
+    #define Pitch(a, b, c, d)
     return radians(curr);
+}
+
+float GetYaw(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef Yaw
+    #define Yaw(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef Yaw
+    #define Yaw(a, b, c, d)
+    return radians(curr);
+}
+
+float GetCameraHeight(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    // Have to override beat here since this function is called before beatFromPos is set.
+    // I believe it will be using the uniform data from the previous frame.
+    beat = beatFromPos;
+    
+    #undef CameraHeight
+    #define CameraHeight(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef CameraHeight
+    #define CameraHeight(a, b, c, d)
+    return curr;
+}
+
+vec3 GetCameraPos(float beat) {
+    return vec3(trackPos.x, GetCameraHeight(beat), GetBeatPos(beat));
 }
 
 float ANIMATE_FOV(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
