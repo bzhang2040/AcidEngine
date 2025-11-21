@@ -23,8 +23,8 @@
     Speed( 80.0, 169, 169.1);
     
     Speed( 160.0, 265, 275);
-    Acid(    0.6, 271, 275, powf(0.6, cubesmooth(temp)));
     Acid(    0.2, 265, 271, powf(0.75, temp));
+    Acid(    0.6, 271, 275, powf(0.6, cubesmooth(temp)));
     Acid(    0.8, 277, 313, temp);
     Shutter( 0.5, 307, 313, temp);
     Fov(   120.0, 307, 313, tan(temp*3.14159/2.0/2.0));

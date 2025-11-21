@@ -142,7 +142,7 @@ void DrawDebugText() {
 	float text = 0.0;
 		
 	//vec3 val = texelFetch(colortex7, ivec2(viewSize/2.0), 0).rgb;
-    vec3 val = vec3(nonBlurBeat, 0.0, 0.0);
+    vec3 val = vec3(beatFromPos, 0.0, 0.0);
 		
 	string_to_draw = int[STRING_LENGTH](0,0, 0,0,0,0,0,0);
 	text += DrawString(texPos, charSize, 2, texcoord);
@@ -406,7 +406,7 @@ void main() {
     //OutColor.rgb = vec3(chunkID[int(gl_FragCoord.x + gl_FragCoord.y * viewSize.x)].rgb / 100.0);
     
 
-    //DrawDebugText();
+    // DrawDebugText();
 
     if (writeFrames && beatFromPos < INTRO_BEAT) {
         OutColor.rgb = vec3(0.0);

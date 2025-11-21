@@ -1,4 +1,5 @@
 vec3 position = p;
+
 switch(g_logicalWorldID) {
     case WORLD_NAME(0): {
         return
@@ -25,19 +26,20 @@ switch(g_logicalWorldID) {
         float ret = 0.0;
         if (sel2.x > 0.0) ret += sel2.x * Simplex(p, vec3(256), vec3(0));
         if (sel2.y > 0.0) ret += sel2.y * Simplex(p, vec3(171), vec3(1e3));
+        
+        ret = mix(0.4, ret, interp(length(trackDist.xy), 0.0, 10.0));
+        
         return ret;
     }
     case WORLD_NAME(3): {
-        p.z = floor(p.z / 100.0) * 100.0;
-        p.xy -= trackPos.xy;
-        p.xy = rotate(p.z / 100.0) * p.xy;
-        p.xy += trackPos.xy;
+        float v = mix(
+            Simplex(p, vec3(256), vec3(0)) * interp(p.y, 256, WATER_HEIGHT),
+            Simplex(p, vec3(256), vec3(1e3)) * interp(p.y, 256, WATER_HEIGHT),
+            interp(Simplex(p, vec3(2048, 1e35, 2048), vec3(0)), 0.5, 0.52)
+        );
         
-        float v = Simplex(p, vec3(171) * vec3(1, 1, 1), vec3(0));
-
-        v *= interp(length(trackDist.xy), 1000.0, 0.0);
-        v *= mix(interp(-(p.x - trackPos.x), 0.0, 100.0), 1.0, 0.5);
-
+        v = mix(v, 0.0, interp(length(trackDist.xy), 0.0, 10.0) * float((int(trackDelta.y))!=1));
+        
         return v;
     }
 }

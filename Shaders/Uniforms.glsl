@@ -131,7 +131,7 @@ void main() {
     
     if (resetCamera == 1) {
         for (int i = 0; i < LOGICAL_WORLD_COUNT; ++i) {
-            if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd) {
+            if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd - WORLD_SIZE.z/2) {
                 u.uWorldID = worldRanges[i].logicalWorldID;
                 break;
             }

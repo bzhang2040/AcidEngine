@@ -317,7 +317,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     if (position.y >= WORLD_SIZE.y - 10) return 0;
     if (int(VoxelToWorld(position).y) < GetWaterHeight()) return 0;
 
-    if (beatFromPos < 97) return TerrainAndWater(position);
+    if (position.z < GetBeatPos(97)) return TerrainAndWater(position);
 
     int idx = BinarySearchGT(int(position.z));
     bool exact = BinarySearchIsExact(int(position.z), idx);
@@ -341,7 +341,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     }
 
     // Filter everything outside the big circle
-    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetCameraPos(265).z, GetCameraPos(313).z))) {
+    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetBeatPos(265), GetBeatPos(313)))) {
     if (SmallestAirTunnel()) {
         return 0;
     }

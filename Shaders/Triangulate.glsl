@@ -5,6 +5,7 @@
 #define DIWORLD(id) (id % sparseTotalSize)
 
 #define trackDist (abs(position.xy - (trackPos.xy + vec2(0, 1)) + 0.5))
+#define trackDelta (position.xy - (trackPos.xy + vec2(0, 1)) + 0.5)
 
 // 1x2 tunnel. The tiny 1-block wide air tunnel
 #define SmallestAirTunnel() bool(trackDist.x < 1 + 0 && (abs(position.y - trackPos.y - 1.0)) < 1.5)
@@ -39,13 +40,29 @@ bool CheckExtent(vec3 position, int x0, int x1, int y0, int y1, int leftright) {
     return ebin.x >= x0 && ebin.x <= x1 && ebin.y >= y0 && ebin.y <= y1;
 }
 
-int CheckPosition(vec3 position, int idx, bool exact) {
-    int beatType = BEAT_TYPE(idx);
+int CheckDefault(vec3 position) {
+    if (CheckExtent(position, 1, 1, 0, 1, id_both)) return id_permastone;
+    if (CheckExtent(position, 1, 1, 2, 2, id_both)) return id_torch;
+    return 0;
+}
 
+int CheckPosition(vec3 position, int idx, bool exact) {
+    // if (CheckExtent(position, 0, 0, 0, 0, id_both)) return id_permastone;
+    
+    if (position.z >= GetBeatPos(449.5) && position.z < GetBeatPos(453.5)) {
+        // if (CheckExtent(position, 1, 1, 0, 0, id_both)) return id_permastone;
+        if (CheckExtent(position, 4, 4, 3, 3, id_both)) return id_torch;
+        if (CheckExtent(position, 5, 5, 3, 3, id_both)) return id_permastone;
+        // if (CheckExtent(position, 1, 1, 1, 1, id_both)) return id_torch;
+        return 0;
+    }
+    
+    int beatType = BEAT_TYPE(idx);
+    
     if (beatType == beat_type_portal) return 0;
 
     if (beatType == beat_type_nothing) return 0;
-
+    
     if (beatType == beat_type_programmatic) {
         int height = (2 + idx) % 4;
         if (exact && CheckExtent(position, 2, 2, height+1, height+1, id_both)) return id_torch;
