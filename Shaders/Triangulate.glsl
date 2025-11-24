@@ -30,14 +30,12 @@ bool torchSection(int idx) {
 #define id_both 0
 #define id_left 1
 #define id_right 2
-bool CheckExtent(vec3 position, int x0, int x1, int y0, int y1, int leftright) {
-    ivec2 ebin = ivec2(position.xy) - ivec2(trackPos.xy);
+bool CheckExtent(ivec3 pos, int x0, int x1, int y0, int y1, int leftright) {
+    if (leftright == id_left) pos.x = -pos.x;
 
-    if (leftright == id_left) ebin.x = -ebin.x;
+    if (leftright == id_both) pos.x = abs(pos.x);
 
-    if (leftright == id_both) ebin.x = abs(ebin.x);
-
-    return ebin.x >= x0 && ebin.x <= x1 && ebin.y >= y0 && ebin.y <= y1;
+    return pos.x >= x0 && pos.x <= x1 && pos.y >= y0 && pos.y <= y1;
 }
 
 int CheckDefault(vec3 position) {
@@ -47,13 +45,25 @@ int CheckDefault(vec3 position) {
 }
 
 int CheckPosition(vec3 position, int idx, bool exact) {
-    // if (CheckExtent(position, 0, 0, 0, 0, id_both)) return id_permastone;
+    ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
     
-    if (position.z >= GetBeatPos(449.5) && position.z < GetBeatPos(453.5)) {
-        // if (CheckExtent(position, 1, 1, 0, 0, id_both)) return id_permastone;
-        if (CheckExtent(position, 4, 4, 3, 3, id_both)) return id_torch;
-        if (CheckExtent(position, 5, 5, 3, 3, id_both)) return id_permastone;
-        // if (CheckExtent(position, 1, 1, 1, 1, id_both)) return id_torch;
+    // if (CheckExtent(pos, 0, 0, 0, 0, id_both)) return id_permastone;
+    
+    if (pos.z == int(GetBeatPos(265))) {
+        if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
+    }
+    
+    if (pos.z == int(GetBeatPos(541.2))) {
+        if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
+    }
+    
+    if (pos.z >= int(GetBeatPos(449.5)) && pos.z < int(GetBeatPos(453.5))) {
+        // if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
+        if (CheckExtent(pos, 4, 4, 3, 3, id_both)) return id_torch;
+        if (CheckExtent(pos, 5, 5, 3, 3, id_both)) return id_permastone;
+        // if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
         return 0;
     }
     
@@ -65,9 +75,9 @@ int CheckPosition(vec3 position, int idx, bool exact) {
     
     if (beatType == beat_type_programmatic) {
         int height = (2 + idx) % 4;
-        if (exact && CheckExtent(position, 2, 2, height+1, height+1, id_both)) return id_torch;
+        if (exact && CheckExtent(pos, 2, 2, height+1, height+1, id_both)) return id_torch;
         
-        if (CheckExtent(position, 2, 2, height, height, id_both)) return id_permastone;
+        if (CheckExtent(pos, 2, 2, height, height, id_both)) return id_permastone;
         return 0;
     }
 
@@ -78,18 +88,17 @@ int CheckPosition(vec3 position, int idx, bool exact) {
     bool blockRightSide = position.x - trackPos.x > 0.0;
 
     if (beatType == r_low) {
-        if (CheckExtent(position, 1, 1, 0, 0, beatSide)) return id_permastone;
-        if (CheckExtent(position, 1, 1, 1, 1, beatSide)) return id_torch;
+        if (CheckExtent(pos, 1, 1, 0, 0, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 1, 1, beatSide)) return id_torch;
     } else if (beatType == r_default) {
-        if (CheckExtent(position, 1, 1, 0, 1, beatSide)) return id_permastone;
-        if (CheckExtent(position, 1, 1, 2, 2, beatSide)) return id_torch;
+        if (CheckExtent(pos, 1, 1, 0, 1, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return id_torch;
     } else if (beatType == r_wide) {
-        if (CheckExtent(position, 2, 2, 2, 2, beatSide)) return id_permastone;
-        if (CheckExtent(position, 1, 1, 2, 2, beatSide)) return blockRightSide ? id_torch_right : id_torch_left;
-        //if (CheckPosition(position - vec3(0, 1, 0), idx3)>0) return id_torch_right;
+        if (CheckExtent(pos, 2, 2, 2, 2, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return blockRightSide ? id_torch_right : id_torch_left;
     } else {
-        if (CheckExtent(position, 1, 1, 0, 1, id_both)) return id_permastone;
-        if (CheckExtent(position, 1, 1, 2, 2, id_both)) return id_torch;
+        if (CheckExtent(pos, 1, 1, 0, 1, id_both)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, id_both)) return id_torch;
     }
 
     return 0;
