@@ -249,7 +249,7 @@ public:
         beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
         glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
 
-        voxelLightingSSBO.Init(MAX_LIT_BLOCKS * sizeof(int) * 2);
+        voxelLightingSSBO.Init(MAX_LIT_BLOCKS * sizeof(int8_t));
         voxelLightingSSBO.Bind(6);
 
         portalRangesSSBO.Init(256 * sizeof(WorldRange));

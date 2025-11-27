@@ -18,9 +18,6 @@ void main() {
     }
 
     if (tid < LOGICAL_WORLD_COUNT) {
-        //beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
-        //worldRanges[i].zEnd
-
         if (tid == 0) {
             worldRanges[tid].zStart = -10000000;
             worldRanges[tid].zEnd = int(GetBeatPos(worldRanges[tid+1].beat));
@@ -53,8 +50,8 @@ void main() {
         memoryBarrierShared();
         barrier();
         
-        int nearestFront = 100000;
-        int nearestBack = 100000;
+        int nearestFront = 32;
+        int nearestBack = 32;
         
         for (int i = 0; i < 16; ++i) {
             int idx = int(gl_LocalInvocationID.x) - i;
@@ -69,15 +66,12 @@ void main() {
         }
 
         int nearest = nearestFront;
-        if (nearestBack <= nearestFront && nearestBack < 100000) {
-            //nearest = -nearest;
+        if (nearestBack <= nearestFront && nearestBack < 32) {
             nearest = -nearestBack;
         }
         
-        voxelLightingSSBO[tid].distanceToLight = nearest;
+        voxelLightingSSBO[tid] = int8_t(nearest);
     }
-    
-    // voxelLightingSSBO[int(GetBeatPos(121))].hasLight = true;
 };
 
 #endif

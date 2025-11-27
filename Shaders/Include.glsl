@@ -60,15 +60,6 @@ std::vector<BeatStruct> beatsArray = {
 	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
 	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	
-	//{169},
-	{.b=170,.bt=b_low}, {170.5}, {172}, {.b=173,.bt=b_low}, {173.5}, {175}, {.b=176,.bt=b_low}, {176.5},
-	{178}, {179}, {180}, {181}, {184}, // I'll tell it to you one day
-	{190}, {190.5}, {191}, {192}, {193}, {.b=194,.bt=b_low}, {194.5}, {196}, {.b=197,.bt=b_low}, {197.5}, {199}, {.b=200,.bt=b_low}, {200.5}, {202}, {203}, {204},
-	{205}, {.b=206,.bt=b_low}, {206.5}, {208}, {.b=209,.bt=b_low}, {209.5}, {211}, {.b=212,.bt=b_low}, {212.5}, {214}, {215}, {216},
-	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)}, {.b=218,.bt=b_low}, {218.5}, {220}, {.b=221,.bt=b_low}, {221.5}, {223}, {.b=224,.bt=b_low}, {224.5},
-	{226}, {227}, {228}, {229}, {232}, // A mile on my one leg
-	{238}, {239}, {240}, {250}, {251}, {252}, {253}, // Fixing my, fixing my eyes
-	//{.b=265, .bt=b_low},
 	{.b=271, .bt=b_wide}, {277}, {278.5}, {280}, {281.5}, {283}, // No way, you control my world
 	{284.5}, {286}, {287}, {288}, {289}, {292}, // I'm on a straight line
 	{297.5}, {298}, {299}, {300}, // The distant place
@@ -309,12 +300,8 @@ layout(std430, binding = 4) buffer LAYOUTT_6 {
 	BeatStructGPU[BEATS_COUNT] beatsSSBO;
 };
 
-struct VoxelLightingStruct {
-	bool hasLight;
-	float distanceToLight;
-};
 layout(std430, binding = 6) buffer LAYOUTT__6 {
-	VoxelLightingStruct voxelLightingSSBO[];
+	int8_t voxelLightingSSBO[];
 };
 
 #define BEAT_(i) beatsSSBO[i].beat
