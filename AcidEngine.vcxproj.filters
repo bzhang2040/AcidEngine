@@ -82,5 +82,9 @@
     <None Include="Shaders\Worlds.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Shaders\Animations2.glsl" />
+    <None Include="Shaders\Beats.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

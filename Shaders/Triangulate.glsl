@@ -27,44 +27,14 @@ bool torchSection(int idx) {
     return BEAT_(idx) < 313 || BEAT_(idx) >= 361.0;
 }
 
-#define id_both 0
-#define id_left 1
-#define id_right 2
-bool CheckExtent(ivec3 pos, int x0, int x1, int y0, int y1, int leftright) {
-    if (leftright == id_left) pos.x = -pos.x;
-
-    if (leftright == id_both) pos.x = abs(pos.x);
-
-    return pos.x >= x0 && pos.x <= x1 && pos.y >= y0 && pos.y <= y1;
-}
-
-int CheckDefault(vec3 position) {
-    if (CheckExtent(position, 1, 1, 0, 1, id_both)) return id_permastone;
-    if (CheckExtent(position, 1, 1, 2, 2, id_both)) return id_torch;
-    return 0;
-}
+//#include "Beats.glsl"
 
 int CheckPosition(vec3 position, int idx, bool exact) {
     ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
     
-    // if (CheckExtent(pos, 0, 0, 0, 0, id_both)) return id_permastone;
-    
-    if (pos.z == int(GetBeatPos(265))) {
-        if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
-    }
-    
-    if (pos.z == int(GetBeatPos(541.2))) {
-        if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
-    }
-    
-    if (pos.z >= int(GetBeatPos(449.5)) && pos.z < int(GetBeatPos(453.5))) {
-        // if (CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone;
-        if (CheckExtent(pos, 4, 4, 3, 3, id_both)) return id_torch;
-        if (CheckExtent(pos, 5, 5, 3, 3, id_both)) return id_permastone;
-        // if (CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch;
-        return 0;
+    int allBeats = AllBeats(pos, false);
+    if (allBeats != 0) {
+        return allBeats;
     }
     
     int beatType = BEAT_TYPE(idx);

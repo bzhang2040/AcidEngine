@@ -83,6 +83,8 @@ const vec3 offsetInStructure = vec3(ivec3(vec3(WORLD_SIZE) * vec3(0.5, 0.5, 0.5)
 
 #define INTRO_BEAT 25.0
 
+#define MAX_LIT_BLOCKS (512 * 1024)
+
 float GetBeatFromTime(float time) {
     float secondsPerBeat = 60.0 / BEATS_PER_MINUTE;
 

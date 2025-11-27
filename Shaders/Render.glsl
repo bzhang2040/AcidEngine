@@ -1275,9 +1275,10 @@ void NewFunction(vec2 uv2) {
 
         int beatId = BinarySearchNearest(int(pos.z));
         float torchPos = int(beatsSSBO[beatId].zPos);
-        float dist = distance(vec3(trackPos.xy+vec2(0,2),torchPos), pos);
-        float torchDist = pow((asin(sin(pos.z / 10.0)) / 3.14159 * 2.0 * 0.5 + 0.5), 8.0);
-        torchDist = pow(clamp01(1.0 - dist /16.0), 4.0);
+        float dist = voxelLightingSSBO[int(pos.z)].distanceToLight;
+        dist = abs(-pos.z - (0.5-int(pos.z) + dist));
+        dist = distance(vec3(trackPos.xy+vec2(0,2),dist), pos * vec3(1,1,0));
+        float torchDist = pow(clamp01(1.0 - dist/16.0), 4.0);
         float torchBrightness = 4.0 * torchDist;
 
         if (BEAT_TYPE(beatId) == beat_type_nothing) {

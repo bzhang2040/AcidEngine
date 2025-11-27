@@ -272,6 +272,7 @@ std::string AddPreamble(const std::string& type_, std::string sourceText, const 
     Replace(modifiedText, "//#include \"Terrain.glsl\"\n", ReadFile("Terrain.glsl"));
     Replace(modifiedText, "//#include \"Worlds.glsl\"\n", ReadFile("Worlds.glsl"));
     Replace(modifiedText, "//#include \"Animations2.glsl\"\n", ReadFile("Animations2.glsl"));
+    Replace(modifiedText, "//#include \"Beats.glsl\"\n", ReadFile("Beats.glsl"));
 
     if (type_ == "vertex")   modifiedText = "#define VERTEX_STAGE\n" + modifiedText;
     else if (type_ == "fragment") modifiedText = "#define FRAGMENT_STAGE\n" + modifiedText;

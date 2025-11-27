@@ -151,6 +151,7 @@
   <ItemGroup>
     <None Include="Shaders\Animations.glsl" />
     <None Include="Shaders\Animations2.glsl" />
+    <None Include="Shaders\Beats.glsl" />
     <None Include="Shaders\Bloom.glsl" />
     <None Include="Shaders\FullscreenBlit.glsl" />
     <None Include="Shaders\Worlds.glsl" />

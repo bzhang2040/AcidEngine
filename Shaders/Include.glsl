@@ -55,34 +55,9 @@ struct BeatStruct {
 
 // The main reason for this big vector is so I don't have to write a parser.
 std::vector<BeatStruct> beatsArray = {
-	{.b=beat_marker_start,.bt=beat_type_nothing},
-	{1}, {4}, {7},
-	{13}, {16}, {19}, {23.5},
-	{25}, {28},
-	{37}, {40}, {43}, {47.5},
-	
-	{49}, {52},
-	{61}, {64},
-	{73}, {74.5}, {76},
-	{85}, {88},
+	{.b=1,.bt=beat_type_nothing},
 
-	{.b=97,.bt=b_default}, {100}, {104.5}, {106}, {107}, {107.5},
-	{.b=109,.bt=b_default}, {112}, {113}, {113.5}, {115}, {116}, {116.5}, {118}, {119}, {119.5},
-
-	{.b=120,.bt=b_default},
-	{.b=133,.bt=b_default},
-	
-
-	{.b=beat_marker_end},
-	{145}, {146}, {146.5}, {148}, {149.5}, {152.5}, {155.5}, 
-
-	{157}, {158}, {158.5},
-	
 	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
-	{.b=beat_marker_start,.bt=beat_type_programmatic},
-	{160.5}, {161}, {161.5}, {162}, {162.5}, {163}, {163.5}, {164}, {164.5},
-	{165}, {165.5}, {166}, {166.5}, {167}, {167.5}, {168}, {168.5},
-	{.b=beat_marker_end},
 	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	
 	//{169},
@@ -93,7 +68,8 @@ std::vector<BeatStruct> beatsArray = {
 	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)}, {.b=218,.bt=b_low}, {218.5}, {220}, {.b=221,.bt=b_low}, {221.5}, {223}, {.b=224,.bt=b_low}, {224.5},
 	{226}, {227}, {228}, {229}, {232}, // A mile on my one leg
 	{238}, {239}, {240}, {250}, {251}, {252}, {253}, // Fixing my, fixing my eyes
-	{.b=265, .bt=b_low}, {.b=271, .bt=b_wide}, {277}, {278.5}, {280}, {281.5}, {283}, // No way, you control my world
+	//{.b=265, .bt=b_low},
+	{.b=271, .bt=b_wide}, {277}, {278.5}, {280}, {281.5}, {283}, // No way, you control my world
 	{284.5}, {286}, {287}, {288}, {289}, {292}, // I'm on a straight line
 	{297.5}, {298}, {299}, {300}, // The distant place
 	{309.5}, {310}, {311}, {312}, // The distant way
@@ -109,7 +85,7 @@ std::vector<BeatStruct> beatsArray = {
 		
 	{361}, {367}, {370}, {373}, // You should know it's complicated
 	{385}, {391}, {394}, {397}, // I'm all out of instigations
-	{409}, {409.25}, {409.5}, {410.5}, {410.75}, {411}, // A spider on my wall
+	// {409}, {409.25}, {409.5}, {410.5}, {410.75}, {411}, // A spider on my wall
 	{412}, {412.25}, {412.5}, {413.5}, {413.75}, {414},
 	{415}, {415.25}, {415.5}, {416.5}, {416.75}, {417},
 	{418}, {418.25}, {418.5}, {419.5}, {419.75}, {420},
@@ -120,7 +96,7 @@ std::vector<BeatStruct> beatsArray = {
 	{428.5}, {428.75}, {429},
 
 	{430} /*emphasis*/, {433}, {434.5} /*hold until 437*/, // All over
-	{441}, {442}, {443}, {445}, {446.5}, {448}, {449.5} /*hold until 453.5*/,
+	{441}, {442}, {443}, {445}, {446.5}, {448}, {.b=449.5,.bt=beat_type_nothing} /*hold until 453.5*/,
 	{455.5} /*something bright, bursting*/,
 
 	{456.5} /*buildup*/, {457} /*emphasis*/, {458.5}, {460}, {461.5}, {463}, // I'm here but not for long
@@ -333,6 +309,14 @@ layout(std430, binding = 4) buffer LAYOUTT_6 {
 	BeatStructGPU[BEATS_COUNT] beatsSSBO;
 };
 
+struct VoxelLightingStruct {
+	bool hasLight;
+	float distanceToLight;
+};
+layout(std430, binding = 6) buffer LAYOUTT__6 {
+	VoxelLightingStruct voxelLightingSSBO[];
+};
+
 #define BEAT_(i) beatsSSBO[i].beat
 #define BEAT_TYPE(i) beatsSSBO[i].type
 #define PORTAL_TARGET(i) beatsSSBO[i].portalTarget
@@ -412,7 +396,7 @@ int GetWaterHeight() {
 	case WORLD_NAME(0): return WATER_HEIGHT;
 	case WORLD_NAME(1): return WATER_HEIGHT;
 	case WORLD_NAME(2): return WATER_HEIGHT;
-	case WORLD_NAME(3): return -1;
+	case WORLD_NAME(3): return WATER_HEIGHT;
 	case WORLD_NAME(4): return WATER_HEIGHT;
 	}
 	return WATER_HEIGHT;

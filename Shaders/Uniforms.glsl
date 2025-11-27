@@ -5,12 +5,16 @@
 #ifdef INIT_BEATS_STAGE
 #ifdef COMPUTE_STAGE
 
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+
+//#include "Beats.glsl"
+
+shared uint8_t[1024+32] shared_voxelIsLit;
 
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
     if (tid < BEATS_COUNT) {
-        beatsSSBO[tid].zPos = GetCameraPos(beatsSSBO[tid].beat).z;
+        beatsSSBO[tid].zPos = GetBeatPos(beatsSSBO[tid].beat);
     }
 
     if (tid < LOGICAL_WORLD_COUNT) {
@@ -31,6 +35,49 @@ void main() {
         worldRanges[tid].zStart -= WORLD_SIZE.z / 2 + 32;
         worldRanges[tid].zEnd += WORLD_SIZE.z / 2 + 32;
     }
+    
+    if (tid < MAX_LIT_BLOCKS) {
+        if (AllBeats(ivec3(0,0,tid), true) != 0) {
+            shared_voxelIsLit[gl_LocalInvocationID.x+16] = uint8_t(true);
+        }
+        
+        if (tid < 16) {
+            if (AllBeats(ivec3(0,0,tid-16), true) != 0) {
+                shared_voxelIsLit[gl_LocalInvocationID.x] = uint8_t(true);
+            }
+            if (AllBeats(ivec3(0,0,tid+1024), true) != 0) {
+                shared_voxelIsLit[gl_LocalInvocationID.x+1024] = uint8_t(true);
+            }
+        }
+        
+        memoryBarrierShared();
+        barrier();
+        
+        int nearestFront = 100000;
+        int nearestBack = 100000;
+        
+        for (int i = 0; i < 16; ++i) {
+            int idx = int(gl_LocalInvocationID.x) - i;
+            if (i >= 0 && int(shared_voxelIsLit[idx+16]) != 0) {
+                nearestFront = min(i, nearestFront);
+            }
+            
+            idx = int(gl_LocalInvocationID.x) + i;
+            if (int(shared_voxelIsLit[idx+16]) != 0) {
+                nearestBack = min(i, nearestBack);
+            }
+        }
+
+        int nearest = nearestFront;
+        if (nearestBack <= nearestFront && nearestBack < 100000) {
+            //nearest = -nearest;
+            nearest = -nearestBack;
+        }
+        
+        voxelLightingSSBO[tid].distanceToLight = nearest;
+    }
+    
+    // voxelLightingSSBO[int(GetBeatPos(121))].hasLight = true;
 };
 
 #endif

@@ -151,6 +151,12 @@ public:
     void Regenerate(bool reload) {
         ivec3 dispatchSize = WORLD_SIZE / ivec3(16, 16, 16);
         
+        if (reload) {
+            int dispatchSize = max(beatsArray2.size(), portalPositions.size());
+            dispatchSize = max(dispatchSize, MAX_LIT_BLOCKS);
+            Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
+        }
+
         Dispatch(computeProg, 1, 1, 1);
 
         Dispatch(computeChunkUpdates, WORLD_SIZE.x / 16 / 16, WORLD_SIZE.y / 16, WORLD_SIZE.z / 16 / 16);
@@ -243,12 +249,18 @@ public:
         beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
         glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
 
+        voxelLightingSSBO.Init(MAX_LIT_BLOCKS * sizeof(int) * 2);
+        voxelLightingSSBO.Bind(6);
+
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
         glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
 
         beatsSSBO.Bind(4);
         portalRangesSSBO.Bind(7);
-        Dispatch(initBeatStruct, RoundUpDiv(max(beatsArray2.size(), portalPositions.size()), 256), 1, 1);
+
+        int dispatchSize = max(beatsArray2.size(), portalPositions.size());
+        dispatchSize = max(dispatchSize, MAX_LIT_BLOCKS);
+        Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
 
         physicalFromLogicalSSBO.Init(1024 * sizeof(LogicalID));
         glNamedBufferSubData(physicalFromLogicalSSBO.id, 0, 1024 * sizeof(LogicalID), physicalFromLogical.data());
@@ -265,6 +277,7 @@ public:
         }
 
         beatsSSBO.Bind(4);
+        voxelLightingSSBO.Bind(6);
         portalRangesSSBO.Bind(7);
         physicalFromLogicalSSBO.Bind(8);
 
@@ -362,6 +375,7 @@ public:
     SSBO beatsSSBO;
     SSBO portalRangesSSBO;
     SSBO physicalFromLogicalSSBO;
+    SSBO voxelLightingSSBO;
     unsigned int fbo;
     unsigned int bloomFBO;
     PerFrameCpuUbo perFrameCpuUbo;
