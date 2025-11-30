@@ -345,7 +345,7 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     if (SmallestAirTunnel()) {
         return 0;
     }
-
+    
     // The cobblestone track
     if (int(position.x) == int(trackPos.x) && int(position.y) == int(trackPos.y)) {
         if (idx < 0 || torchSection(idx)) {
@@ -354,21 +354,36 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     }
 
     // Torch beats
-    if (torchSection(idx)) {
+    // if (torchSection(idx)) {
         int cobble = CheckPosition(position, idx, exact);
         if (cobble > 0) return cobble;
-    }
+    // }
 
     if (MediumAirTunnel()) return 0;
 
-    if (idx >= 0 &&
-        !torchSection(idx) &&
-        !bool(trackDist.x < beatRadius + 2 && trackDist.y < beatRadius + 2)) {
-        vec3 crunched = crunch(position, vec3(1, 1, freq));
-        crunched.y += idx * 8.0;
-        float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
-        if (value > 0.4) return exact ? id_beat : id_stone2;
-    }
+    
+    // if (idx >= 0 &&
+    //     (BEAT_(idx) >= 313 && BEAT_(idx) < 361.0)) {
+        
+    //     ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
+    //     if (CheckExtent(pos, 1, 1, 0, 0, id_both)) {
+    //         return id_permastone;
+    //     }
+            
+    //     // vec3 crunched = crunch(position, vec3(1, 1, freq));
+    //     // crunched.y += idx * 8.0;
+    //     // float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
+    //     // if (value > 0.4) return exact ? id_beat : id_stone2;
+    // }
+    
+    // if (idx >= 0 &&
+    //     !torchSection(idx) &&
+    //     !bool(trackDist.x < beatRadius + 2 && trackDist.y < beatRadius + 2)) {
+    //     vec3 crunched = crunch(position, vec3(1, 1, freq));
+    //     crunched.y += idx * 8.0;
+    //     float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
+    //     if (value > 0.4) return exact ? id_beat : id_stone2;
+    // }
 
     if (position.z > GetBeatPos(311.0) && position.z < GetBeatPos(361.0)) return 0;
     }

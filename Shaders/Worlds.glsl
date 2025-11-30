@@ -38,7 +38,7 @@ switch(g_logicalWorldID) {
             interp(Simplex(p, vec3(2048, 1e35, 2048), vec3(0)), 0.5, 0.52)
         );
         
-        v = mix(v, 0.0, interp(length(trackDist.xy), 0.0, 10.0) * float((int(trackDelta.y))!=1));
+        v = mix(v, 0.0, interp(length(trackDist.xy), 0.0, 10.0) * float((int(trackDelta.y))!=-1));
         
         return v;
     }

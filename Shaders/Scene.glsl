@@ -12,7 +12,7 @@ const vec3 custommovement = vec3(0.0, 0.0, 0.0) * vec3(1.0) + vec3(0.0001);
 
 #define BOUNDS_CHECKING false
 
-const ivec3 WORLD_BITS = ivec3(11, 9, 11);
+const ivec3 WORLD_BITS = ivec3(10, 9, 10);
 const ivec3 WORLD_SIZE = ivec3(1) << WORLD_BITS;
 
 #define SUB_VOXEL_TRACE true

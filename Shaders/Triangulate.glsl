@@ -27,52 +27,6 @@ bool torchSection(int idx) {
     return BEAT_(idx) < 313 || BEAT_(idx) >= 361.0;
 }
 
-//#include "Beats.glsl"
-
-int CheckPosition(vec3 position, int idx, bool exact) {
-    ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
-    
-    int allBeats = AllBeats(pos, false);
-    if (allBeats != 0) {
-        return allBeats;
-    }
-    
-    int beatType = BEAT_TYPE(idx);
-    
-    if (beatType == beat_type_portal) return 0;
-
-    if (beatType == beat_type_nothing) return 0;
-    
-    if (beatType == beat_type_programmatic) {
-        int height = (2 + idx) % 4;
-        if (exact && CheckExtent(pos, 2, 2, height+1, height+1, id_both)) return id_torch;
-        
-        if (CheckExtent(pos, 2, 2, height, height, id_both)) return id_permastone;
-        return 0;
-    }
-
-    if (!exact) return 0;
-
-    int beatSide = beatType >= 20 ? id_both : (beatType >= 10 ? id_left : (id_right));
-    beatType %= 10;
-    bool blockRightSide = position.x - trackPos.x > 0.0;
-
-    if (beatType == r_low) {
-        if (CheckExtent(pos, 1, 1, 0, 0, beatSide)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 1, 1, beatSide)) return id_torch;
-    } else if (beatType == r_default) {
-        if (CheckExtent(pos, 1, 1, 0, 1, beatSide)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return id_torch;
-    } else if (beatType == r_wide) {
-        if (CheckExtent(pos, 2, 2, 2, 2, beatSide)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return blockRightSide ? id_torch_right : id_torch_left;
-    } else {
-        if (CheckExtent(pos, 1, 1, 0, 1, id_both)) return id_permastone;
-        if (CheckExtent(pos, 1, 1, 2, 2, id_both)) return id_torch;
-    }
-
-    return 0;
-}
 #endif
 
 
@@ -236,6 +190,54 @@ void main() {
 #ifdef COMPUTE_STAGE
 
 layout(local_size_x = 16, local_size_y = 1, local_size_z = 16) in;
+
+//#include "Beats.glsl"
+
+int CheckPosition(vec3 position, int idx, bool exact) {
+    ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
+    
+    int allBeats = AllBeats(pos, false);
+    if (allBeats != 0) {
+        return allBeats;
+    }
+    
+    int beatType = BEAT_TYPE(idx);
+    
+    if (beatType == beat_type_portal) return 0;
+
+    if (beatType == beat_type_nothing) return 0;
+    
+    if (beatType == beat_type_programmatic) {
+        int height = (2 + idx) % 4;
+        if (exact && CheckExtent(pos, 2, 2, height+1, height+1, id_both)) return id_torch;
+        
+        if (CheckExtent(pos, 2, 2, height, height, id_both)) return id_permastone;
+        return 0;
+    }
+
+    if (!exact) return 0;
+
+    int beatSide = beatType >= 20 ? id_both : (beatType >= 10 ? id_left : (id_right));
+    beatType %= 10;
+    bool blockRightSide = position.x - trackPos.x > 0.0;
+    
+
+    if (beatType == r_low) {
+        if (CheckExtent(pos, 1, 1, 0, 0, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 1, 1, beatSide)) return id_torch;
+    } else if (beatType == r_default) {
+        if (CheckExtent(pos, 1, 1, 0, 1, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return id_torch;
+    } else if (beatType == r_wide) {
+        if (CheckExtent(pos, 2, 2, 2, 2, beatSide)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, beatSide)) return blockRightSide ? id_torch_right : id_torch_left;
+    } else {
+        if (CheckExtent(pos, 1, 1, 0, 1, id_both)) return id_permastone;
+        if (CheckExtent(pos, 1, 1, 2, 2, id_both)) return id_torch;
+    }
+
+    return 0;
+}
 
 //#include "Terrain.glsl"
 

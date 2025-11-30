@@ -33,7 +33,7 @@
     //  first chorus beat =  313
     
     Shutter(1.0, 360, 366, temp);
-    Fov(  110.0, 360, 363, cubesmooth(temp*3.14159/2.0/2.0));
+    Fov(  90.0, 360, 363, cubesmooth(cubesmooth(temp*3.14159/2.0/2.0)));
     Speed(120.0, 361, 366);
     
     Acid(0.0, 500, 505, powf(4.0, temp));

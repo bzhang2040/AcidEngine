@@ -11,6 +11,15 @@ layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
 shared uint8_t[1024+32] shared_voxelIsLit;
 
+bool HasLight(int z) {
+    int block = AllBeats(ivec3(0,0,z), true);
+    return
+        block == id_torch ||
+        block == id_torch_right ||
+        block == id_torch_left ||
+        block == id_beat;
+}
+
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
     if (tid < BEATS_COUNT) {
@@ -34,15 +43,15 @@ void main() {
     }
     
     if (tid < MAX_LIT_BLOCKS) {
-        if (AllBeats(ivec3(0,0,tid), true) != 0) {
+        if (HasLight(tid)) {
             shared_voxelIsLit[gl_LocalInvocationID.x+16] = uint8_t(true);
         }
         
         if (tid < 16) {
-            if (AllBeats(ivec3(0,0,tid-16), true) != 0) {
+            if (HasLight(tid)) {
                 shared_voxelIsLit[gl_LocalInvocationID.x] = uint8_t(true);
             }
-            if (AllBeats(ivec3(0,0,tid+1024), true) != 0) {
+            if (HasLight(tid)) {
                 shared_voxelIsLit[gl_LocalInvocationID.x+1024] = uint8_t(true);
             }
         }
