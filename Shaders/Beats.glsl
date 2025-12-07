@@ -9,28 +9,30 @@ bool CheckExtent(ivec3 pos, int x0, int x1, int y0, int y1, int leftright) {
     return pos.x >= x0 && pos.x <= x1 && pos.y >= y0 && pos.y <= y1;
 }
 
-#define B(z0) \
-    if (pos.z == int(GetBeatPos(z0))) { \
-        if (GET_LIGHT || CheckExtent(pos, 1, 1, 2, 2, id_both)) return id_torch; \
-        if (!GET_LIGHT && CheckExtent(pos, 1, 1, 0, 1, id_both)) return id_permastone; \
+void B_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
+    if (pos.z == int(GetBeatPos(z0))) {
+        if (GET_LIGHT || CheckExtent(pos, 1, 1, 2, 2, id_both)) val = id_torch;
+        if (!GET_LIGHT && CheckExtent(pos, 1, 1, 0, 1, id_both)) val = id_permastone;
     }
+}
+#define B(z0) B_(val, pos, GET_LIGHT, z0);
 
-#define B_LOW(z0) \
-    if (pos.z == int(GetBeatPos(z0))) { \
-        if (GET_LIGHT || CheckExtent(pos, 1, 1, 1, 1, id_both)) return id_torch; \
-        if (!GET_LIGHT && CheckExtent(pos, 1, 1, 0, 0, id_both)) return id_permastone; \
+void B_LOW_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
+    if (pos.z == int(GetBeatPos(z0))) {
+        if (GET_LIGHT || CheckExtent(pos, 1, 1, 1, 1, id_both)) val = id_torch;
+        if (!GET_LIGHT && CheckExtent(pos, 1, 1, 0, 0, id_both)) val = id_permastone;
     }
+}
+#define B_LOW(z0) B_LOW_(val, pos, GET_LIGHT, z0);
 
-#define B_WIDE(z0) \
-    if (pos.z == int(GetBeatPos(z0))) { \
-        if (!GET_LIGHT && CheckExtent(pos, 2, 2, 2, 2, id_both)) return id_permastone; \
-        if (GET_LIGHT || CheckExtent(pos, 1, 1, 2, 2, id_both)) return pos.x > 0 ? id_torch_right : id_torch_left; \
-    } \
-    
-#define DEFAULT_BEAT2(x0, x1, y0, y1, z0, z1, side, blockType) \
-    if (pos.z >= int(GetBeatPos(z0)) && pos.z >= int(GetBeatPos(z0)) && CheckExtent(pos, x0, x1, y0, y1, side)) { return blockType; }
+void B_WIDE_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
+    if (pos.z == int(GetBeatPos(z0))) {
+        if (!GET_LIGHT && CheckExtent(pos, 2, 2, 2, 2, id_both)) val = id_permastone;
+        if (GET_LIGHT || CheckExtent(pos, 1, 1, 2, 2, id_both)) val = pos.x > 0 ? id_torch_right : id_torch_left;
+    }
+}
+#define B_WIDE(z0) B_WIDE_(val, pos, GET_LIGHT, z0);
 
-    
 bool Spiral(vec2 pos, float temp, float period, int radius) {
     if (temp <= 0.0 || temp >= 1.0) return false;
     temp *= period;
@@ -79,7 +81,7 @@ bool eq(ivec2 x, ivec2 y) {
     return all(greaterThan(x, y));
 }
 
-int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp;
+int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp; int val = 0;
     B(109) B(121) B(133);
     B_LOW(170) B(170.5) B(172) B_LOW(173) B(173.5) B(175) B_LOW(176) B(176.5);
     B(178) B(179) B(180) B(181) B(184); // I'll tell it to you one day
@@ -235,5 +237,5 @@ int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp;
     
     B(774);
     
-    return 0;
+    return val;
 }
