@@ -33,6 +33,22 @@ void B_WIDE_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
 }
 #define B_WIDE(z0) B_WIDE_(val, pos, GET_LIGHT, z0);
 
+void B_WIDE_L_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
+    if (pos.z == int(GetBeatPos(z0))) {
+        if (!GET_LIGHT && (CheckExtent(pos, 2, 2, 2, 2, id_both) && pos.x < 0)) val = id_permastone;
+        if (GET_LIGHT ||  (CheckExtent(pos, 1, 1, 2, 2, id_both) && pos.x < 0)) val = id_torch_left;
+    }
+}
+#define B_WIDE_L(z0) B_WIDE_L_(val, pos, GET_LIGHT, z0);
+
+void B_WIDE_R_(inout int val, ivec3 pos, bool GET_LIGHT, float z0) {
+    if (pos.z == int(GetBeatPos(z0))) {
+        if (!GET_LIGHT && (CheckExtent(pos, 2, 2, 2, 2, id_both) && pos.x > 0)) val = id_permastone;
+        if (GET_LIGHT ||  (CheckExtent(pos, 1, 1, 2, 2, id_both) && pos.x > 0)) val = id_torch_right;
+    }
+}
+#define B_WIDE_R(z0) B_WIDE_R_(val, pos, GET_LIGHT, z0);
+
 bool Spiral(vec2 pos, float temp, float period, int radius) {
     if (temp <= 0.0 || temp >= 1.0) return false;
     temp *= period;
@@ -98,6 +114,13 @@ int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp; int val = 0;
     
     // Chorus 1
     if (pos.z >= int(GetBeatPos(313)) && pos.z < int(GetBeatPos(361))) {
+        /*
+        {.b=313, .d=0.0/30}, {313.5}, {314}, {314.5}, {315}, {315.5}, {316}, {316.5}, {317}, {317.5}, {318}, {318.5}, {319}, {319.5}, {320}, {320.5}, {321}, {321.5}, {322}, {322.5}, {323},
+        {325}, {325.5}, {326}, {326.5}, {327}, {327.5}, {328}, {328.5}, {329}, {329.5}, {330}, {330.5}, {331}, {331.5}, {332}, {332.5}, {333}, {333.5}, {334},
+        {337}, {337.5}, {338}, {338.5}, {339}, {339.5}, {340}, {340.5}, {341}, {341.5}, {342}, {342.5}, {343}, {343.5}, {344}, {344.5}, {345}, {345.5}, {346}, {346.5}, {347},
+        {349}, {349.5}, {350}, {350.5}, {351}, {351.5}, {352}, {352.5}, {353}, {353.5}, {354}, {354.5}, {355}, {355.5}, {356}, {356.5}, {357}, {357.5}, {358}, {358.5}, {359}, {359.5}, {360}, {360.5},
+        */
+        
         temp  = interp(pos.z, GetBeatPos(313), GetBeatPos(313.5));
         temp += interp(pos.z, GetBeatPos(313.5), GetBeatPos(314));
         temp += interp(pos.z, GetBeatPos(314), GetBeatPos(314.5));
@@ -236,6 +259,12 @@ int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp; int val = 0;
     B(766) B(766.5) B(767) B(767.5) B(768) B(768.5) B(769) B(770.5);// Every day a little closer
     
     B(774);
+    
+    B_WIDE_R(775) B_WIDE_L(775.5) B_WIDE_R(776) B_WIDE_L(776.5) B_WIDE_R(777) B_WIDE_L(777.5);
+    B_WIDE_R(778) B_WIDE_L(778.5) B_WIDE_R(779) B_WIDE_L(779.5) B_WIDE_R(780) B_WIDE_L(780.5);
+    
+    B(781);
+    B_LOW(782.5) B_LOW(784);
     
     return val;
 }
