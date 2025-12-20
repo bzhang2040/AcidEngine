@@ -43,6 +43,7 @@ struct LogicalID {
 };
 
 #define WORLD_NAME(n) (n)
+#define CHORUS_3 30
 
 #ifdef CXX_STAGE
 
@@ -50,7 +51,6 @@ struct BeatStruct {
 	float b; // beat
 	int bt = beat_type_default; // beat type
 	int targetWorldName = -1;
-	float d = 0.0f; // delay
 };
 
 // The main reason for this big vector is so I don't have to write a parser.
@@ -61,7 +61,7 @@ std::vector<BeatStruct> beatsArray = {
 	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)},
 
-	{.b=1078, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(4)},
+	{.b=1079, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(CHORUS_3)},
 };
 
 std::vector<BeatStructGPU> beatsArray2;
@@ -109,6 +109,7 @@ float GetBeatIndex(float beatsPerMinute, float firstTempo, float beatTime, float
 #define id_portal 23
 #define id_portal_forward 24
 #define id_portal_backward 25
+#define id_glowstone 26
 
 bool IsPortal(uint blockID) {
 	return blockID == id_portal || blockID == id_portal_forward || blockID == id_portal_backward;
@@ -286,7 +287,7 @@ int GetWaterHeight() {
 	case WORLD_NAME(1): return WATER_HEIGHT;
 	case WORLD_NAME(2): return WATER_HEIGHT;
 	case WORLD_NAME(3): return WATER_HEIGHT;
-	case WORLD_NAME(4): return WATER_HEIGHT;
+	case WORLD_NAME(CHORUS_3): return WATER_HEIGHT;
 	}
 	return WATER_HEIGHT;
 }

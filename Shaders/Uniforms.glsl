@@ -17,6 +17,7 @@ bool HasLight(int z) {
         block == id_torch ||
         block == id_torch_right ||
         block == id_torch_left ||
+        block == id_glowstone ||
         block == id_beat;
 }
 
@@ -104,29 +105,31 @@ layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
 vec3 SunDirection(float beat) {
     float sunAngle = GetSunAngle(beat);
-    float sunRotation = 30.0;
+    float sunRotation = GetSunRotation(beat);
 
     float curr = 45.0;
 
     vec3 sunDir = vec3(0.0, 0.0, 1.0);
 
-    vec2 v = vec2(sunDir.x, sunDir.z) * rotate(radians(sunRotation));
-    sunDir.x = v.x;
-    sunDir.z = v.y;
-    v = vec2(sunDir.y, sunDir.z) * rotate(radians(sunAngle));
-    sunDir.y = v.x;
-    sunDir.z = v.y;
-
-    return normalize(sunDir);
+    float cycle = cameraPosition.z/5000.0;
+    
+    sunDir.xz = sunDir.xz * rotate(radians(sunRotation));
+    sunDir.yz = sunDir.yz * rotate(radians(sunAngle));
+    
+    // sunDir.xz = sunDir.xz * rotate(radians(30.0*sin((cycle+0.25)*2.0*3.14159)));
+    // sunDir.yz = sunDir.yz * rotate(radians(130.0*sin(cycle*2.0*3.14159)));
+    
+    return normalize(sunDir + vec3(0.001));
 }
 
 vec3 MoonDirection(float beat) {
     vec3 moonDirection = SunDirection(beat);
-    vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate(radians(-30.0));
-    moonDirection.x = v.x;
-    moonDirection.z = v.y;
-    moonDirection.y *= -1.0;
+    // vec2 v = vec2(moonDirection.x, moonDirection.z) * rotate(radians(-30.0));
+    // moonDirection.x = v.x;
+    // moonDirection.z = v.y;
+    // moonDirection.y *= -1.0;
     moonDirection = -SunDirection(beat);
+    // moonDirection.xy *= -1.0;
 
     return moonDirection;
 }

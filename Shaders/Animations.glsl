@@ -8,6 +8,7 @@
 #define Shutter(a, b, c, d)
 #define Acid(a, b, c, d)
 #define SunAngle(a, b, c, d)
+#define SunRotation(a, b, c, d)
 #define Fov(a, b, c, d)
 #define Water(a, b, c, d)
 #define Roll(a, b, c, d)
@@ -137,6 +138,15 @@ float GetSunAngle(float beat) { float prev = 0.0; float curr = 0.0; float temp =
     return curr;
 }
 
+float GetSunRotation(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    #undef SunRotation
+    #define SunRotation(a, b, c, d) Key(a, b, c, d)
+    //#include "Animations2.glsl"
+    #undef SunRotation
+    #define SunRotation(a, b, c, d)
+    return curr;
+}
+
 float FisheyeAmount(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
     #undef Fisheye
     #define Fisheye(a, b, c, d) Key(a, b, c, d)
@@ -177,12 +187,14 @@ vec3 TheFunction(vec3 pos) {
         
         float K = 3000.0 * (interp(beatFromPos, 265, 271));
 
-        float t3 = sin(pos.z * 3.0 / currentSpeed);
+        float t3 = (-pos.z * 3.0 / 200.0);
+        return pos;
         t3 *= distortionIntensity;
-        t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
-        t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
+        // t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
+        // t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
         pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
-
+        // pos.xz *= rotate(radians(45.0));
+        pos.xz *= rotate(radians(-60.0 * EaseInOutSin(interp(length(pos.xz), 0.0, 100.0))));
         return pos;
     }
 

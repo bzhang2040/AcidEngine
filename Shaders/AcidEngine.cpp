@@ -432,7 +432,11 @@ void ReloadShaders(bool regenTerrain) {
     for (auto i = ReloadableShaders.begin(); i != ReloadableShaders.end(); i++) {
         
         std::string source = ReadFile(std::get<0>(i->first), std::get<1>(i->first));
+        Time time;
+        float start = time.seconds();
         int shader = CreateProgram(source, std::get<2>(i->first), std::get<0>(i->first), std::get<1>(i->first));
+        float end = time.seconds();
+        printf("%s: %.6f", std::get<1>(i->first).c_str(), end - start);
         if (shader != -1) {
             *(i->second) = shader;
             system("cls");
@@ -445,6 +449,8 @@ void ReloadShaders(bool regenTerrain) {
             break;
         }
     }
+
+    printf("\n");
 
     ReloadingShaders = false;
 }
@@ -528,7 +534,6 @@ int main() {
 
         if (elem.b == beat_marker_start) {
             if (elem.bt != beat_type_default) curr.bt = elem.bt;
-            if (elem.d != 0.0f) curr.d = elem.d;
             continue;
         } else if (elem.b == beat_marker_end) {
             curr = BeatStruct();
@@ -536,7 +541,6 @@ int main() {
         }
 
         if (curr.bt != beat_type_default) elem.bt = curr.bt;
-        if (curr.d != 0.0f) elem.d = curr.d;
 
         if (elem.bt == beat_type_portal) {
             int physicalID = currPhysicalID % MAX_WORLD_COUNT;
@@ -547,7 +551,6 @@ int main() {
             currPhysicalID++;
         }
 
-        elem.b += elem.d; // Merge beat delay into beat time
         beatsArray2.push_back({.beat=elem.b, .type=elem.bt, .portalTarget=elem.targetWorldName});
     }
     

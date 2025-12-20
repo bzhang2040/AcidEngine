@@ -235,7 +235,7 @@ vec3 ComputeTotalSky2(vec3 wDir) {
 float FogFactor(vec3 viewPos) {
 	//return 0.5;
 	if (!DO_FOG) return 0.0;
-	float fogfactor = pow(min(1.0, length(viewPos.xz) / (WORLD_SIZE.z / 2.0 /*/ 0.9*/ - 16.0)), 2.0);
+	float fogfactor = pow(min(1.0, length(viewPos.xz) / (WORLD_SIZE.z / 2.0 /*/ 0.9*/ - 16.0)), 1.0);
 	fogfactor = max(0.0, fogfactor - FOG_START) / (1.0 - FOG_START);
 
 	return clamp(fogfactor, 0.0, 1.0);

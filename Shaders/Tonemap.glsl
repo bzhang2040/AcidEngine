@@ -406,7 +406,7 @@ void main() {
     //OutColor.rgb = vec3(chunkID[int(gl_FragCoord.x + gl_FragCoord.y * viewSize.x)].rgb / 100.0);
     
 
-    if (!writeFrames) DrawDebugText();
+    if (!writeFrames && sampleCount == 1) DrawDebugText();
 
     if (writeFrames && beatFromPos < INTRO_BEAT) {
         OutColor.rgb = vec3(0.0);
