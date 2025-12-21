@@ -3,6 +3,9 @@
 #include <sstream>
 #include <chrono>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #define CXX_STAGE
 #include "Scene.glsl"
@@ -255,6 +258,89 @@ void Replace(std::string& str, const std::string& from, const std::string& to) {
     }
 }
 
+struct CodeRegion {
+    std::string name;
+    std::string startMarker;
+    std::string endMarker;     // Empty for single-line (newline-terminated)
+    std::string targetMarker;
+    
+    bool isSingleLine() const { return endMarker.empty(); }
+};
+
+// List of all code regions - both multi-line and single-line (uniform functions)
+const std::vector<CodeRegion> g_codeRegions = {
+    // Multi-line regions (explicit end marker)
+    { "BEATS",        "BEATS_START",   "BEATS_END",   "BEATS_TARGET"        },
+    { "TERRAIN",      "TERRAIN_START", "TERRAIN_END", "TERRAIN_TARGET"      },
+    { "ACID",         "ACID_START",    "ACID_END",    "ACID_TARGET"         },
+    // Single-line regions (newline-terminated, empty endMarker)
+    { "StartSpeed",   "StartSpeed(",   "",            "StartSpeed_TARGET"   },
+    { "Speed",        "Speed(",        "",            "Speed_TARGET"        },
+    { "Fisheye",      "Fisheye(",      "",            "Fisheye_TARGET"      },
+    { "Shutter",      "Shutter(",      "",            "Shutter_TARGET"      },
+    { "Distort",      "Distort(",      "",            "Distort_TARGET"      },
+    { "SunAngle",     "SunAngle(",     "",            "SunAngle_TARGET"     },
+    { "SunRotation",  "SunRotation(",  "",            "SunRotation_TARGET"  },
+    { "Fov",          "Fov(",          "",            "Fov_TARGET"          },
+    { "Water",        "Water(",        "",            "Water_TARGET"        },
+    { "Roll",         "Roll(",         "",            "Roll_TARGET"         },
+    { "Pitch",        "Pitch(",        "",            "Pitch_TARGET"        },
+    { "Yaw",          "Yaw(",          "",            "Yaw_TARGET"          },
+    { "CameraHeight", "CameraHeight(", "",            "CameraHeight_TARGET" },
+};
+
+std::string ExtractDelimitedCode(const std::string& input, 
+    std::unordered_map<std::string, std::string>& extractedRegions) {
+    std::istringstream iss(input);
+    std::string modifiedText2;
+    
+    std::unordered_set<std::string> activeMultiLineRegions;
+    for (std::string line; std::getline(iss, line); ) {
+        // Check for single-line regions first (highest priority)
+        bool isSingleLine = false;
+        for (const auto& region : g_codeRegions) {
+            if (region.isSingleLine() && line.find(region.startMarker) != std::string::npos) {
+                extractedRegions[region.name] += line + "\n";
+                isSingleLine = true;
+                break;
+            }
+        }
+        if (isSingleLine) continue;
+        
+        // Check for multi-line region start/end (can have multiple on same line)
+        bool isDelimiter = false;
+        for (const auto& region : g_codeRegions) {
+            if (region.isSingleLine()) continue;
+            if (line.find(region.startMarker) != std::string::npos) {
+                activeMultiLineRegions.insert(region.name);
+                isDelimiter = true;
+            }
+            if (line.find(region.endMarker) != std::string::npos) {
+                activeMultiLineRegions.erase(region.name);
+                isDelimiter = true;
+            }
+        }
+        if (isDelimiter) continue;
+
+        if (activeMultiLineRegions.size() > 0) {
+            // Inside multi-line region(s) - only active regions get this line
+            for (const auto& active : activeMultiLineRegions) {
+                extractedRegions[active] += line + "\n";
+            }
+        } else {
+            // Base code goes to all multi-line regions
+            modifiedText2 += line + "\n";
+            for (const auto& region : g_codeRegions) {
+                if (!region.isSingleLine()) {
+                    extractedRegions[region.name] += line + "\n";
+                }
+            }
+        }
+    }
+
+    return modifiedText2;
+}
+
 std::string AddPreamble(const std::string& type_, std::string sourceText, const std::string& filename, const std::string& preprocessorName) {
     std::string modifiedText = ReadFile("Scene.glsl");
 
@@ -270,8 +356,6 @@ std::string AddPreamble(const std::string& type_, std::string sourceText, const 
     modifiedText += sourceText;
 
     Replace(modifiedText, "//#include \"Terrain.glsl\"\n", ReadFile("Terrain.glsl"));
-    Replace(modifiedText, "//#include \"Worlds.glsl\"\n", ReadFile("Worlds.glsl"));
-    Replace(modifiedText, "//#include \"Animations2.glsl\"\n", ReadFile("Animations2.glsl"));
     Replace(modifiedText, "//#include \"Beats.glsl\"\n", ReadFile("Beats.glsl"));
 
     if (type_ == "vertex")   modifiedText = "#define VERTEX_STAGE\n" + modifiedText;
@@ -296,6 +380,38 @@ std::string AddPreamble(const std::string& type_, std::string sourceText, const 
 #pragma optimize(on)
 #extension GL_ARB_shader_ballot : enable
 )===" + modifiedText;
+
+    std::unordered_map<std::string, std::string> extractedRegions;
+    ExtractDelimitedCode(ReadFile("Timeline.glsl"), extractedRegions);
+
+    // Insert extracted regions at their target markers
+    {
+        std::istringstream iss(modifiedText);
+        std::string result;
+        for (std::string line; std::getline(iss, line); ) {
+            bool replaced = false;
+            for (const auto& region : g_codeRegions) {
+                if (line.find(region.targetMarker) != std::string::npos) {
+                    result += extractedRegions[region.name];
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                result += line + "\n";
+            }
+        }
+        modifiedText = result;
+    }
+
+    if (false) {
+        // Test: Write extracted regions to separate files
+        for (const auto& [regionName, regionCode] : extractedRegions) {
+            std::ofstream outFile("Shaders/DEBUG_" + regionName + ".txt");
+            outFile << regionCode;
+            outFile.close();
+        }
+    }
 
     return modifiedText;
 }

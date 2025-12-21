@@ -150,11 +150,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Animations.glsl" />
-    <None Include="Shaders\Animations2.glsl" />
     <None Include="Shaders\Beats.glsl" />
     <None Include="Shaders\Bloom.glsl" />
     <None Include="Shaders\FullscreenBlit.glsl" />
-    <None Include="Shaders\Worlds.glsl" />
+    <None Include="Shaders\Timeline.glsl" />
     <None Include="Shaders\Include.glsl" />
     <None Include="Shaders\PrecomputeSky.glsl" />
     <None Include="Shaders\Render.glsl" />

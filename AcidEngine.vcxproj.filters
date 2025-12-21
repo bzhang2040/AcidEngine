@@ -79,11 +79,10 @@
     <None Include="Shaders\Animations.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Shaders\Worlds.glsl">
+    <None Include="Shaders\Beats.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Shaders\Animations2.glsl" />
-    <None Include="Shaders\Beats.glsl">
+    <None Include="Shaders\Timeline.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

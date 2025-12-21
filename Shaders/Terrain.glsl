@@ -293,13 +293,17 @@ bool TerrainBoolean(vec3 p) { vec3 position=p;
 }
 
 float FUNCTION_0(vec3 p) {
-//#include "Worlds.glsl"
+    vec3 position = p;
+    // TERRAIN_TARGET
+    return 0.0;
 }
 
 float FUNCTION_1(vec3 p) {
-#define Simplex(x, y, z) 1.0
-//#include "Worlds.glsl"
-#undef Simplex
+    vec3 position = p;
+    #define Simplex(x, y, z) 1.0
+    // TERRAIN_TARGET
+    #undef Simplex
+    return 0.0;
 }
 
 uint TerrainAndWater(vec3 p) {
@@ -360,30 +364,6 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     // }
 
     if (MediumAirTunnel()) return 0;
-
-    
-    // if (idx >= 0 &&
-    //     (BEAT_(idx) >= 313 && BEAT_(idx) < 361.0)) {
-        
-    //     ivec3 pos = ivec3(position) - ivec3(trackPos.xy, 0);
-    //     if (CheckExtent(pos, 1, 1, 0, 0, id_both)) {
-    //         return id_permastone;
-    //     }
-            
-    //     // vec3 crunched = crunch(position, vec3(1, 1, freq));
-    //     // crunched.y += idx * 8.0;
-    //     // float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
-    //     // if (value > 0.4) return exact ? id_beat : id_stone2;
-    // }
-    
-    // if (idx >= 0 &&
-    //     !torchSection(idx) &&
-    //     !bool(trackDist.x < beatRadius + 2 && trackDist.y < beatRadius + 2)) {
-    //     vec3 crunched = crunch(position, vec3(1, 1, freq));
-    //     crunched.y += idx * 8.0;
-    //     float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
-    //     if (value > 0.4) return exact ? id_beat : id_stone2;
-    // }
 
     if (position.z > GetBeatPos(311.0) && position.z < GetBeatPos(361.0)) return 0;
     }

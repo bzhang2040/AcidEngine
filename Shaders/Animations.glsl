@@ -4,19 +4,19 @@
 
 #define powf(a, b) pow(b, a)
 
-#define Fisheye(a, b, c, d)
-#define Shutter(a, b, c, d)
-#define Acid(a, b, c, d)
-#define SunAngle(a, b, c, d)
-#define SunRotation(a, b, c, d)
-#define Fov(a, b, c, d)
-#define Water(a, b, c, d)
-#define Roll(a, b, c, d)
-#define Pitch(a, b, c, d)
-#define Yaw(a, b, c, d)
-#define CameraHeight(a, b, c, d)
-#define StartSpeed(a)
-#define Speed(a, b, c)
+#define Water(a, b, c, d) Key(a, b, c, d)
+#define Roll(a, b, c, d) Key(a, b, c, d)
+#define Pitch(a, b, c, d) Key(a, b, c, d)
+#define Yaw(a, b, c, d) Key(a, b, c, d)
+#define CameraHeight(a, b, c, d) Key(a, b, c, d)
+#define Fov(a, b, c, d) Key(a, b, c, d)
+#define Shutter(a, b, c, d) Key(a, b, c, d)
+#define SunAngle(a, b, c, d) Key(a, b, c, d)
+#define SunRotation(a, b, c, d) Key(a, b, c, d)
+#define Fisheye(a, b, c, d) Key(a, b, c, d)
+#define Distort(a, b, c, d) Key(a, b, c, d)
+#define StartSpeed(a) prev = a; curr = GetTimeFromBeat(beat) * prev;
+#define Speed(a, b, c) KeySpeed(a, b, c)
 
 float interp(float x, float a, float b) {
     if (b == a) return 0.0;
@@ -46,51 +46,28 @@ float NewValue(inout float value, float newValue) {
 }
 
 float GetBeatPos(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef StartSpeed
-    #define StartSpeed(a) prev = a; curr = GetTimeFromBeat(beat) * prev;
-    #undef Speed
-    #define Speed(a, b, c) KeySpeed(a, b, c)
-    //#include "Animations2.glsl"
-    #undef Speed
-    #define Speed(a, b, c)
-    #undef StartSpeed
-    #define StartSpeed(a)
+    // StartSpeed_TARGET
+    // Speed_TARGET
     return curr;
 }
 
 float GetWaterVisibility(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Water
-    #define Water(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Water
-    #define Water(a, b, c, d)
+    // Water_TARGET
     return curr;
 }
 
 float GetRoll(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Roll
-    #define Roll(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Roll
-    #define Roll(a, b, c, d)
+    // Roll_TARGET
     return curr;
 }
 
 float GetPitch(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Pitch
-    #define Pitch(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Pitch
-    #define Pitch(a, b, c, d)
+    // Pitch_TARGET
     return radians(curr);
 }
 
 float GetYaw(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Yaw
-    #define Yaw(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Yaw
-    #define Yaw(a, b, c, d)
+    // Yaw_TARGET
     return radians(curr);
 }
 
@@ -98,12 +75,8 @@ float GetCameraHeight(float beat) { float prev = 0.0; float curr = 0.0; float te
     // Have to override beat here since this function is called before beatFromPos is set.
     // I believe it will be using the uniform data from the previous frame.
     beat = beatFromPos;
-    
-    #undef CameraHeight
-    #define CameraHeight(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef CameraHeight
-    #define CameraHeight(a, b, c, d)
+
+    // CameraHeight_TARGET
     return curr;
 }
 
@@ -112,57 +85,34 @@ vec3 GetCameraPos(float beat) {
 }
 
 float ANIMATE_FOV(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Fov
-    #define Fov(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Fov
-    #define Fov(a, b, c, d)
+    // Fov_TARGET
     return curr;
 }
 
 float SHUTTER_ANGLE(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Shutter
-    #define Shutter(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Shutter
-    #define Shutter(a, b, c, d)
+    // Shutter_TARGET
     return curr;
 }
 
 float GetSunAngle(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef SunAngle
-    #define SunAngle(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef SunAngle
-    #define SunAngle(a, b, c, d)
+    // SunAngle_TARGET
     return curr;
 }
 
 float GetSunRotation(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef SunRotation
-    #define SunRotation(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef SunRotation
-    #define SunRotation(a, b, c, d)
+    // SunRotation_TARGET
     return curr;
 }
 
 float FisheyeAmount(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
-    #undef Fisheye
-    #define Fisheye(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Fisheye
-    #define Fisheye(a, b, c, d)
+    // Fisheye_TARGET
     return curr;
 }
 
 float DistortionIntensity(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
     if (!DO_DISTORTION) return 0.0;
-    #undef Acid
-    #define Acid(a, b, c, d) Key(a, b, c, d)
-    //#include "Animations2.glsl"
-    #undef Acid
-    #define Acid(a, b, c, d)
+
+    // Distort_TARGET
     return curr;
 }
 
@@ -173,7 +123,7 @@ vec3 TheFunction(vec3 pos) {
     oldPos = pos;
 
     {
-        //pos.xy = rotate(-(pos.z / 100.0)) * pos.xy;
+        //pos.xy = rotate(-(pos.z / 100.0)) *  pos.xy;
 
         //return pos;
     }
@@ -182,21 +132,25 @@ vec3 TheFunction(vec3 pos) {
 
     //pos.y -= pos.z * pos.z / 1600.0;
     
-    {
-        pos.y += 2.0;
+    // ACID_TARGET
+    
+    // {
+    //     pos.y += 2.0;
         
-        float K = 3000.0 * (interp(beatFromPos, 265, 271));
+    //     float K = 3000.0 * (interp(beatFromPos, 265, 271));
 
-        float t3 = (-pos.z * 3.0 / 200.0);
-        return pos;
-        t3 *= distortionIntensity;
-        // t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
-        // t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
-        pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
-        // pos.xz *= rotate(radians(45.0));
-        pos.xz *= rotate(radians(-60.0 * EaseInOutSin(interp(length(pos.xz), 0.0, 100.0))));
-        return pos;
-    }
+    //     float t3 = (-pos.z * 3.0 / 200.0);
+    //     // return pos;
+    //     t3 *= distortionIntensity;
+    //     // t3 *= (interp(length(pos.xz), K, max(K - 500.0, 0.0)));
+    //     // t3 *= mix(1.0, sin(baseFrameCameraPosition.z / 1000.0), interp(beatFromPos, 277, 300));
+    //     pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
+    //     // pos.xz *= rotate(radians(45.0));
+    //     pos.xz *= rotate(radians(-60.0 * EaseInOutSin(interp(length(pos.xz), 0.0, 100.0))));
+    //     return pos;
+    // }
+    
+    return pos;
 
     {
         pos.y -= 10.0;
