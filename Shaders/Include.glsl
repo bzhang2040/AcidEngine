@@ -1,61 +1,13 @@
-
-#define TOP -1
-#define BOTTOM -2
-#define LEFT -3
-#define RIGHT -4
-
-#define beat_marker_start -1.0f
-#define beat_marker_end -2.0f
-
-#define beat_type_default 0
-#define r_low 1
-#define r_default 2
-#define r_wide 3
-#define l_low 10
-#define l_default 12
-#define l_wide 13
-#define b_low 21
-#define b_default 22
-#define b_wide 23
-#define beat_type_portal 30
-#define beat_type_programmatic 40
-#define beat_type_nothing 50
-
 struct WorldRange {
 	float beat;
 	int zStart;
 	int zEnd;
-	int physicalWorldID;
 	int logicalWorldID;
 	int zExact;
+	int logicalWorldCount_;
 };
 
 #define WORLD_NAME(n) (n)
-
-#ifdef CXX_STAGE
-
-struct BeatStruct {
-	float b; // beat
-	int bt = beat_type_default; // beat type
-	int targetWorldName = -1;
-};
-
-// The main reason for this big vector is so I don't have to write a parser.
-std::vector<BeatStruct> beatsArray = {
-	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
-	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
-	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)},
-
-	{.b=1079, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(4)},
-};
-
-vector<WorldRange> portalPositions;
-#endif
-
-#undef TOP
-#undef BOTTOM
-#undef LEFT
-#undef RIGHT
 
 #define PI 3.14159
 
@@ -125,8 +77,7 @@ UBO_FUNC(float, nonBlurBeat); \
 UBO_FUNC(vec3, currMovement); \
 UBO_FUNC(vec3, prevRegenCameraPosition); \
 UBO_FUNC(vec3, prevFrameCameraPosition); \
-UBO_FUNC(int, prevWorldID); \
-UBO_FUNC(int, logicalWorldCount);
+UBO_FUNC(int, prevWorldID);
 
 #define PER_SAMPLE_UBO(UBO_FUNC) \
 UBO_FUNC(vec3, cameraPosition); \
@@ -198,6 +149,8 @@ layout(std430, binding = 15) buffer LAYOUTT_7 {
 layout(std430, binding = 7) buffer LAYOUTT_888 {
 	WorldRange[] worldRanges;
 };
+
+#define logicalWorldCount (worldRanges[0].logicalWorldCount_)
 
 #define worldIdFailedToMap -1
 

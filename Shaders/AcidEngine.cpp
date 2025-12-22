@@ -152,7 +152,7 @@ public:
         ivec3 dispatchSize = WORLD_SIZE / ivec3(16, 16, 16);
         
         if (reload) {
-            int dispatchSize = max(int(portalPositions.size()), MAX_LIT_BLOCKS);
+            int dispatchSize = max(MAX_LOGICAL_WORLD_COUNT, MAX_LIT_BLOCKS);
             Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
         }
 
@@ -249,11 +249,9 @@ public:
         voxelLightingSSBO.Bind(6);
 
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
-        glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
-
         portalRangesSSBO.Bind(7);
 
-        int dispatchSize = max(int(portalPositions.size()), MAX_LIT_BLOCKS);
+        int dispatchSize = max(MAX_LOGICAL_WORLD_COUNT, MAX_LIT_BLOCKS);
         Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
 
         terrain.Init();
@@ -310,7 +308,6 @@ public:
             perFrameCpuUbo.shaderReload = int(terrain.shaderIncrement != ShaderIncrement);
             perFrameCpuUbo.sampleCount = samples;
             perFrameCpuUbo.currMovement = movement + custommovement;
-            perFrameCpuUbo.logicalWorldCount = (int)portalPositions.size();
             perFrameCpuUbo.BindAndUpload(1);
         }
 
@@ -509,33 +506,6 @@ void LoadTextureIntoAtlas(vector<uint32_t>& atlasPixels, const string& textureNa
 }
 
 int main() {
-    
-    BeatStruct curr;
-    portalPositions.push_back({.physicalWorldID=0,.logicalWorldID=WORLD_NAME(0)});
-
-    int currPhysicalID = 1;
-    int currLogicalID = WORLD_NAME(0);
-    for (int i = 0; i < beatsArray.size(); ++i) {
-        BeatStruct elem = beatsArray[i];
-
-        if (elem.b == beat_marker_start) {
-            if (elem.bt != beat_type_default) curr.bt = elem.bt;
-            continue;
-        } else if (elem.b == beat_marker_end) {
-            curr = BeatStruct();
-            continue;
-        }
-
-        if (curr.bt != beat_type_default) elem.bt = curr.bt;
-
-        if (elem.bt == beat_type_portal) {
-            int physicalID = currPhysicalID % MAX_WORLD_COUNT;
-            portalPositions.push_back({.beat=elem.b,.physicalWorldID=physicalID,.logicalWorldID=elem.targetWorldName});
-            currLogicalID = elem.targetWorldName;
-            currPhysicalID++;
-        }
-    }
-
     stbi_flip_vertically_on_write(1);
     stbi_set_flip_vertically_on_load(1);
 

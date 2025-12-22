@@ -274,6 +274,7 @@ const std::vector<CodeRegion> g_codeRegions = {
     { "TERRAIN",      "TERRAIN_START", "TERRAIN_END", "TERRAIN_TARGET"      },
     { "ACID",         "ACID_START",    "ACID_END",    "ACID_TARGET"         },
     // Single-line regions (newline-terminated, empty endMarker)
+    { "Portal",       "Portal(",       "",            "Portal_TARGET"       },
     { "StartSpeed",   "StartSpeed(",   "",            "StartSpeed_TARGET"   },
     { "Speed",        "Speed(",        "",            "Speed_TARGET"        },
     { "Fisheye",      "Fisheye(",      "",            "Fisheye_TARGET"      },

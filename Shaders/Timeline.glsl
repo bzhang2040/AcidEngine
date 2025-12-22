@@ -12,6 +12,11 @@ Pitch(0.001, -100, -99, temp);
 Yaw(89.999, -100, -99, temp);
 CameraHeight(WATER_HEIGHT+1.1, -100, -99, temp);
 
+Portal(0, WORLD_NAME(0));
+Portal(160, WORLD_NAME(1));
+Portal(169, WORLD_NAME(2));
+Portal(217, WORLD_NAME(3));
+Portal(1079, WORLD_NAME(4));
 
 // TERRAIN_START
 if (g_logicalWorldID == WORLD_NAME(0)) {

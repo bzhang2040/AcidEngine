@@ -7,6 +7,10 @@
 
 layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
+#if MAX_LOGICAL_WORLD_COUNT > 1024
+    #error "MAX_LOGICAL_WORLD_COUNT exceeds local_size_x. 'worldRanges' not valid across all groups."
+#endif
+
 //#include "Beats.glsl"
 
 shared uint8_t[1024+32] shared_voxelIsLit;
@@ -23,6 +27,27 @@ bool HasLight(int z) {
 
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
+
+    if (tid == 0) {
+        int portalIdx = 0;
+        int currPhysicalID = 0;
+        
+        #define Portal(beatNum, targetWorld) { \
+            worldRanges[portalIdx].beat = float(beatNum); \
+            worldRanges[portalIdx].logicalWorldID = targetWorld; \
+            currPhysicalID++; \
+            portalIdx++; \
+        }
+        
+        // Portal_TARGET
+        
+        #undef Portal
+        
+        worldRanges[0].logicalWorldCount_ = portalIdx;
+    }
+    
+    memoryBarrierBuffer();
+    barrier();
 
     if (tid < logicalWorldCount) {
         if (tid == 0) {
