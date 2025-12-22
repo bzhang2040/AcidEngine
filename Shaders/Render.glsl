@@ -1273,16 +1273,11 @@ void NewFunction(vec2 uv2) {
     {
         vec3 pos = VoxelToWorld(VIO.voxelPos - VIO.plane * 0.001);
 
-        int beatId = BinarySearchNearest(int(pos.z));
         float dist = voxelLightingSSBO[int(pos.z)];
         dist = abs(-pos.z - (0.5-int(pos.z) + dist));
         dist = distance(vec3(trackPos.xy+vec2(0,2),dist), pos * vec3(1,1,0));
         float torchDist = pow(clamp01(1.0 - dist/16.0), 4.0);
         float torchBrightness = 4.0 * torchDist;
-
-        if (BEAT_TYPE(beatId) == beat_type_nothing) {
-            torchBrightness = 0.0;
-        }
 
         if (torchBrightness > 0.01 && !is_water) {
             float r = float(BlockOccupied(ivec3(curr.voxelPos) +ivec3(tanMat[0]))) * (tCoord.x);

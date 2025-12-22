@@ -21,13 +21,6 @@
 #define beat_type_programmatic 40
 #define beat_type_nothing 50
 
-struct BeatStructGPU {
-	float beat;
-	int type;
-	int portalTarget;
-	float zPos;
-};
-
 struct WorldRange {
 	float beat;
 	int zStart;
@@ -56,7 +49,6 @@ std::vector<BeatStruct> beatsArray = {
 	{.b=1079, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(4)},
 };
 
-std::vector<BeatStructGPU> beatsArray2;
 vector<WorldRange> portalPositions;
 #endif
 
@@ -134,7 +126,6 @@ UBO_FUNC(vec3, currMovement); \
 UBO_FUNC(vec3, prevRegenCameraPosition); \
 UBO_FUNC(vec3, prevFrameCameraPosition); \
 UBO_FUNC(int, prevWorldID); \
-UBO_FUNC(int, beatsCount); \
 UBO_FUNC(int, logicalWorldCount);
 
 #define PER_SAMPLE_UBO(UBO_FUNC) \
@@ -192,17 +183,9 @@ layout(std430, binding = 3) buffer LAYOUTT_5 {
 	uvec4 chunkID[];
 };
 
-layout(std430, binding = 4) buffer LAYOUTT_6 {
-	BeatStructGPU[] beatsSSBO;
-};
-
 layout(std430, binding = 6) buffer LAYOUTT__6 {
 	int8_t voxelLightingSSBO[];
 };
-
-#define BEAT_(i) beatsSSBO[i].beat
-#define BEAT_TYPE(i) beatsSSBO[i].type
-#define PORTAL_TARGET(i) beatsSSBO[i].portalTarget
 
 layout(std430, binding = 5) buffer LAYOUTT_8 {
 	ivec4[] data;
@@ -750,42 +733,6 @@ float EaseOutSin(float x) {
 
 float EaseInOutSin(float x) {
 	return -(cos(x * 3.14159) - 1.0) / 2.0;
-}
-
-// Return the index of the nearest beat less than or equal to the target
-int BinarySearchGT(int target) {
-	int high = beatsCount - 1;
-
-	int low = 0;
-
-	while (low <= high) {
-		int mid = (high + low) / 2;
-
-		int value = int(beatsSSBO[mid].zPos);
-
-		if (value == target) return mid;
-		if (value > target) high = mid - 1; // if (value < target) low = mid + 1;
-		else low = mid + 1;                 // else high = mid - 1;
-	}
-
-	if (target >= int(beatsSSBO[high].zPos)) { // <=
-		return high; // return low;
-	}
-
-	return -1;
-}
-
-int BinarySearchNearest(int target) {
-	int i = BinarySearchGT(target);
-	int x1 = int(beatsSSBO[i].zPos);
-
-	int x2 = int(beatsSSBO[i+1].zPos);
-	return abs(x1 - target) < abs(x2 - target) ? i : i + 1;
-}
-
-bool BinarySearchIsExact(int target, int i) {
-	int x1 = int(beatsSSBO[i].zPos);
-	return target == x1;
 }
 
 //#include "Animations.glsl"

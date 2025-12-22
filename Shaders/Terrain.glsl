@@ -309,10 +309,6 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
 
     if (position.z < GetBeatPos(97)) return TerrainAndWater(position);
 
-    int idx = BinarySearchGT(int(position.z));
-    bool exact = BinarySearchIsExact(int(position.z), idx);
-    int beatType = BEAT_TYPE(idx);
-
     // Filter everything outside the big circle
     if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetBeatPos(265), GetBeatPos(313)))) {
 
@@ -342,16 +338,11 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     
     // The cobblestone track
     if (int(position.x) == int(trackPos.x) && int(position.y) == int(trackPos.y)) {
-        if (idx < 0 || torchSection(idx)) {
-            return id_permastone;
-        }
+        return id_permastone;
     }
-
-    // Torch beats
-    // if (torchSection(idx)) {
-        int cobble = CheckPosition(position, idx, exact);
-        if (cobble > 0) return cobble;
-    // }
+    
+    int cobble = CheckPosition(position);
+    if (cobble > 0) return cobble;
 
     if (MediumAirTunnel()) return 0;
 

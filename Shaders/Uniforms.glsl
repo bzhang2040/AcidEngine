@@ -23,9 +23,6 @@ bool HasLight(int z) {
 
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
-    if (tid < beatsCount) {
-        beatsSSBO[tid].zPos = GetBeatPos(beatsSSBO[tid].beat);
-    }
 
     if (tid < logicalWorldCount) {
         if (tid == 0) {

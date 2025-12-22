@@ -152,8 +152,7 @@ public:
         ivec3 dispatchSize = WORLD_SIZE / ivec3(16, 16, 16);
         
         if (reload) {
-            int dispatchSize = max(beatsArray2.size(), portalPositions.size());
-            dispatchSize = max(dispatchSize, MAX_LIT_BLOCKS);
+            int dispatchSize = max(int(portalPositions.size()), MAX_LIT_BLOCKS);
             Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
         }
 
@@ -246,20 +245,15 @@ public:
 
         perFrameCpuUbo.prevRegenCameraPosition.get() = vec3(-10000.0f);
 
-        beatsSSBO.Init(sizeof(BeatStructGPU) * beatsArray2.size());
-        glNamedBufferSubData(beatsSSBO.id, 0, sizeof(BeatStructGPU) * beatsArray2.size(), beatsArray2.data());
-
         voxelLightingSSBO.Init(MAX_LIT_BLOCKS * sizeof(int8_t));
         voxelLightingSSBO.Bind(6);
 
         portalRangesSSBO.Init(256 * sizeof(WorldRange));
         glNamedBufferSubData(portalRangesSSBO.id, 0, 256 * sizeof(WorldRange), portalPositions.data());
 
-        beatsSSBO.Bind(4);
         portalRangesSSBO.Bind(7);
 
-        int dispatchSize = max(beatsArray2.size(), portalPositions.size());
-        dispatchSize = max(dispatchSize, MAX_LIT_BLOCKS);
+        int dispatchSize = max(int(portalPositions.size()), MAX_LIT_BLOCKS);
         Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
 
         terrain.Init();
@@ -273,7 +267,6 @@ public:
             Init();
         }
 
-        beatsSSBO.Bind(4);
         voxelLightingSSBO.Bind(6);
         portalRangesSSBO.Bind(7);
 
@@ -317,7 +310,6 @@ public:
             perFrameCpuUbo.shaderReload = int(terrain.shaderIncrement != ShaderIncrement);
             perFrameCpuUbo.sampleCount = samples;
             perFrameCpuUbo.currMovement = movement + custommovement;
-            perFrameCpuUbo.beatsCount = (int)beatsArray2.size();
             perFrameCpuUbo.logicalWorldCount = (int)portalPositions.size();
             perFrameCpuUbo.BindAndUpload(1);
         }
@@ -370,7 +362,6 @@ public:
     Texture bloomTexture;
     Texture frameSunTexture;
     Texture distortionReuse;
-    SSBO beatsSSBO;
     SSBO portalRangesSSBO;
     SSBO voxelLightingSSBO;
     unsigned int fbo;
@@ -519,7 +510,6 @@ void LoadTextureIntoAtlas(vector<uint32_t>& atlasPixels, const string& textureNa
 
 int main() {
     
-    beatsArray2.reserve(beatsArray.size());
     BeatStruct curr;
     portalPositions.push_back({.physicalWorldID=0,.logicalWorldID=WORLD_NAME(0)});
 
@@ -544,8 +534,6 @@ int main() {
             currLogicalID = elem.targetWorldName;
             currPhysicalID++;
         }
-
-        beatsArray2.push_back({.beat=elem.b, .type=elem.bt, .portalTarget=elem.targetWorldName});
     }
 
     stbi_flip_vertically_on_write(1);
