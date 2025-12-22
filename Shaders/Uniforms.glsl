@@ -41,6 +41,8 @@ void main() {
 
         worldRanges[tid].zStart -= WORLD_SIZE.z / 2 + 32;
         worldRanges[tid].zEnd += WORLD_SIZE.z / 2 + 32;
+        
+        worldRanges[tid].zExact = int(GetBeatPos(worldRanges[tid].beat));
     }
     
     if (tid < MAX_LIT_BLOCKS) {

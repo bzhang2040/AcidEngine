@@ -34,12 +34,7 @@ struct WorldRange {
 	int zEnd;
 	int physicalWorldID;
 	int logicalWorldID;
-};
-
-struct LogicalID {
-	int id;
-	int prevLogical;
-	int nextLogical;
+	int zExact;
 };
 
 #define WORLD_NAME(n) (n)

@@ -34,6 +34,9 @@ if (g_logicalWorldID == WORLD_NAME(1)) {
     return float(p.y > trackPos.y + 20.0);
 }
 // TERRAIN_END
+
+
+
 // TERRAIN_START
 if (g_logicalWorldID == WORLD_NAME(2)) {
     float sel = interp(Simplex(p, vec3(1024, 1e8, 1024), vec3(0)), 0.45, 0.55);

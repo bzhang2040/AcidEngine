@@ -59,17 +59,7 @@ float Simplex(vec3 m, vec3 scale) {
 }
 
 float SculptRemove(vec3 p) {
-    float nearestBeat = beatsSSBO[BinarySearchNearest(int(p.z))].zPos;
-    float distToBeat = length((vec3(trackPos, nearestBeat) - p) / vec3(2.0,1.0,2.0));
-
     float curr = 0.0;
-
-    curr += interp(distToBeat, 32.0, 0.0);
-
-
-    {
-        curr += interp(p.z, GetBeatPos(670 - 1), GetBeatPos(670)) * interp(p.y-trackPos.y, -10, 0) * 0.3;
-    }
 
     return clamp(curr, 0.0, 1.0);
 
@@ -262,10 +252,6 @@ float SculptRemove2(vec3 p) { vec3 position = p;
 float SculptAdd2(vec3 p) { vec3 position = p;
     //return interp(length(trackDist - vec2(40.0)), 40.0, 0.0);
     
-    float nearestBeat = beatsSSBO[BinarySearchNearest(int(p.z))].zPos;
-    float distToBeat = length((vec3(trackPos-vec2(10,0), nearestBeat) - p) / vec3(1.0, 1.0, 1.0));
-    //return mix(0.0, interp(distToBeat, 10.0, 0.0), 0.8);
-    
     return 0.0;
 }
 
@@ -327,25 +313,29 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     bool exact = BinarySearchIsExact(int(position.z), idx);
     int beatType = BEAT_TYPE(idx);
 
-    if (beatType == beat_type_portal) {
-        int portalPos = int(beatsSSBO[idx].zPos);
+    // Filter everything outside the big circle
+    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetBeatPos(265), GetBeatPos(313)))) {
+
+    for (int i = 0; i < MAX_LOGICAL_WORLD_COUNT; ++i) {
+        int portalPos = int(worldRanges[i].zExact);
         int portalDist = int(position.z) - portalPos;
-        if (g_logicalWorldID != PORTAL_TARGET(idx)) {
-            if (portalDist == 1+2 && MediumAirTunnel2()) return id_portal_forward;
-            if (portalDist == 0+2 && MediumAirTunnelBorder2()) return id_permastone;
-            if (portalDist == 1+2 && MediumAirTunnelBorder2()) return id_permastone;
-            if (portalDist == 2+2 && (MediumAirTunnel2() || MediumAirTunnelBorder2())) return id_permastone;
-        }
-        else {
-            if (portalDist == -1+2 && MediumAirTunnel2()) return id_portal_backward;
-            if (portalDist ==  0+2 && MediumAirTunnelBorder2()) return id_permastone;
-            if (portalDist == -1+2 && MediumAirTunnelBorder2()) return id_permastone;
-            if (portalDist == -2+2 && (MediumAirTunnel2() || MediumAirTunnelBorder2())) return id_permastone;
+        
+        if (portalDist >= -2 && portalDist <= 4) {
+            if (g_logicalWorldID == worldRanges[i].logicalWorldID - 1) {
+                if (portalDist == 1+2 && MediumAirTunnel2()) return id_portal_forward;
+                if (portalDist == 0+2 && MediumAirTunnelBorder2()) return id_permastone;
+                if (portalDist == 1+2 && MediumAirTunnelBorder2()) return id_permastone;
+                if (portalDist == 2+2 && (MediumAirTunnel2() || MediumAirTunnelBorder2())) return id_permastone;
+            } else if (g_logicalWorldID == worldRanges[i].logicalWorldID) {
+                if (portalDist == -1+2 && MediumAirTunnel2()) return id_portal_backward;
+                if (portalDist ==  0+2 && MediumAirTunnelBorder2()) return id_permastone;
+                if (portalDist == -1+2 && MediumAirTunnelBorder2()) return id_permastone;
+                if (portalDist == -2+2 && (MediumAirTunnel2() || MediumAirTunnelBorder2())) return id_permastone;
+            }
+            break;
         }
     }
 
-    // Filter everything outside the big circle
-    if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetBeatPos(265), GetBeatPos(313)))) {
     if (SmallestAirTunnel()) {
         return 0;
     }
