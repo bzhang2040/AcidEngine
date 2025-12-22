@@ -43,7 +43,6 @@ struct LogicalID {
 };
 
 #define WORLD_NAME(n) (n)
-#define CHORUS_3 30
 
 #ifdef CXX_STAGE
 
@@ -59,12 +58,11 @@ std::vector<BeatStruct> beatsArray = {
 	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)},
 
-	{.b=1079, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(CHORUS_3)},
+	{.b=1079, .bt=beat_type_portal, .targetWorldName=WORLD_NAME(4)},
 };
 
 std::vector<BeatStructGPU> beatsArray2;
 vector<WorldRange> portalPositions;
-vector<LogicalID> physicalFromLogical(1024, {-1,-1,-1});
 #endif
 
 #undef TOP
@@ -223,10 +221,6 @@ layout(std430, binding = 7) buffer LAYOUTT_888 {
 	WorldRange[] worldRanges;
 };
 
-layout(std430, binding = 8) buffer LAYOUTT_8888 {
-	LogicalID[] physicalFromLogical;
-};
-
 #define worldIdFailedToMap -1
 
 int LogicalFromPhysical(int physicalID, int z) {
@@ -262,20 +256,21 @@ bool SetLogicalWorldID(int physicalID, int z) {
 }
 
 void SetLogicalWorldID(int logicalID) {
-	int physicalID = physicalFromLogical[logicalID].id;
+	if (logicalID < 0 || logicalID >= logicalWorldCount) return;
+	int physicalID = logicalID % MAX_WORLD_COUNT;
 	if (physicalID == worldIdFailedToMap) return;
 	SetPhysicalWorldID(physicalID);
 	g_logicalWorldID = logicalID;
 }
 
 void UpdateLogicalWorldID(uint blockID) {
-	int logicalID = worldIdFailedToMap;
+	int logicalID = g_logicalWorldID;
 	if (blockID == id_portal_forward) {
-		logicalID = physicalFromLogical[g_logicalWorldID].nextLogical;
+		logicalID = logicalID + 1;
 	} else if (blockID == id_portal_backward) {
-		logicalID = physicalFromLogical[g_logicalWorldID].prevLogical;
+		logicalID = logicalID - 1;
 	}
-
+	
 	if (logicalID != worldIdFailedToMap) {
 		SetLogicalWorldID(logicalID);
 	}
@@ -287,7 +282,7 @@ int GetWaterHeight() {
 	case WORLD_NAME(1): return WATER_HEIGHT;
 	case WORLD_NAME(2): return WATER_HEIGHT;
 	case WORLD_NAME(3): return WATER_HEIGHT;
-	case WORLD_NAME(CHORUS_3): return WATER_HEIGHT;
+	case WORLD_NAME(4): return WATER_HEIGHT;
 	}
 	return WATER_HEIGHT;
 }

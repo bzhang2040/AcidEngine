@@ -262,9 +262,6 @@ public:
         dispatchSize = max(dispatchSize, MAX_LIT_BLOCKS);
         Dispatch(initBeatStruct, RoundUpDiv(dispatchSize, 1024), 1, 1);
 
-        physicalFromLogicalSSBO.Init(1024 * sizeof(LogicalID));
-        glNamedBufferSubData(physicalFromLogicalSSBO.id, 0, 1024 * sizeof(LogicalID), physicalFromLogical.data());
-
         terrain.Init();
     }
 
@@ -279,7 +276,6 @@ public:
         beatsSSBO.Bind(4);
         voxelLightingSSBO.Bind(6);
         portalRangesSSBO.Bind(7);
-        physicalFromLogicalSSBO.Bind(8);
 
 
         int samples = SAMPLE_COUNT;
@@ -376,7 +372,6 @@ public:
     Texture distortionReuse;
     SSBO beatsSSBO;
     SSBO portalRangesSSBO;
-    SSBO physicalFromLogicalSSBO;
     SSBO voxelLightingSSBO;
     unsigned int fbo;
     unsigned int bloomFBO;
@@ -527,7 +522,6 @@ int main() {
     beatsArray2.reserve(beatsArray.size());
     BeatStruct curr;
     portalPositions.push_back({.physicalWorldID=0,.logicalWorldID=WORLD_NAME(0)});
-    physicalFromLogical[WORLD_NAME(0)].id = 0;
 
     int currPhysicalID = 1;
     int currLogicalID = WORLD_NAME(0);
@@ -547,19 +541,11 @@ int main() {
         if (elem.bt == beat_type_portal) {
             int physicalID = currPhysicalID % MAX_WORLD_COUNT;
             portalPositions.push_back({.beat=elem.b,.physicalWorldID=physicalID,.logicalWorldID=elem.targetWorldName});
-            physicalFromLogical[elem.targetWorldName].id = physicalID;
-            physicalFromLogical[elem.targetWorldName].prevLogical = currLogicalID;
             currLogicalID = elem.targetWorldName;
             currPhysicalID++;
         }
 
         beatsArray2.push_back({.beat=elem.b, .type=elem.bt, .portalTarget=elem.targetWorldName});
-    }
-    
-    for (int i = 0; i < physicalFromLogical.size(); ++i) {
-        if (physicalFromLogical[i].prevLogical != -1) {
-            physicalFromLogical[physicalFromLogical[i].prevLogical].nextLogical = i;
-        }
     }
 
     stbi_flip_vertically_on_write(1);
