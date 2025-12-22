@@ -321,6 +321,8 @@ public:
             perFrameCpuUbo.shaderReload = int(terrain.shaderIncrement != ShaderIncrement);
             perFrameCpuUbo.sampleCount = samples;
             perFrameCpuUbo.currMovement = movement + custommovement;
+            perFrameCpuUbo.beatsCount = (int)beatsArray2.size();
+            perFrameCpuUbo.logicalWorldCount = (int)portalPositions.size();
             perFrameCpuUbo.BindAndUpload(1);
         }
 

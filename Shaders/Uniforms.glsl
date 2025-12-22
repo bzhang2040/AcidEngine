@@ -23,15 +23,15 @@ bool HasLight(int z) {
 
 void main() {
     int tid = int(gl_GlobalInvocationID.x);
-    if (tid < BEATS_COUNT) {
+    if (tid < beatsCount) {
         beatsSSBO[tid].zPos = GetBeatPos(beatsSSBO[tid].beat);
     }
 
-    if (tid < LOGICAL_WORLD_COUNT) {
+    if (tid < logicalWorldCount) {
         if (tid == 0) {
             worldRanges[tid].zStart = -10000000;
             worldRanges[tid].zEnd = int(GetBeatPos(worldRanges[tid+1].beat));
-        } else if (tid == LOGICAL_WORLD_COUNT -1) {
+        } else if (tid == logicalWorldCount -1) {
             worldRanges[tid].zStart = int(GetBeatPos(worldRanges[tid].beat));
             worldRanges[tid].zEnd = 100000000;
         } else {
@@ -183,7 +183,7 @@ void main() {
 
     
     if (resetCamera == 1) {
-        for (int i = 0; i < LOGICAL_WORLD_COUNT; ++i) {
+        for (int i = 0; i < logicalWorldCount; ++i) {
             if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd - WORLD_SIZE.z/2) {
                 u.uWorldID = worldRanges[i].logicalWorldID;
                 break;

@@ -55,8 +55,6 @@ struct BeatStruct {
 
 // The main reason for this big vector is so I don't have to write a parser.
 std::vector<BeatStruct> beatsArray = {
-	{.b=1,.bt=beat_type_nothing},
-
 	{.b=160,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(1)},
 	{.b=169,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(2)},
 	{.b=217,.bt=beat_type_portal,.targetWorldName=WORLD_NAME(3)},
@@ -142,7 +140,9 @@ UBO_FUNC(float, nonBlurBeat); \
 UBO_FUNC(vec3, currMovement); \
 UBO_FUNC(vec3, prevRegenCameraPosition); \
 UBO_FUNC(vec3, prevFrameCameraPosition); \
-UBO_FUNC(int, prevWorldID);
+UBO_FUNC(int, prevWorldID); \
+UBO_FUNC(int, beatsCount); \
+UBO_FUNC(int, logicalWorldCount);
 
 #define PER_SAMPLE_UBO(UBO_FUNC) \
 UBO_FUNC(vec3, cameraPosition); \
@@ -200,7 +200,7 @@ layout(std430, binding = 3) buffer LAYOUTT_5 {
 };
 
 layout(std430, binding = 4) buffer LAYOUTT_6 {
-	BeatStructGPU[BEATS_COUNT] beatsSSBO;
+	BeatStructGPU[] beatsSSBO;
 };
 
 layout(std430, binding = 6) buffer LAYOUTT__6 {
@@ -230,7 +230,7 @@ layout(std430, binding = 8) buffer LAYOUTT_8888 {
 #define worldIdFailedToMap -1
 
 int LogicalFromPhysical(int physicalID, int z) {
-	for (int i = physicalID; i < LOGICAL_WORLD_COUNT; i += MAX_WORLD_COUNT) {
+	for (int i = physicalID; i < logicalWorldCount; i += MAX_WORLD_COUNT) {
 		WorldRange range = worldRanges[i];
 		if (range.zStart == range.zEnd) break;
 		if (range.zStart < z && z < range.zEnd) {
@@ -764,7 +764,7 @@ float EaseInOutSin(float x) {
 
 // Return the index of the nearest beat less than or equal to the target
 int BinarySearchGT(int target) {
-	int high = BEATS_COUNT - 1;
+	int high = beatsCount - 1;
 
 	int low = 0;
 
