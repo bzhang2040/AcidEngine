@@ -3,6 +3,7 @@ struct WorldRange {
 	int zStart;
 	int zEnd;
 	int logicalWorldID;
+	int worldName;
 	int zExact;
 	int logicalWorldCount_;
 };
@@ -167,6 +168,7 @@ int LogicalFromPhysical(int physicalID, int z) {
 }
 
 int g_logicalWorldID = 0;
+int g_worldName = 0;
 int g_physicalWorldID = 0;
 int g_chunkImageJump = 0;
 
@@ -182,6 +184,7 @@ bool SetLogicalWorldID(int physicalID, int z) {
 	SetPhysicalWorldID(physicalID);
 	
 	g_logicalWorldID = logicalID;
+	g_worldName = worldRanges[logicalID].worldName;
 
 	return true;
 }
@@ -192,6 +195,7 @@ void SetLogicalWorldID(int logicalID) {
 	if (physicalID == worldIdFailedToMap) return;
 	SetPhysicalWorldID(physicalID);
 	g_logicalWorldID = logicalID;
+	g_worldName = worldRanges[logicalID].worldName;
 }
 
 void UpdateLogicalWorldID(uint blockID) {
@@ -208,7 +212,7 @@ void UpdateLogicalWorldID(uint blockID) {
 }
 
 int GetWaterHeight() {
-	switch (g_logicalWorldID) {
+	switch (g_worldName) {
 	case WORLD_NAME(0): return WATER_HEIGHT;
 	case WORLD_NAME(1): return WATER_HEIGHT;
 	case WORLD_NAME(2): return WATER_HEIGHT;

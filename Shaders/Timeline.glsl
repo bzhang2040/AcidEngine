@@ -19,7 +19,7 @@ Portal(217, WORLD_NAME(3));
 Portal(1079, WORLD_NAME(4));
 
 // TERRAIN_START
-if (g_logicalWorldID == WORLD_NAME(0)) {
+if (g_worldName == WORLD_NAME(0)) {
 return
     mix(
         p.y<trackPos.y+40 ? 0.85*Simplex(p+vec3(0,0,0), vec3(1e16, 16, 1e16), vec3(0))
@@ -35,7 +35,7 @@ return
 }
 // TERRAIN_END
 // TERRAIN_START
-if (g_logicalWorldID == WORLD_NAME(1)) {
+if (g_worldName == WORLD_NAME(1)) {
     return float(p.y > trackPos.y + 20.0);
 }
 // TERRAIN_END
@@ -43,7 +43,7 @@ if (g_logicalWorldID == WORLD_NAME(1)) {
 
 
 // TERRAIN_START
-if (g_logicalWorldID == WORLD_NAME(2)) {
+if (g_worldName == WORLD_NAME(2)) {
     float sel = interp(Simplex(p, vec3(1024, 1e8, 1024), vec3(0)), 0.45, 0.55);
     vec2 sel2 = vec2(1.0 - sel, sel);
     sel2.x *= interp(p.y, 128, WATER_HEIGHT);
@@ -58,7 +58,7 @@ if (g_logicalWorldID == WORLD_NAME(2)) {
 }
 // TERRAIN_END
 // TERRAIN_START
-if (g_logicalWorldID == WORLD_NAME(3)) {
+if (g_worldName == WORLD_NAME(3)) {
     float v = mix(
         Simplex(p, vec3(256), vec3(0)) * interp(p.y, 256, WATER_HEIGHT),
         Simplex(p, vec3(256), vec3(1e3)) * interp(p.y, 256, WATER_HEIGHT),

@@ -186,7 +186,7 @@ float TheCave(vec3 p) {
     return 0.0;
 }
 
-#define IS_WORLD_NAME(n) (g_logicalWorldID == WORLD_NAME(n))
+#define IS_WORLD_NAME(n) (g_worldName == WORLD_NAME(n))
 
 float TerrainBoolean2(vec3 p) {
     vec3 position=p;

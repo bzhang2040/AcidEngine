@@ -32,9 +32,10 @@ void main() {
         int portalIdx = 0;
         int currPhysicalID = 0;
         
-        #define Portal(beatNum, targetWorld) { \
+        #define Portal(beatNum, portalWorldName) { \
             worldRanges[portalIdx].beat = float(beatNum); \
-            worldRanges[portalIdx].logicalWorldID = targetWorld; \
+            worldRanges[portalIdx].logicalWorldID = portalIdx; \
+            worldRanges[portalIdx].worldName = portalWorldName; \
             currPhysicalID++; \
             portalIdx++; \
         }
