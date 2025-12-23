@@ -2,7 +2,6 @@ struct WorldRange {
 	float beat;
 	int zStart;
 	int zEnd;
-	int logicalWorldID;
 	int worldName;
 	int zExact;
 	int logicalWorldCount_;
@@ -160,7 +159,7 @@ int LogicalFromPhysical(int physicalID, int z) {
 		WorldRange range = worldRanges[i];
 		if (range.zStart == range.zEnd) break;
 		if (range.zStart < z && z < range.zEnd) {
-			return range.logicalWorldID;
+			return i;
 		}
 	}
 

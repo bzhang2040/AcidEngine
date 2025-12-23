@@ -312,17 +312,17 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
     // Filter everything outside the big circle
     if (distance(position.xy, cPos) < mix(5.0, 12.0, interp(position.z, GetBeatPos(265), GetBeatPos(313)))) {
 
-    for (int i = 0; i < MAX_LOGICAL_WORLD_COUNT; ++i) {
-        int portalPos = int(worldRanges[i].zExact);
+    for (int logicalID = 0; logicalID < MAX_LOGICAL_WORLD_COUNT; ++logicalID) {
+        int portalPos = int(worldRanges[logicalID].zExact);
         int portalDist = int(position.z) - portalPos;
         
         if (portalDist >= -2 && portalDist <= 4) {
-            if (g_logicalWorldID == worldRanges[i].logicalWorldID - 1) {
+            if (g_logicalWorldID == logicalID - 1) {
                 if (portalDist == 1+2 && MediumAirTunnel2()) return id_portal_forward;
                 if (portalDist == 0+2 && MediumAirTunnelBorder2()) return id_permastone;
                 if (portalDist == 1+2 && MediumAirTunnelBorder2()) return id_permastone;
                 if (portalDist == 2+2 && (MediumAirTunnel2() || MediumAirTunnelBorder2())) return id_permastone;
-            } else if (g_logicalWorldID == worldRanges[i].logicalWorldID) {
+            } else if (g_logicalWorldID == logicalID) {
                 if (portalDist == -1+2 && MediumAirTunnel2()) return id_portal_backward;
                 if (portalDist ==  0+2 && MediumAirTunnelBorder2()) return id_permastone;
                 if (portalDist == -1+2 && MediumAirTunnelBorder2()) return id_permastone;

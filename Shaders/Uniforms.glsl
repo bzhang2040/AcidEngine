@@ -29,22 +29,19 @@ void main() {
     int tid = int(gl_GlobalInvocationID.x);
 
     if (tid == 0) {
-        int portalIdx = 0;
-        int currPhysicalID = 0;
+        int logicalID = 0;
         
         #define Portal(beatNum, portalWorldName) { \
-            worldRanges[portalIdx].beat = float(beatNum); \
-            worldRanges[portalIdx].logicalWorldID = portalIdx; \
-            worldRanges[portalIdx].worldName = portalWorldName; \
-            currPhysicalID++; \
-            portalIdx++; \
+            worldRanges[logicalID].beat = float(beatNum); \
+            worldRanges[logicalID].worldName = portalWorldName; \
+            logicalID++; \
         }
         
         // Portal_TARGET
         
         #undef Portal
         
-        worldRanges[0].logicalWorldCount_ = portalIdx;
+        worldRanges[0].logicalWorldCount_ = logicalID;
     }
     
     memoryBarrierBuffer();
@@ -208,9 +205,9 @@ void main() {
 
     
     if (resetCamera == 1) {
-        for (int i = 0; i < logicalWorldCount; ++i) {
-            if (GetCameraPos(nonBlurBeat).z < worldRanges[i].zEnd - WORLD_SIZE.z/2) {
-                u.uWorldID = worldRanges[i].logicalWorldID;
+        for (int logicalID = 0; logicalID < logicalWorldCount; ++logicalID) {
+            if (GetCameraPos(nonBlurBeat).z < worldRanges[logicalID].zEnd - WORLD_SIZE.z/2) {
+                u.uWorldID = logicalID;
                 break;
             }
         }

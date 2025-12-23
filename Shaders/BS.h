@@ -486,9 +486,6 @@ int CreateProgram(const std::string& text, const std::string& type, const std::s
 // <Filename, PreprocessorName, ShaderType, ShaderSource>
 std::map<std::tuple<std::string, std::string, std::string>, int*> ReloadableShaders;
 
-// Permutation system:
-// {"c_logicalWorldID", "0"}
-
 class Shader {
 public:
     int id = 0;
