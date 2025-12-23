@@ -274,16 +274,14 @@ void main1(ivec3 tid) {
         int chunkVal = 0;
 
         if (fullyOpaque) {
-            ChunkDataWrite(tid, 2);
             chunkVal = 2;
-        }
-        else if (filled) {
-            ChunkDataWrite(tid, 1);
+        } else if (filled) {
             chunkVal = 1;
+        } else {
+            chunkVal = 0; // Fully air
         }
-        else {
-            ChunkDataWrite(tid, 0);
-        }
+        
+        ChunkDataWrite(tid, chunkVal);
 
         ivec4 writeValue = ivec4(-1);
         if (chunkVal == 1) {
@@ -296,27 +294,6 @@ void main1(ivec3 tid) {
 
     memoryBarrierShared();
     barrier();
-
-
-
-    for (int y = 15; y >= 0; --y) {
-        ivec3 p = ivec3(gl_LocalInvocationID.x, y, gl_LocalInvocationID.z);
-        if (true || p.x > 0 && p.x < 15 && p.y > 0 && p.y < 15 && p.z > 0 && p.z < 15) {
-            if (
-                sharedData[p.x + 1 + 1][p.y + 0 + 1][p.z + 0 + 1] != uint8_t(0) &&
-                sharedData[p.x - 1 + 1][p.y + 0 + 1][p.z + 0 + 1] != uint8_t(0) &&
-                sharedData[p.x + 0 + 1][p.y + 1 + 1][p.z + 0 + 1] != uint8_t(0) &&
-                sharedData[p.x + 0 + 1][p.y - 1 + 1][p.z + 0 + 1] != uint8_t(0) &&
-                sharedData[p.x + 0 + 1][p.y + 0 + 1][p.z + 1 + 1] != uint8_t(0) &&
-                sharedData[p.x + 0 + 1][p.y + 0 + 1][p.z - 1 + 1] != uint8_t(0)
-                ) {
-                //sharedBlockData[y] = uint8_t(0);
-            }
-        }
-        else {
-            //sharedBlockData[y] = uint8_t(0);
-        }
-    }
 
     for (int y = 15; y >= 0; --y) {
         ivec3 tid2 = tid + ivec3(0, y, 0);
