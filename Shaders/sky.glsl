@@ -201,9 +201,49 @@ vec3 CalculateNightSky(vec3 wDir) {
 	return nightSkyColor * value * 2.0 * interp(-sunDirection.y, -0.2, 1.0);
 }
 
+vec3 Lights3(vec3 wDir, vec3 wPos) {
+	if (latent1 <= 0.0) return vec3(0.0);
+	
+	float d = dot(wDir, sunDirection);
+	float sunCoeff = max(d, 0.0);
+	d = acos(d);
+	
+	vec2 coord = wDir.xz * ((CLOUD_HEIGHT_2D - wPos.y) / wDir.y);
+	coord.y -= 1000.0;
+	d = length(coord / 1000.0);
+	
+	vec3 col = vec3(0);
+	col.r = sin(d * 165) * 0.5 + 0.5;
+	col.g = sin(d * 165-10) * 0.5 + 0.5;
+	col.b = sin(d * 165+10) * 0.5 + 0.5;
+	
+	col.r = GetNoise(vec2(d*16.0 + GetNoise(vec2(d*16.0,0.3)*5.62+vec2(-beatFromPos*16,0)),0.3)*5.42+vec2(-beatFromPos*16,0));
+	col.g = GetNoise(vec2(d*16.0 + GetNoise(vec2(d*16.0,0.3)*7.51+vec2(-beatFromPos*16,0)),0.3)*7.51+vec2(-beatFromPos*16,0));
+	col.b = GetNoise(vec2(d*16.0 + GetNoise(vec2(d*16.0,0.3)*6.14+vec2(-beatFromPos*16,0)),0.3)*6.14+vec2(-beatFromPos*16,0));
+	col = rgb(vec3(col.r, 1.0, col.b));
+	col = pow(col, vec3(4.0));
+	col /= vec3(0.0126, 20.7152, 20.4722).rgb*5.0;
+	// col = pow(col, vec3(10.0))*100.0;
+	return col * pow(max(wDir.y, 0.0), 2.0/latent1) * 4.0;
+	// return col * sunCoeff * 4.0;
+	return vec3(col);
+	
+	// vec3 col;
+	// col.g = dot(wDir, normalize(vec3(1, 1, 0)));
+	// col.r = dot(wDir, normalize(vec3(1, 1, 0.2)));
+	// col.b = dot(wDir, normalize(vec3(1, 1, -0.2)));
+	// col = max(col, vec3(0));
+	// col = pow(col, vec3(600.0)) * 1000.0;
+	// return col;
+	// wDir = normalize(wDir + vec3(10));
+	// return vec3(pow(abs(wDir), vec3(5))) * 10.0;
+	// return vec3(pow(max(wDir.x, 0.0), 6.0), 0.0, 0.0);
+}
+
 vec3 ComputeTotalSky(vec3 wPos, vec3 wDir, out vec3 sunSpot, out vec3 clouds) {
+	clouds = vec3(0.0);
+	sunSpot = vec3(0.0);
 	vec3 color = vec3(0.0);
-	//return vec3(1.0, 1.0, 1.0);
 	
 	vec3 transmit = vec3(1.0);
 	clouds = ComputeClouds(wPos, wDir, transmit) / 3.0;
@@ -214,7 +254,9 @@ vec3 ComputeTotalSky(vec3 wPos, vec3 wDir, out vec3 sunSpot, out vec3 clouds) {
 	{
 		float size = 0.5;
 		vec3 transmit2 = transmit;
-		sunSpot = float(acos(dot(wDir, sunDirection)) < 0.1 * size) * 4.0 / pow(size,2.2) * transmit2;
+		sunSpot = vec3(acos(dot(wDir, sunDirection)) < 0.1 * size) * 4.0 / pow(size,2.2);
+		sunSpot += Lights3(wDir, wPos);
+		sunSpot *= transmit2;
 	}
 
 	return color;
@@ -222,7 +264,6 @@ vec3 ComputeTotalSky(vec3 wPos, vec3 wDir, out vec3 sunSpot, out vec3 clouds) {
 
 vec3 ComputeTotalSky2(vec3 wDir) {
 	vec3 color = vec3(0.0);
-	//return vec3(1.0, 1.0, 1.0);
 	
 	vec3 transmit = vec3(1.0);
 	color += CalculateNightSky(wDir) * transmit * SKY_MULT / 3.0;

@@ -1,4 +1,3 @@
-
 StartSpeed(80.0);
 Fisheye(1.0, -100, -99, temp);
 Shutter(1.0, -100, -99, temp);
@@ -11,6 +10,7 @@ Roll(0.0, -100, -99, temp);
 Pitch(0.001, -100, -99, temp);
 Yaw(89.999, -100, -99, temp);
 CameraHeight(WATER_HEIGHT+1.1, -100, -99, temp);
+Latent1(0.0, -100, -99, temp);
 
 Portal(0, WORLD_NAME(0));
     // TERRAIN_START
@@ -423,6 +423,8 @@ Portal(913, WORLD_NAME(6));
         return 0.0;
     }
     // TERRAIN_END
+
+Latent1(1.0, 913, 913+10, temp);
 
 Portal(977, WORLD_NAME(7));
     // TERRAIN_START

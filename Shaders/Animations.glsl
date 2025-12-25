@@ -15,6 +15,7 @@
 #define SunRotation(a, b, c, d) Key(a, b, c, d)
 #define Fisheye(a, b, c, d) Key(a, b, c, d)
 #define Distort(a, b, c, d) Key(a, b, c, d)
+#define Latent1(a, b, c, d) Key(a, b, c, d)
 #define StartSpeed(a) prev = a; curr = GetTimeFromBeat(beat) * prev;
 #define Speed(a, b, c) KeySpeed(a, b, c)
 
@@ -113,6 +114,11 @@ float DistortionIntensity(float beat) { float prev = 0.0; float curr = 0.0; floa
     if (!DO_DISTORTION) return 0.0;
 
     // Distort_TARGET
+    return curr;
+}
+
+float GetLatent1(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    // Latent1_TARGET
     return curr;
 }
 
