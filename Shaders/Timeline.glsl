@@ -14,6 +14,24 @@ CameraHeight(WATER_HEIGHT+1.1, -100, -99, temp);
 
 Portal(0, WORLD_NAME(0));
     // TERRAIN_START
+    if (false) { // Corner far-lands section from V3
+        float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
+        
+        if ((p.y > 100+5 && p.y < 115+5) ) {
+        // if (length(trackDelta) > 30.0 && length(trackDelta) < 50.0) {
+            float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float selector = interp(Simplex(p, vec3(160, 1e8, 160), vec3(0)), 0.4, 0.6);
+            
+            // if (mix(farlands1, farlands2, selector) > 0.5) return 1.0;
+        }
+        
+        if (p.y > 100 && p.y < 115) {
+            return v * mix(1.0, interp(p.y, 115, 100), 0.05);
+        }
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        return 0.0;
+    }
     if (g_worldName == WORLD_NAME(0)) {
     return
         mix(
@@ -103,6 +121,15 @@ Portal(217, WORLD_NAME(3));
 
 Distort(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
 Distort(0.8, 277, 313, temp);
+    // ACID_START
+    if (cameraPosition.z < GetBeatPos(506)) {
+        pos.y += 2.0;
+        float t3 = (-pos.z * 3.0 / 200.0);
+        t3 *= distortionIntensity;
+        pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
+        return pos;
+    }
+    // ACID_END
 
     { // BEATS_START
         B(284.5) B(286) B(287) B(288) B(289) B(292); // I'm on a straight line
@@ -118,17 +145,6 @@ SunAngle(175, 308, 505, temp);
     // ----------------------------------
     // ----- First chorus beat: 313 -----
     // ----------------------------------
-    
-    
-    // ACID_START
-    {
-        pos.y += 2.0;
-        float t3 = (-pos.z * 3.0 / 200.0);
-        t3 *= distortionIntensity;
-        pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
-        return pos;
-    }
-    // ACID_END
     
 
     // BEATS_START
@@ -237,13 +253,33 @@ Speed(120.0, 361, 366);
         B(468.5) B(469) B(470.5) B(472) B(473.5) B(475);
         B(478) B(479.5) B(481) B(482.5) B(490) B(491.5) B(493) B(494.5) B(496);
         
-        B_LOW(505);
+        // B_LOW(505);
     } // BEATS_END
 
 
 
 // ----- Sunset starts -----
-// Distort(0.0, 500, 505, powf(4.0, temp));
+Portal(505, WORLD_NAME(5));
+    // TERRAIN_START
+    if (g_worldName == WORLD_NAME(5)) {
+        float v1 = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
+        if (p.y <= trackPos.y) v1 *= mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        else v1 = 0.0;
+        
+        // Somewhat accurate re-creation of Beta1.7 with edge far-lands
+        float v2 = Simplex(p, vec3(80, 80, 80), vec3(0)) * 1.1;
+        v2 *= interp(p.y, 150, WATER_HEIGHT);
+        
+        // Fade-out around the track
+        v2 = mix(v2, 0.0, interp(length(trackDelta.xy-ivec2(0,13)), 20.0, 0.0));
+        
+        v1 = mix(v1, v2, interp(p.z, GetBeatPos(690), GetBeatPos(720)));
+        
+        return v1;
+    }
+    // TERRAIN_END
+
+Distort(0.0, 478, 504, powf(4.0, temp));
 SunAngle(187, 505, 529, temp);
 SunAngle(354, 529, 673, temp);
 
@@ -284,15 +320,41 @@ SunAngle(354, 529, 673, temp);
         B_LOW(670) B_LOW(672);
     } // BEATS_END
 
-Fisheye( 1.0, 600, 630, temp + 0.0*cubesmooth(tan(temp * 3.14159 / 4.0)));
-SunAngle(380, 673, 721, temp);
-SunAngle(360+120, 722, 723, temp);
-Fisheye( 0.0, 700, 750, temp);
+// ----- Sunrise -----
+// Speed(64.0, 600, 630);
+Fisheye( 1.0, 600, 630, cubesmooth(temp));
+Pitch(-30, 600, 630, cubesmooth(temp));
+SunAngle(380, 674.0, 721, temp);
+
+Pitch(0, 692, 715, cubesmooth(temp));
+Fisheye(0.0, 692, 715, cubesmooth(cubesmooth(temp)));
+Speed(160.0, 692, 720);
+Fov(110, 692, 720, cubesmooth(temp));
+Shutter(0.5, 692, 720, temp);
+
+SunAngle(360+120, 720.1, 720.6, temp);
+
+Distort(1.0, 702, 720, cubesmooth(temp));
+Distort(0.0, 889-60, 889, cubesmooth(temp));
+    // ACID_START
+    if (cameraPosition.z > GetBeatPos(694) && cameraPosition.z < GetBeatPos(890))
+    {
+        // pos.y += 2.0;
+        // float t3 = (-pos.z * 3.0 / 200.0);
+        // t3 *= distortionIntensity;
+        
+        
+        pos.yz *= rotate(-pos.z / 500.0 * distortionIntensity);
+        pos.xy *= rotate(sin(pos.z / 50.0) * 1.0 * distortionIntensity*100.0 / (100.0+length(pos.xy)));
+        
+        return pos;
+    }
+    // ACID_END
 
     { // BEATS_START
         B_LOW(694) B_LOW(694.5) B_LOW(695) B_LOW(696) B_LOW(697) B_LOW(700); // Can it tell me always
-        B_LOW(706) B_LOW(706.5) B_LOW(707) B_LOW(708) B_LOW(709) B_LOW(712);
-        B_LOW(717.5) B_LOW(718) B_LOW(719) B_LOW(720);
+        B_LOW(706) B_LOW(706.5) B_LOW(707) B_LOW(708) B_LOW(709) B_LOW(712); // Can it tell me always
+        B_LOW(717.5) B_LOW(718) B_LOW(719) B_LOW(720); // A distant place
     } // BEATS_END
 
 // -----------------------------------
@@ -300,10 +362,29 @@ Fisheye( 0.0, 700, 750, temp);
 // -----------------------------------
 
     { // BEATS_START
-        B(721) B(721.5) B(722) B(722.5) B(723) B(723.5) B(724) B(724.5) B(725) B(725.5) B(726) B(726.5) B(727) B(727.5) B(728) B(728.5) B(729) B(729.5) B(730) B(730.5) B(731);
-        B(733) B(733.5) B(734) B(734.5) B(735) B(735.5) B(736) B(736.5) B(737) B(737.5) B(738) B(738.5) B(739) B(739.5) B(740) B(740.5) B(741) B(741.5) B(742);
-        B(745) B(745.5) B(746) B(746.5) B(747) B(747.5) B(748) B(748.5) B(749) B(749.5) B(750) B(750.5) B(751) B(751.5) B(752) B(752.5) B(753) B(753.5) B(754) B(754.5) B(755);
-        B(757) B(757.5) B(758) B(758.5) B(759) B(759.5) B(760) B(760.5) B(761) B(761.5) B(762) B(762.5) B(763) B(763.5) B(764) B(764.5) B(765) B(765.5);
+        if (pos.z >= int(GetBeatPos(720)) && pos.z < int(GetBeatPos(731))) {
+            
+            float tx = interp(pos.z, GetBeatPos(720), GetBeatPos(731))*(731-720);
+            int ix = int(tx * 8);
+            
+            if (
+                int(length(pos.xy)) == 6
+                // abs(pos.x) <= 1 && (pos.y >= 0 && pos.y <= 3)
+            ) {
+                if (!(ix >= 8 && (ix % 4) == 0)) return 0;
+                // if (pos.z >= int(GetBeatPos(722)) && pos.z < int(GetBeatPos(722.25))) {
+                //     return 0;
+                // }
+                return id_permastone;
+            }
+        }
+        
+        
+        
+        // B(721) B(721.5) B(722) B(722.5) B(723) B(723.5) B(724) B(724.5) B(725) B(725.5) B(726) B(726.5) B(727) B(727.5) B(728) B(728.5) B(729) B(729.5) B(730) B(730.5) B(731);
+        // B(733) B(733.5) B(734) B(734.5) B(735) B(735.5) B(736) B(736.5) B(737) B(737.5) B(738) B(738.5) B(739) B(739.5) B(740) B(740.5) B(741) B(741.5) B(742);
+        // B(745) B(745.5) B(746) B(746.5) B(747) B(747.5) B(748) B(748.5) B(749) B(749.5) B(750) B(750.5) B(751) B(751.5) B(752) B(752.5) B(753) B(753.5) B(754) B(754.5) B(755);
+        // B(757) B(757.5) B(758) B(758.5) B(759) B(759.5) B(760) B(760.5) B(761) B(761.5) B(762) B(762.5) B(763) B(763.5) B(764) B(764.5) B(765) B(765.5);
         
         B(766) B(766.5) B(767) B(767.5) B(768) B(768.5) B(769) B(770.5);// Every day a little closer
         
@@ -316,8 +397,54 @@ Fisheye( 0.0, 700, 750, temp);
         B_LOW(782.5) B_LOW(784);
     } // BEATS_END
 
-// Speed(500.0, 711, 721);
-Speed(120.0, 913, 937);
+Speed(120.0, 769-20, 769);
+Fov(90, 769-20, 769, cubesmooth(temp));
+Shutter(1.0, 769-20, 769, temp);
+
+Portal(913, WORLD_NAME(6));
+    // TERRAIN_START
+    if (g_worldName == WORLD_NAME(6)) { // Corner far-lands section from V3
+        // return 0;
+        float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
+        
+        if ((p.y > 100+5 && p.y < 115+5) ) {
+        // if (length(trackDelta) > 30.0 && length(trackDelta) < 50.0) {
+            float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float selector = interp(Simplex(p, vec3(160, 1e8, 160), vec3(0)), 0.4, 0.6);
+            
+            // if (mix(farlands1, farlands2, selector) > 0.5) return 1.0;
+        }
+        
+        if (p.y > 100 && p.y < 115) {
+            return v * mix(1.0, interp(p.y, 115, 100), 0.05);
+        }
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        return 0.0;
+    }
+    // TERRAIN_END
+
+Portal(977, WORLD_NAME(7));
+    // TERRAIN_START
+    if (g_worldName == WORLD_NAME(7)) {
+        float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
+        
+        if ((p.y > 100+5 && p.y < 115+5) ) {
+        // if (length(trackDelta) > 30.0 && length(trackDelta) < 50.0) {
+            float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float selector = interp(Simplex(p, vec3(160, 1e8, 160), vec3(0)), 0.4, 0.6);
+            
+            // if (mix(farlands1, farlands2, selector) > 0.5) return 1.0;
+        }
+        
+        if (p.y > 100 && p.y < 115) {
+            return v * mix(1.0, interp(p.y, 115, 100), 0.05);
+        }
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        return 0.0;
+    }
+    // TERRAIN_END
 
 Shutter(0.5, 1070, 1079, temp);
 Speed(160.0, 1073, 1079);
