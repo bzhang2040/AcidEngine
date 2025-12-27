@@ -96,13 +96,29 @@ Portal(169, WORLD_NAME(2));
         B(238) B(239) B(240) B(250) B(251) B(252) B(253) B_LOW(265); // Fixing my, fixing my eyes
     } // BEATS_END
 
-Speed( 320.0, 265, 275);
+Speed( 160.0, 265, 275);
 
-Distort(0.2, 265, 271, powf(0.75, temp));
+Distort(0.3, 265, 271, cubesmooth(powf(0.75, temp)));
 
 Portal(217, WORLD_NAME(3));
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(3)) {
+        
+        if ( (p.y > WATER_HEIGHT && p.y < WATER_HEIGHT + 5) || (p.y > 105 && p.y < 120) ) {
+            float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
+            float selector = interp(Simplex(p, vec3(160, 1e8, 160), vec3(0)), 0.4, 0.6);
+            float v = mix(farlands1, farlands2, selector);
+            
+            if (p.y > trackPos.y) {
+                v = mix(v, 0.0, interp(length(trackDelta.xy-ivec2(0,13)), 30.0, 0.0));
+                // if (trackDelta.x > 0.0) v = 0.0;
+            }
+            
+            if (v > 0.5) return 1.0;
+        }
+        
+        return 0;
         float v = mix(
             Simplex(p, vec3(256), vec3(0)) * interp(p.y, 256, WATER_HEIGHT),
             Simplex(p, vec3(256), vec3(1e3)) * interp(p.y, 256, WATER_HEIGHT),
@@ -119,20 +135,36 @@ Portal(217, WORLD_NAME(3));
         B_WIDE(271) B(277) B(278.5) B(280) B(281.5) B(283); // No way, you control my world
     } // BEATS_END
 
-Distort(0.6, 271, 275, powf(0.6, cubesmooth(temp)));
-Distort(0.8, 277, 313, temp);
+Distort(0.7, 270, 275, cubesmooth(powf(0.6, cubesmooth(temp))));
+Distort(1.0, 277, 313, temp);
     // ACID_START
     if (cameraPosition.z < GetBeatPos(506)) {
         pos.y += 2.0;
-        float t3 = (-pos.z * 3.0 / 200.0);
-        t3 *= distortionIntensity;
-        pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
+        // float t3 = (-pos.z * 3.0 / 200.0);
+        // t3 *= distortionIntensity;
+        // pos.xy *= mat2(cos(t3), -sin(t3), sin(t3), cos(t3));
+        // pos.xy *= rotate(sin(pos.z / 50.0) * 1.0 * distortionIntensity*100.0 / (100.0+length(pos.xy)));
+        pos.xy *= rotate(sin(-pos.z / 50.0) * 0.4 * distortionIntensity);
         return pos;
     }
     // ACID_END
 
     { // BEATS_START
-        B(284.5) B(286) B(287) B(288) B(289) B(292); // I'm on a straight line
+        // B(284.5) B(286) B(287) B(288) B(289) B(292); // I'm on a straight line
+        B(284.5) B(286) B(287) B(292); // I'm on a straight line
+        if (pos.z >= GetBeatPos(288) && pos.z < GetBeatPos(289)) {
+            if (GET_LIGHT) return id_torch;
+            if (CheckExtent(pos, 1, 2, 3, 3, id_both)) {
+                if (pos.x == 1) {
+                    return id_torch_right;
+                } else if (pos.x == -1) {
+                    return id_torch_left;
+                } else {
+                    return id_permastone;
+                }
+            }
+            
+        }
         B(297.5) B(298) B(299) B(300); // The distant place
         B(309.5) B(310) B(311) B(312); // The distant way
     } // BEATS_END
@@ -156,71 +188,31 @@ SunAngle(175, 308, 505, temp);
         {349}, {349.5}, {350}, {350.5}, {351}, {351.5}, {352}, {352.5}, {353}, {353.5}, {354}, {354.5}, {355}, {355.5}, {356}, {356.5}, {357}, {357.5}, {358}, {358.5}, {359}, {359.5}, {360}, {360.5},
         */
         
-        temp  = interp(pos.z, GetBeatPos(313), GetBeatPos(313.5));
-        temp += interp(pos.z, GetBeatPos(313.5), GetBeatPos(314));
-        temp += interp(pos.z, GetBeatPos(314), GetBeatPos(314.5));
-        temp += interp(pos.z, GetBeatPos(314.5), GetBeatPos(315));
-        
-        int temp2 = int(floor(temp));
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            // if (GET_LIGHT || inside(atant(pos.x, pos.y), -0.25, 0.0) || inside(atant(pos.x, pos.y), 0.25, 0.5)) {
-                if (int(pos.z) == int(GetBeatPos(313))) return id_beat;
-                if (inside(int(pos.z), int(GetBeatPos(313)), int(GetBeatPos(313.5)))) return id_stone2;
-            // }
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            // if (GET_LIGHT || inside(atant(pos.x, pos.y), -0.5, -0.25) || inside(atant(pos.x, pos.y), 0.0, 0.25)) {
-                if (int(pos.z) == int(GetBeatPos(313.5))) return id_beat;
-                if (inside(int(pos.z), int(GetBeatPos(313.5)), int(GetBeatPos(314)))) return id_stone2;
-            // }
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            // if (GET_LIGHT || inside(atant(pos.x, pos.y-2), -0.5, -0.25) || inside(atant(pos.x, pos.y-2), 0.0, 0.25)) {
-                if (int(pos.z) == int(GetBeatPos(314))) return id_beat;
-                if (inside(int(pos.z), int(GetBeatPos(314)), int(GetBeatPos(314.5)))) return id_stone2;
-            // }
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            // if (GET_LIGHT || inside(atant(pos.x, pos.y), -0.25, 0.0) || inside(atant(pos.x, pos.y), 0.25, 0.5)) {
-                if (int(pos.z) == int(GetBeatPos(314.5))) return id_beat;
-                if (inside(int(pos.z), int(GetBeatPos(314.5)), int(GetBeatPos(315)))) return id_stone2;
-            // }
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            if (int(pos.z) == int(GetBeatPos(315))) return id_beat;
-            if (inside(int(pos.z), int(GetBeatPos(315)), int(GetBeatPos(315.5)))) return id_stone2;
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            if (int(pos.z) == int(GetBeatPos(315.5))) return id_beat;
-            if (inside(int(pos.z), int(GetBeatPos(315.5)), int(GetBeatPos(316)))) return id_stone2;
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            if (int(pos.z) == int(GetBeatPos(316))) return id_beat;
-            if (inside(int(pos.z), int(GetBeatPos(316)), int(GetBeatPos(316.5)))) return id_stone2;
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            if (int(pos.z) == int(GetBeatPos(316.5))) return id_beat;
-            if (inside(int(pos.z), int(GetBeatPos(316.5)), int(GetBeatPos(317)))) return id_stone2;
-        }
-        
-        if (GET_LIGHT || (int(length(pos.xy+vec2(0,-2)))== 11)) {
-            if (int(pos.z) == int(GetBeatPos(317))) return id_beat;
-            if (inside(int(pos.z), int(GetBeatPos(317)), int(GetBeatPos(317.5)))) return id_stone2;
-        }
         // {313}, {313.5}, {314}, {314.5}, {315}, {315.5}, {316}, {316.5}, {317}, {317.5}, {318}, {318.5}, {319}, {319.5}, {320}, {320.5}, {321}, {321.5}, {322}, {322.5}, {323},
         
-        // vec3 crunched = crunch(position, vec3(1, 1, freq));
-        // crunched.y += idx * 8.0;
-        // float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
-        // if (value > 0.4) return exact ? id_beat : id_stone2;
+        
+        float tx = interp(pos.z, GetBeatPos(313), GetBeatPos(361))*(361-313);
+        if (pos.z > GetBeatPos(314)) tx -= 0.001;
+        tx -= interp(pos.z, GetBeatPos(323.5), GetBeatPos(325))*(325-323.5);
+        tx -= interp(pos.z, GetBeatPos(334.5), GetBeatPos(337))*(337-334.5);
+        tx -= interp(pos.z, GetBeatPos(347.5), GetBeatPos(349))*(349-347.5);
+        
+        if (GET_LIGHT) {
+            int ix = int(tx * 2);
+            if (mod(tx*2, 1.0) < 0.02) {
+                return id_torch;
+            }
+        }
+        
+        if (abs(pos.x) <= 2 && (pos.y >= 0 && pos.y <= 4)) {
+        } else {
+            
+            int ix = int(tx * 2);
+            vec3 crunched = crunch(position, vec3(1, 1, freq));
+            crunched.y += ix * 8.0;
+            float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
+            if (value > 0.4) return (mod(tx*2, 1.0) < 0.02) ? id_beat : id_stone2;
+        }
     }
     // BEATS_END
 
@@ -334,7 +326,7 @@ Shutter(0.5, 692, 720, temp);
 
 SunAngle(360+120, 720.1, 720.6, temp);
 
-Distort(1.0, 702, 720, cubesmooth(temp));
+Distort(1.0, 698, 716, cubesmooth(temp));
 Distort(0.0, 889-60, 889, cubesmooth(temp));
     // ACID_START
     if (cameraPosition.z > GetBeatPos(694) && cameraPosition.z < GetBeatPos(890))
@@ -425,6 +417,7 @@ Portal(913, WORLD_NAME(6));
     // TERRAIN_END
 
 Latent1(1.0, 913, 913+10, temp);
+Fisheye(1.0, 913-1, 913, temp);
 
 Portal(977, WORLD_NAME(7));
     // TERRAIN_START

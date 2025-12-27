@@ -1,6 +1,10 @@
 #define id_both 0
 #define id_left 1
 #define id_right 2
+
+#define freq ((BLOCKS_PER_SECOND * (60.0 / BEATS_PER_MINUTE)) / 2.0)
+#define crunch(x, y) (floor((x) / vec3(y)) * vec3(y))
+
 bool CheckExtent(ivec3 pos, int x0, int x1, int y0, int y1, int leftright) {
     if (leftright == id_left) pos.x = -pos.x;
 
@@ -98,6 +102,7 @@ bool eq(ivec2 x, ivec2 y) {
 }
 
 int AllBeats(ivec3 pos, bool GET_LIGHT) { float temp; int val = 0;
+    vec3 position = pos;
     // BEATS_TARGET
     return val;
 }

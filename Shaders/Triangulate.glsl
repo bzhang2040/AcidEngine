@@ -19,8 +19,6 @@
 const float beatRadius = 2.0;
 
 const vec2 cPos = vec2(trackPos.x, trackPos.y) + vec2(-0.5, 2.0);
-#define freq ((BLOCKS_PER_SECOND * (60.0 / BEATS_PER_MINUTE)) / 2.0)
-#define crunch(x, y) (floor((x) / vec3(y)) * vec3(y))
 
 #endif
 

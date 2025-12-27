@@ -282,6 +282,7 @@ const std::vector<CodeRegion> g_codeRegions = {
     { "Distort",      "Distort(",      "",            "Distort_TARGET"      },
     { "SunAngle",     "SunAngle(",     "",            "SunAngle_TARGET"     },
     { "SunRotation",  "SunRotation(",  "",            "SunRotation_TARGET"  },
+    { "Latent1",      "Latent1(",      "",            "Latent1_TARGET"      },
     { "Fov",          "Fov(",          "",            "Fov_TARGET"          },
     { "Water",        "Water(",        "",            "Water_TARGET"        },
     { "Roll",         "Roll(",         "",            "Roll_TARGET"         },
