@@ -315,11 +315,11 @@ vec3 GetColorLut(vec3 color) {
 
 vec3 ACESFitted(vec3 color, bool sunspot) {
     color = max(color, 0.0);
-    color = color * EXPOSURE;
+    color = color * exposure1;
     color = RRTAndODTFit(color * ACESInputMat) * ACESOutputMat;
     //color = aces(color);
     //color = lottes(color);
-    color *= EXPOSURE2;
+    color *= exposure2;
     //color = pow(color, vec3(1.0 / GAMMA));
     
     color = max(color, 0.0);

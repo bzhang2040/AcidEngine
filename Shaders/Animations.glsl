@@ -16,6 +16,8 @@
 #define Fisheye(a, b, c, d) Key(a, b, c, d)
 #define Distort(a, b, c, d) Key(a, b, c, d)
 #define Latent1(a, b, c, d) Key(a, b, c, d)
+#define Exposure1(a, b, c, d) Key(a, b, c, d)
+#define Exposure2(a, b, c, d) Key(a, b, c, d)
 #define StartSpeed(a) prev = a; curr = GetTimeFromBeat(beat) * prev;
 #define Speed(a, b, c) KeySpeed(a, b, c)
 
@@ -119,6 +121,16 @@ float DistortionIntensity(float beat) { float prev = 0.0; float curr = 0.0; floa
 
 float GetLatent1(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
     // Latent1_TARGET
+    return curr;
+}
+
+float GetExposure1(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    // Exposure1_TARGET
+    return curr;
+}
+
+float GetExposure2(float beat) { float prev = 0.0; float curr = 0.0; float temp = 0.0;
+    // Exposure2_TARGET
     return curr;
 }
 

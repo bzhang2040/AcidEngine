@@ -289,6 +289,8 @@ const std::vector<CodeRegion> g_codeRegions = {
     { "Pitch",        "Pitch(",        "",            "Pitch_TARGET"        },
     { "Yaw",          "Yaw(",          "",            "Yaw_TARGET"          },
     { "CameraHeight", "CameraHeight(", "",            "CameraHeight_TARGET" },
+    { "Exposure1",    "Exposure1(",    "",            "Exposure1_TARGET"    },
+    { "Exposure2",    "Exposure2(",    "",            "Exposure2_TARGET"    },
 };
 
 std::string ExtractDelimitedCode(const std::string& input, 

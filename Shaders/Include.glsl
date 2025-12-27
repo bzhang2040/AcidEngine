@@ -87,6 +87,8 @@ UBO_FUNC(ivec2, previousCameraChunk); \
 UBO_FUNC(int, sampledFrameID); \
 UBO_FUNC(float, distortionIntensity); \
 UBO_FUNC(float, latent1); \
+UBO_FUNC(float, exposure1); \
+UBO_FUNC(float, exposure2); \
 UBO_FUNC(float, yaw); \
 UBO_FUNC(float, roll); \
 UBO_FUNC(float, pitch); \
@@ -115,7 +117,7 @@ layout(std140, binding = 0) uniform LAYOUTT_0 {
 };
 struct PerSampleUniforms {
 	PER_SAMPLE_UBO(UBO_DECLARE)
-	vec4[6] padding;
+	vec4[5] padding;
 };
 layout(std140, binding = 14) buffer LAYOUTT_000 {
 	PerSampleUniforms perSampleUbo[MAX_SAMPLE_COUNT];

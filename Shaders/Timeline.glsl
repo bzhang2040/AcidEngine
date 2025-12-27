@@ -11,6 +11,8 @@ Pitch(0.001, -100, -99, temp);
 Yaw(89.999, -100, -99, temp);
 CameraHeight(WATER_HEIGHT+1.1, -100, -99, temp);
 Latent1(0.0, -100, -99, temp);
+Exposure1(0.7, -100, -99, temp);
+Exposure2(2.0, -100, -99, temp);
 
 Portal(0, WORLD_NAME(0));
     // TERRAIN_START
@@ -249,6 +251,9 @@ Speed(120.0, 361, 366);
     } // BEATS_END
 
 
+    
+Exposure1(1.0, 495, 505, cubesmooth(temp));
+Exposure2(1.0, 495, 505, cubesmooth(temp));
 
 // ----- Sunset starts -----
 Portal(505, WORLD_NAME(5));
@@ -323,6 +328,8 @@ Fisheye(0.0, 692, 715, cubesmooth(cubesmooth(temp)));
 Speed(160.0, 692, 720);
 Fov(110, 692, 720, cubesmooth(temp));
 Shutter(0.5, 692, 720, temp);
+Exposure1(0.7, 692, 720, cubesmooth(temp));
+Exposure2(2.0, 692, 720, cubesmooth(temp));
 
 SunAngle(360+120, 720.1, 720.6, temp);
 

@@ -247,6 +247,8 @@ void main() {
 
     u.distortionIntensity = DistortionIntensity(u.beatFromPos);
     u.latent1 = GetLatent1(u.beatFromPos);
+    u.exposure1 = GetExposure1(u.beatFromPos);
+    u.exposure2 = GetExposure2(u.beatFromPos);
     
     u.currentSpeed = GetCameraPos(u.beatFromPos + GetBeatFromTime(1.0)).z - GetCameraPos(u.beatFromPos).z;
 
