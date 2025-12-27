@@ -14,6 +14,18 @@ Latent1(0.0, -100, -99, temp);
 Exposure1(0.7, -100, -99, temp);
 Exposure2(2.0, -100, -99, temp);
 
+// BEATS_START
+if (int(pos.x) == 0 && int(pos.y) == 0) {
+    if (GET_LIGHT) {
+        
+    } else if (pos.z >= GetBeatPos(313) && pos.z+1 < GetBeatPos(361)) {
+        
+    } else {
+        return id_permastone;
+    }
+}
+// BEATS_END
+
 Portal(0, WORLD_NAME(0));
     // TERRAIN_START
     if (false) { // Corner far-lands section from V3
@@ -173,7 +185,8 @@ Distort(1.0, 277, 313, temp);
 
 
 Shutter( 0.5, 307, 313, temp);
-Fov(   120.0, 307, 313, cubesmooth(temp*3.14159/2.0/2.0));
+// Fov(   120.0, 307, 313, cubesmooth(temp));
+Fisheye(1.0, 300, 313, cubesmooth(temp));
 SunAngle(175, 308, 505, temp);
 
     // ----------------------------------
@@ -206,26 +219,30 @@ SunAngle(175, 308, 505, temp);
             }
         }
         
-        if (abs(pos.x) <= 2 && (pos.y >= 0 && pos.y <= 4)) {
+        if (abs(pos.x) <= 3 && (pos.y >= -1 && pos.y <= 5)) {
         } else {
             
             int ix = int(tx * 2);
             vec3 crunched = crunch(position, vec3(1, 1, freq));
             crunched.y += ix * 8.0;
             float value = (simplex3d_fractal(crunched * vec3(1, 1, 0) / 16.0 / vec3(1, 0.25, 1)));
-            if (value > 0.4) return (mod(tx*2, 1.0) < 0.02) ? id_beat : id_stone2;
+            if (value > 0.5) return (mod(tx*2, 1.0) < 0.02) ? id_beat : id_stone2;
         }
     }
     // BEATS_END
 
 Shutter(1.0, 360, 366, temp);
-Fov(  90.0, 360, 363, cubesmooth(cubesmooth(temp*3.14159/2.0/2.0)));
-Speed(120.0, 361, 366);
+// Fov(90.0, 360, 373, cubesmooth(temp));
+Fisheye(0.0, 360, 373, cubesmooth(temp));
+// Speed(120.0, 361, 366);
 
     { // BEATS_START
         B(361) B(367) B(370) B(373); // You should know it's complicated
         B(385) B(391) B(394) B(397); // I'm all out of instigations
         B(409)B(409.25)B(409.5)B(410.5)B(410.75)B(411); // A spider on my wall
+        
+        temp = interp(pos.z, GetBeatPos(385), GetBeatPos(390));
+        if (temp < 1.0 && Spiral(pos.xy, temp/20.0, 30.0, 10)) { return id_beat; }
         
         B(412) B(412.25) B(412.5) B(413.5) B(413.75) B(414);
         B(415) B(415.25) B(415.5) B(416.5) B(416.75) B(417);

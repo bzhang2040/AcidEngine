@@ -336,11 +336,6 @@ uint VoxelIsFilled(vec3 position) { vec3 p = position;
         return 0;
     }
     
-    // The cobblestone track
-    if (int(position.x) == int(trackPos.x) && int(position.y) == int(trackPos.y)) {
-        return id_permastone;
-    }
-    
     int cobble = CheckPosition(position);
     if (cobble > 0) return cobble;
 
