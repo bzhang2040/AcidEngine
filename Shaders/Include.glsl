@@ -5,6 +5,7 @@ struct WorldRange {
 	int worldName;
 	int zExact;
 	int logicalWorldCount_;
+	int waterHeight;
 };
 
 #define WORLD_NAME(n) (n)
@@ -214,14 +215,7 @@ void UpdateLogicalWorldID(uint blockID) {
 }
 
 int GetWaterHeight() {
-	switch (g_worldName) {
-	case WORLD_NAME(0): return WATER_HEIGHT;
-	case WORLD_NAME(1): return WATER_HEIGHT;
-	case WORLD_NAME(2): return WATER_HEIGHT;
-	case WORLD_NAME(3): return WATER_HEIGHT;
-	case WORLD_NAME(4): return WATER_HEIGHT;
-	}
-	return WATER_HEIGHT;
+	return worldRanges[g_logicalWorldID].waterHeight;
 }
 
 layout(binding = 1, rgba16i) uniform iimage3D chunkImage;

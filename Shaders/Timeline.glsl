@@ -26,7 +26,7 @@ if (int(pos.x) == 0 && int(pos.y) == 0) {
 }
 // BEATS_END
 
-Portal(0, WORLD_NAME(0));
+Portal(0, WORLD_NAME(0), WATER_HEIGHT);
     // TERRAIN_START
     if (false) { // Corner far-lands section from V3
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
@@ -73,7 +73,7 @@ CameraHeight(trackPos.y+2, 74, 96, EaseInOutSin(temp));
         B(109) B(121) B(133);
     } // BEATS_END
 
-Portal(160, WORLD_NAME(1));
+Portal(160, WORLD_NAME(1), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(1)) {
         return float(p.y > trackPos.y + 20.0);
@@ -83,7 +83,7 @@ Portal(160, WORLD_NAME(1));
 Speed(500.0, 160, 160.1);
 Speed( 80.0, 169, 169.1);
 
-Portal(169, WORLD_NAME(2));
+Portal(169, WORLD_NAME(2), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(2)) {
         float sel = interp(Simplex(p, vec3(1024, 1e8, 1024), vec3(0)), 0.45, 0.55);
@@ -114,7 +114,7 @@ Speed( 160.0, 265, 275);
 
 Distort(0.3, 265, 271, cubesmooth(powf(0.75, temp)));
 
-Portal(217, WORLD_NAME(3));
+Portal(217, WORLD_NAME(3), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(3)) {
         
@@ -273,7 +273,7 @@ Exposure1(1.0, 495, 505, cubesmooth(temp));
 Exposure2(1.0, 495, 505, cubesmooth(temp));
 
 // ----- Sunset starts -----
-Portal(505, WORLD_NAME(5));
+Portal(505, WORLD_NAME(5), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(5)) {
         float v1 = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
@@ -417,7 +417,7 @@ Speed(120.0, 769-20, 769);
 Fov(90, 769-20, 769, cubesmooth(temp));
 Shutter(1.0, 769-20, 769, temp);
 
-Portal(913, WORLD_NAME(6));
+Portal(913, WORLD_NAME(6), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(6)) { // Corner far-lands section from V3
         // return 0;
@@ -443,7 +443,7 @@ Portal(913, WORLD_NAME(6));
 Latent1(1.0, 913, 913+10, temp);
 Fisheye(1.0, 913-1, 913, temp);
 
-Portal(977, WORLD_NAME(7));
+Portal(977, WORLD_NAME(7), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(7)) {
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;

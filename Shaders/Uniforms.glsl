@@ -31,9 +31,10 @@ void main() {
     if (tid == 0) {
         int logicalID = 0;
         
-        #define Portal(beatNum, portalWorldName) { \
+        #define Portal(beatNum, portalWorldName, portalWaterHeight) { \
             worldRanges[logicalID].beat = float(beatNum); \
             worldRanges[logicalID].worldName = portalWorldName; \
+            worldRanges[logicalID].waterHeight = portalWaterHeight; \
             logicalID++; \
         }
         

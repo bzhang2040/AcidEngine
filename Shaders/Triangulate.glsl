@@ -496,9 +496,7 @@ void main1(ivec3 tid) {
 
     if (VoxelToWorld(position).y <= SAND_HEIGHT) {
         for (int i = 2; i <= 4; ++i) if (VoxelIsAir(pos + ivec3(0, i, 0))) { VoxelWrite(pos, id_sand, 0); return; }
-    }
-        
-        else {
+    } else {
         for (int i = 2; i <= 4; ++i) if (VoxelIsAir(pos + ivec3(0, i, 0))) { VoxelWrite(pos, id_dirt, 0); return; }
     }
 }
