@@ -43,7 +43,7 @@ Portal(0, WORLD_NAME(0), WATER_HEIGHT);
         if (p.y > 100 && p.y < 115) {
             return v * mix(1.0, interp(p.y, 115, 100), 0.05);
         }
-        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, GetWaterHeight()), 0.25);
         return 0.0;
     }
     if (g_worldName == WORLD_NAME(0)) {
@@ -88,8 +88,8 @@ Portal(169, WORLD_NAME(2), WATER_HEIGHT);
     if (g_worldName == WORLD_NAME(2)) {
         float sel = interp(Simplex(p, vec3(1024, 1e8, 1024), vec3(0)), 0.45, 0.55);
         vec2 sel2 = vec2(1.0 - sel, sel);
-        sel2.x *= interp(p.y, 128, WATER_HEIGHT);
-        sel2.y *= interp(p.y, 192, WATER_HEIGHT);
+        sel2.x *= interp(p.y, GetWaterHeight()+48, GetWaterHeight());
+        sel2.y *= interp(p.y, GetWaterHeight()+112, GetWaterHeight());
         float ret = 0.0;
         if (sel2.x > 0.0) ret += sel2.x * Simplex(p, vec3(256), vec3(0));
         if (sel2.y > 0.0) ret += sel2.y * Simplex(p, vec3(171), vec3(1e3));
@@ -118,7 +118,7 @@ Portal(217, WORLD_NAME(3), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(3)) {
         
-        if ( (p.y > WATER_HEIGHT && p.y < WATER_HEIGHT + 5) || (p.y > 105 && p.y < 120) ) {
+        if ( (p.y > GetWaterHeight() && p.y < GetWaterHeight() + 5) || (p.y > GetWaterHeight()+25 && p.y < GetWaterHeight()+40) ) {
             float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
             float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
             float selector = interp(Simplex(p, vec3(160, 1e8, 160), vec3(0)), 0.4, 0.6);
@@ -133,15 +133,6 @@ Portal(217, WORLD_NAME(3), WATER_HEIGHT);
         }
         
         return 0;
-        float v = mix(
-            Simplex(p, vec3(256), vec3(0)) * interp(p.y, 256, WATER_HEIGHT),
-            Simplex(p, vec3(256), vec3(1e3)) * interp(p.y, 256, WATER_HEIGHT),
-            interp(Simplex(p, vec3(2048, 1e35, 2048), vec3(0)), 0.5, 0.52)
-        );
-        
-        v = mix(v, 0.0, interp(length(trackDist.xy), 0.0, 10.0) * float((int(trackDelta.y))!=-1));
-        
-        return v;
     }
     // TERRAIN_END
 
@@ -277,12 +268,12 @@ Portal(505, WORLD_NAME(5), WATER_HEIGHT);
     // TERRAIN_START
     if (g_worldName == WORLD_NAME(5)) {
         float v1 = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
-        if (p.y <= trackPos.y) v1 *= mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        if (p.y <= trackPos.y) v1 *= mix(1.0, interp(p.y, trackPos.y, GetWaterHeight()), 0.25);
         else v1 = 0.0;
         
         // Somewhat accurate re-creation of Beta1.7 with edge far-lands
         float v2 = Simplex(p, vec3(80, 80, 80), vec3(0)) * 1.1;
-        v2 *= interp(p.y, 150, WATER_HEIGHT);
+        v2 *= interp(p.y, GetWaterHeight() + 70, GetWaterHeight());
         
         // Fade-out around the track
         v2 = mix(v2, 0.0, interp(length(trackDelta.xy-ivec2(0,13)), 20.0, 0.0));
@@ -423,7 +414,7 @@ Portal(913, WORLD_NAME(6), WATER_HEIGHT);
         // return 0;
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
         
-        if ((p.y > 100+5 && p.y < 115+5) ) {
+        if ((p.y > GetWaterHeight()+25 && p.y < GetWaterHeight()+40) ) {
         // if (length(trackDelta) > 30.0 && length(trackDelta) < 50.0) {
             float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
             float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
@@ -432,10 +423,10 @@ Portal(913, WORLD_NAME(6), WATER_HEIGHT);
             // if (mix(farlands1, farlands2, selector) > 0.5) return 1.0;
         }
         
-        if (p.y > 100 && p.y < 115) {
-            return v * mix(1.0, interp(p.y, 115, 100), 0.05);
+        if (p.y > GetWaterHeight()+20 && p.y < GetWaterHeight()+35) {
+            return v * mix(1.0, interp(p.y, GetWaterHeight()+35, GetWaterHeight()+20), 0.05);
         }
-        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, GetWaterHeight()), 0.25);
         return 0.0;
     }
     // TERRAIN_END
@@ -448,7 +439,7 @@ Portal(977, WORLD_NAME(7), WATER_HEIGHT);
     if (g_worldName == WORLD_NAME(7)) {
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
         
-        if ((p.y > 100+5 && p.y < 115+5) ) {
+        if ((p.y > GetWaterHeight()+25 && p.y < GetWaterHeight()+40) ) {
         // if (length(trackDelta) > 30.0 && length(trackDelta) < 50.0) {
             float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
             float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
@@ -457,10 +448,10 @@ Portal(977, WORLD_NAME(7), WATER_HEIGHT);
             // if (mix(farlands1, farlands2, selector) > 0.5) return 1.0;
         }
         
-        if (p.y > 100 && p.y < 115) {
-            return v * mix(1.0, interp(p.y, 115, 100), 0.05);
+        if (p.y > GetWaterHeight()+20 && p.y < GetWaterHeight()+35) {
+            return v * mix(1.0, interp(p.y, GetWaterHeight()+35, GetWaterHeight()+20), 0.05);
         }
-        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, WATER_HEIGHT), 0.25);
+        if (p.y <= trackPos.y) return v * mix(1.0, interp(p.y, trackPos.y, GetWaterHeight()), 0.25);
         return 0.0;
     }
     // TERRAIN_END
@@ -474,4 +465,4 @@ Fov(  110.0, 1073, 1079, cubesmooth(temp*3.14159/2.0/2.0));
 // ----- Third chorus beat: 1079 -----
 // -----------------------------------
 
-Portal(1079, WORLD_NAME(4));
+Portal(1079, WORLD_NAME(4), WATER_HEIGHT);
