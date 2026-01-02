@@ -152,7 +152,7 @@ vec3 ComputeWaveNormals(vec3 worldSpacePosition, vec3 flatWorldNormal) {
 vec3 Unproject(vec3 tc) {
     vec3 worldDir = tc;
     worldDir.xy *= aspect;
-    worldDir.z /= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
+    worldDir.z /= tan(radians(fov / 2.0) / exp2(-zoom));
     worldDir.yz *= rotate(-pitch);
     worldDir.xz *= rotate(yaw);
     //worldDir.xy *= rotate(roll);
@@ -175,7 +175,7 @@ vec3 Project(vec3 worldDir) {
     }
     worldDir.xz *= rotate(-yaw);
     worldDir.yz *= rotate(pitch);
-    worldDir.z *= tan(radians(ANIMATE_FOV(beatFromPos) / 2.0) / exp2(-zoom));
+    worldDir.z *= tan(radians(fov / 2.0) / exp2(-zoom));
     worldDir.xy /= aspect;
     return worldDir;
 }
@@ -188,7 +188,7 @@ bool DistortionReuse() {
 float FisheyeForward(float x) {
     float oldX = x;
     x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
-    return mix(oldX, x, FisheyeAmount(beatFromPos));
+    return mix(oldX, x, fisheyeAmount);
 }
 
 vec2 ApplyFisheye(vec2 pos) {

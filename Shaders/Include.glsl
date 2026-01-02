@@ -87,6 +87,8 @@ UBO_FUNC(ivec2, cameraChunk); \
 UBO_FUNC(ivec2, previousCameraChunk); \
 UBO_FUNC(int, sampledFrameID); \
 UBO_FUNC(float, distortionIntensity); \
+UBO_FUNC(float, fisheyeAmount); \
+UBO_FUNC(float, fov); \
 UBO_FUNC(float, latent1); \
 UBO_FUNC(float, exposure1); \
 UBO_FUNC(float, exposure2); \

@@ -51,8 +51,6 @@ float maxSeconds = 30.0;    // Full video = 485.0
 
 #define START_FRAME (1 + 539*0 + 3282*0 + 3741*0 + 5820*0 + 6955*0 + 9125 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
 
-#define EXPOSURE  1.0
-#define EXPOSURE2 1.0
 #define GAMMA 2.2
 
 #define TEXTURE_GAMMA 2.2

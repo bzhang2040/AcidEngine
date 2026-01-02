@@ -247,6 +247,8 @@ void main() {
     u.sampledFrameID = frameID * sampleCount + tid;
 
     u.distortionIntensity = DistortionIntensity(u.beatFromPos);
+    u.fisheyeAmount = FisheyeAmount(u.beatFromPos);
+    u.fov = ANIMATE_FOV(u.beatFromPos);
     u.latent1 = GetLatent1(u.beatFromPos);
     u.exposure1 = GetExposure1(u.beatFromPos);
     u.exposure2 = GetExposure2(u.beatFromPos);
