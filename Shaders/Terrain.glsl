@@ -2,6 +2,8 @@
 const float Lacunarity = 2;
 const float Persistence = 1.0/Lacunarity;
 
+bool g_simplexCoarseMode = false;
+
 float NewSimplex2(vec3 m) {
     int num_octaves = 8;
     float sum = 0.0;
@@ -27,6 +29,8 @@ float NewSimplex4(vec3 m, vec3 scale, vec3 offset) {
 }
 
 float Simplex(vec3 m, vec3 scale, vec3 offset, vec3 trilinearOffset, vec3 tilinearScale) {
+    if (g_simplexCoarseMode) return 1.0;
+
     //if (int(m.z) % 1000 < 500) return 0;
 
     if (!TRILINEAR_TERRAIN) return NewSimplex4(m, scale, offset);
@@ -278,24 +282,18 @@ bool TerrainBoolean(vec3 p) { vec3 position=p;
     return false;
 }
 
-float FUNCTION_0(vec3 p) {
+float Terrain(vec3 p) {
     vec3 position = p;
     // TERRAIN_TARGET
-    return 0.0;
-}
-
-float FUNCTION_1(vec3 p) {
-    vec3 position = p;
-    #define Simplex(x, y, z) 1.0
-    // TERRAIN_TARGET
-    #undef Simplex
     return 0.0;
 }
 
 uint TerrainAndWater(vec3 p) {
-    bool terrain = FUNCTION_1(p) > 0.5;
+    g_simplexCoarseMode = true;
+    bool terrain = Terrain(p) > 0.5;
+    g_simplexCoarseMode = false;
     if (terrain) {
-        terrain = FUNCTION_0(p) > 0.5;
+        terrain = Terrain(p) > 0.5;
     }
 
     if (int(VoxelToWorld(p).y) == GetWaterHeight() && !terrain) return id_water;
