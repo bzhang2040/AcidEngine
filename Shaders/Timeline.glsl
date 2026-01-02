@@ -28,6 +28,7 @@ if (int(pos.x) == 0 && int(pos.y) == 0) {
 
 Portal(0, WORLD_NAME(0), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (false) { // Corner far-lands section from V3
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
         
@@ -75,6 +76,7 @@ CameraHeight(trackPos.y+2, 74, 96, EaseInOutSin(temp));
 
 Portal(160, WORLD_NAME(1), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (g_worldName == WORLD_NAME(1)) {
         return float(p.y > trackPos.y + 20.0);
     }
@@ -85,6 +87,7 @@ Speed( 80.0, 169, 169.1);
 
 Portal(169, WORLD_NAME(2), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (g_worldName == WORLD_NAME(2)) {
         float sel = interp(Simplex(p, vec3(1024, 1e8, 1024), vec3(0)), 0.45, 0.55);
         vec2 sel2 = vec2(1.0 - sel, sel);
@@ -116,8 +119,8 @@ Distort(0.3, 265, 271, cubesmooth(powf(0.75, temp)));
 
 Portal(217, WORLD_NAME(3), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = false;
     if (g_worldName == WORLD_NAME(3)) {
-        
         if ( (p.y > GetWaterHeight() && p.y < GetWaterHeight() + 5) || (p.y > GetWaterHeight()+25 && p.y < GetWaterHeight()+40) ) {
             float farlands1 = Simplex(p+vec3(-1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
             float farlands2 = Simplex(p+vec3(1e5,0,0), vec2(1, 1e35).xxy, vec3(0));
@@ -210,7 +213,7 @@ SunAngle(175, 308, 505, temp);
             }
         }
         
-        if (abs(pos.x) <= 3 && (pos.y >= -1 && pos.y <= 5)) {
+        if (abs(pos.x) <= 2 && (pos.y >= 0 && pos.y <= 4)) {
         } else {
             
             int ix = int(tx * 2);
@@ -266,6 +269,7 @@ Exposure2(1.0, 495, 505, cubesmooth(temp));
 // ----- Sunset starts -----
 Portal(505, WORLD_NAME(5), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (g_worldName == WORLD_NAME(5)) {
         float v1 = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
         if (p.y <= trackPos.y) v1 *= mix(1.0, interp(p.y, trackPos.y, GetWaterHeight()), 0.25);
@@ -410,6 +414,7 @@ Shutter(1.0, 769-20, 769, temp);
 
 Portal(913, WORLD_NAME(6), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (g_worldName == WORLD_NAME(6)) { // Corner far-lands section from V3
         // return 0;
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
@@ -436,6 +441,7 @@ Fisheye(1.0, 913-1, 913, temp);
 
 Portal(977, WORLD_NAME(7), WATER_HEIGHT);
     // TERRAIN_START
+    g_trilinearTerrain = true;
     if (g_worldName == WORLD_NAME(7)) {
         float v = Simplex(p, vec3(160, 1e35, 160), vec3(0)) * 0.9;
         

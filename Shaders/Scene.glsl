@@ -48,7 +48,6 @@ float maxSeconds = 30.0;    // Full video = 485.0
 #define SAMPLE_COUNT (writeFrames ? 16 : 1)
 #define encodeVideo (true && writeFrames)
 #define MAX_SAMPLE_COUNT 512
-#define TRILINEAR_TERRAIN (true || writeFrames)
 
 #define START_FRAME (1 + 539*0 + 3282*0 + 3741*0 + 5820*0 + 6955*0 + 9125 + 10745*0 + 14000*0 + 14900*0 + 16000*0 + 17400*0 + 24150*0)
 
@@ -63,8 +62,8 @@ float maxSeconds = 30.0;    // Full video = 485.0
 
 #define SKY_MULT 6.0
 
-#define WATER_HEIGHT 80
-#define SAND_HEIGHT (0)
+#define WATER_HEIGHT int(trackPos.y - 12.5)
+#define SAND_HEIGHT (WATER_HEIGHT+3)
 
 #define LOCAL_LOD 0
 #define LOD_STEP 2

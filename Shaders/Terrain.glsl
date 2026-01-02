@@ -3,6 +3,7 @@ const float Lacunarity = 2;
 const float Persistence = 1.0/Lacunarity;
 
 bool g_simplexCoarseMode = false;
+bool g_trilinearTerrain = true;
 
 float NewSimplex2(vec3 m) {
     int num_octaves = 8;
@@ -33,7 +34,7 @@ float Simplex(vec3 m, vec3 scale, vec3 offset, vec3 trilinearOffset, vec3 tiline
 
     //if (int(m.z) % 1000 < 500) return 0;
 
-    if (!TRILINEAR_TERRAIN) return NewSimplex4(m, scale, offset);
+    if (!g_trilinearTerrain) return NewSimplex4(m, scale, offset);
 
     m += trilinearOffset;
 
