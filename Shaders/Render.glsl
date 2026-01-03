@@ -181,7 +181,6 @@ vec3 Project(vec3 worldDir) {
 }
 
 bool DistortionReuse() {
-    return false;
     return distortionIntensity > 0.0 && SAMPLE_COUNT > 1;
 }
 
@@ -875,10 +874,13 @@ VoxelIntersectOut VoxelMarchLOD(vec3 rayOrig, inout vec3 rayDir, float renderDis
             
             pos.xy /= pos.z;
             
+            pos.xy = UndoFisheye(pos.xy);
+            
             pos.xy = gl_FragCoord.xy / viewSize.xy * 2.0 - 1.0;
             pos.xy -= delta / viewSize.xy * 2.0;
             
             pos.xy += hash * 1.0;
+            pos.xy = ApplyFisheye(pos.xy);
             pos.xy *= pos.z;
             pos = Unproject(pos);
 
