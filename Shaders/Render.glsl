@@ -186,9 +186,21 @@ bool DistortionReuse() {
 }
 
 float FisheyeForward(float x) {
-    float oldX = x;
-    x = tan(x / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05);
-    return mix(oldX, x, fisheyeAmount);
+    float w = 1.0 / mix(1.0/1000.0, 1.0, fisheyeAmount);
+    float factor = 1.0 / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05;
+    factor = mix(1.0, factor, fisheyeAmount);
+    x = x * factor;
+    x = tan(x/w)*w;
+    return x;
+}
+
+float FisheyeBackward(float y) {
+    float w = 1.0 / mix(1.0/1000.0, 1.0, fisheyeAmount);
+    float factor = 1.0 / (2.0 / 3.14159 * length(1.0 / aspect)) / 1.05;
+    factor = mix(1.0, factor, fisheyeAmount);
+    y = atan(y/w)*w;
+    y = y / factor;
+    return y;
 }
 
 vec2 ApplyFisheye(vec2 pos) {
@@ -196,6 +208,14 @@ vec2 ApplyFisheye(vec2 pos) {
     vec2 originalPos = pos;
     pos /= aspect.yx;
     pos = normalize(pos) * FisheyeForward(length(pos));
+    pos *= aspect.yx;
+    return pos;
+}
+
+vec2 UndoFisheye(vec2 pos) {
+    if (!DO_FISHEYE) return pos;
+    pos /= aspect.yx;
+    pos = normalize(pos) * FisheyeBackward(length(pos));
     pos *= aspect.yx;
     return pos;
 }
